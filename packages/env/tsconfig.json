@@ -1,0 +1,3 @@
+{
+  "extends": "@bolao/config/tsconfig.base.json"
+}
