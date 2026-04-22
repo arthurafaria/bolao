@@ -1,24 +1,34 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Barlow, Barlow_Condensed, DM_Mono } from "next/font/google";
 
 import "../index.css";
-import Header from "@/components/header";
 import Providers from "@/components/providers";
 import { getToken } from "@/lib/auth-server";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const barlow = Barlow({
   subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-barlow",
+  display: "swap",
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const barlowCondensed = Barlow_Condensed({
   subsets: ["latin"],
+  weight: ["600", "700", "800", "900"],
+  variable: "--font-barlow-condensed",
+  display: "swap",
+});
+
+const dmMono = DM_Mono({
+  subsets: ["latin"],
+  weight: ["400", "500"],
+  variable: "--font-dm-mono",
+  display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: "bolao",
-  description: "bolao",
+  title: "Bolão da Copa 2026",
+  description: "Faça seus palpites para a Copa do Mundo 2026",
 };
 
 export default async function RootLayout({
@@ -28,13 +38,10 @@ export default async function RootLayout({
 }>) {
   const token = await getToken();
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+    <html lang="pt-BR" suppressHydrationWarning>
+      <body className={`${barlow.variable} ${barlowCondensed.variable} ${dmMono.variable} antialiased`}>
         <Providers initialToken={token}>
-          <div className="grid grid-rows-[auto_1fr] h-svh">
-            <Header />
-            {children}
-          </div>
+          {children}
         </Providers>
       </body>
     </html>

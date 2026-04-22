@@ -18,22 +18,21 @@ export default function SignUpForm({ onSwitchToSignIn }: { onSwitchToSignIn: () 
       name: "",
     },
     onSubmit: async ({ value }) => {
-      await authClient.signUp.email(
-        {
+      try {
+        const { error } = await authClient.signUp.email({
           email: value.email,
           password: value.password,
           name: value.name,
-        },
-        {
-          onSuccess: () => {
-            router.push("/dashboard");
-            toast.success("Sign up successful");
-          },
-          onError: (error) => {
-            toast.error(error.error.message || error.error.statusText);
-          },
-        },
-      );
+        });
+        if (error) {
+          toast.error(error.message || error.statusText);
+          return;
+        }
+        toast.success("Sign up successful");
+        router.push("/dashboard");
+      } catch {
+        toast.error("Sign up failed. Please try again.");
+      }
     },
     validators: {
       onSubmit: z.object({

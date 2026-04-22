@@ -19,7 +19,7 @@ export default function Providers({
   initialToken?: string | null;
 }) {
   return (
-    <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+    <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
       <ConvexBetterAuthProvider client={convex} authClient={authClient} initialToken={initialToken}>
         {children}
       </ConvexBetterAuthProvider>

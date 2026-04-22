@@ -17,21 +17,20 @@ export default function SignInForm({ onSwitchToSignUp }: { onSwitchToSignUp: () 
       password: "",
     },
     onSubmit: async ({ value }) => {
-      await authClient.signIn.email(
-        {
+      try {
+        const { error } = await authClient.signIn.email({
           email: value.email,
           password: value.password,
-        },
-        {
-          onSuccess: () => {
-            router.push("/dashboard");
-            toast.success("Sign in successful");
-          },
-          onError: (error) => {
-            toast.error(error.error.message || error.error.statusText);
-          },
-        },
-      );
+        });
+        if (error) {
+          toast.error(error.message || error.statusText);
+          return;
+        }
+        toast.success("Sign in successful");
+        router.push("/dashboard");
+      } catch {
+        toast.error("Sign in failed. Please try again.");
+      }
     },
     validators: {
       onSubmit: z.object({
