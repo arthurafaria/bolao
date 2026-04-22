@@ -76,6 +76,19 @@ export const getLive = query({
   },
 });
 
+export const getAllByDate = query({
+  args: { tournament: v.string() },
+  handler: async (ctx, args) => {
+    const matches = await ctx.db
+      .query("matches")
+      .withIndex("by_utcDate")
+      .order("asc")
+      .filter((q) => q.eq(q.field("tournament"), args.tournament))
+      .take(200);
+    return Promise.all(matches.map((m) => enrichMatch(ctx, m)));
+  },
+});
+
 export const upsertTeam = internalMutation({
   args: {
     apiId: v.number(),

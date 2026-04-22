@@ -1,93 +1,108 @@
 "use client";
 
 import { api } from "@bolao/backend/convex/_generated/api";
-import { Badge } from "@bolao/ui/components/badge";
-import { Card, CardContent } from "@bolao/ui/components/card";
 import { Skeleton } from "@bolao/ui/components/skeleton";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@bolao/ui/components/tabs";
 import { useQuery } from "convex/react";
 
 import { MatchCard } from "@/components/match-card";
 
-const STAGES = [
-  { key: "GROUP_STAGE", label: "Grupos" },
-  { key: "ROUND_OF_16", label: "Oitavas" },
-  { key: "QUARTER_FINALS", label: "Quartas" },
-  { key: "SEMI_FINALS", label: "Semis" },
-  { key: "FINAL", label: "Final" },
-];
+type Match = NonNullable<Awaited<ReturnType<typeof api.matches.getAllByDate>>>[number];
 
-function StageMatches({ stage }: { stage: string }) {
-  const matches = useQuery(api.matches.getByStage, { tournament: "WC2026", stage });
+function formatDateHeader(utcDate: string): string {
+  const d = new Date(utcDate);
+  return d.toLocaleDateString("pt-BR", {
+    weekday: "long",
+    day: "2-digit",
+    month: "long",
+  });
+}
 
-  if (matches === undefined) {
-    return (
-      <div className="space-y-3">
-        {[1, 2, 3].map((i) => <Skeleton key={i} className="h-24 rounded-xl" />)}
-      </div>
-    );
-  }
+function dateKey(utcDate: string): string {
+  const d = new Date(utcDate);
+  return d.toISOString().slice(0, 10);
+}
 
-  if (matches.length === 0) {
-    return (
-      <Card>
-        <CardContent className="p-8 text-center text-muted-foreground">
-          Jogos desta fase ainda não disponíveis
-        </CardContent>
-      </Card>
-    );
-  }
-
-  const groups: Record<string, typeof matches> = {};
+function groupByDate(matches: NonNullable<Match>[]): [string, NonNullable<Match>[]][] {
+  const map = new Map<string, NonNullable<Match>[]>();
   for (const m of matches) {
-    if (!m) continue;
-    const key = m.group ?? m.stage;
-    if (!groups[key]) groups[key] = [];
-    groups[key].push(m);
+    const key = dateKey(m.utcDate);
+    const group = map.get(key) ?? [];
+    group.push(m);
+    map.set(key, group);
   }
-
-  return (
-    <div className="space-y-6">
-      {Object.entries(groups).map(([groupKey, groupMatches]) => (
-        <div key={groupKey}>
-          {groupKey !== stage && (
-            <div className="mb-3 flex items-center gap-2">
-              <Badge variant="outline">Grupo {groupKey}</Badge>
-            </div>
-          )}
-          <div className="space-y-3">
-            {groupMatches.map((m) => m && <MatchCard key={m._id} match={m} />)}
-          </div>
-        </div>
-      ))}
-    </div>
-  );
+  return Array.from(map.entries());
 }
 
 export default function PredictionsPage() {
+  const matches = useQuery(api.matches.getAllByDate, { tournament: "WC2026" });
+
+  const grouped =
+    matches === undefined
+      ? null
+      : groupByDate(matches.filter((m): m is NonNullable<Match> => m !== null));
+
   return (
-    <div className="space-y-4">
-      <div>
-        <h1 className="text-2xl font-bold">Palpites</h1>
-        <p className="text-sm text-muted-foreground">
+    <div className="space-y-2">
+      <div className="mb-6">
+        <h1 className="font-display text-3xl font-black uppercase leading-tight tracking-tight"
+          style={{ color: "oklch(0.94 0 0)" }}>
+          Palpites
+        </h1>
+        <p className="text-sm" style={{ color: "oklch(0.44 0.05 145)" }}>
           Palpites se fecham 1 hora antes de cada jogo
         </p>
       </div>
 
-      <Tabs defaultValue="GROUP_STAGE">
-        <TabsList className="w-full overflow-x-auto justify-start h-auto flex-wrap gap-1 p-1">
-          {STAGES.map(({ key, label }) => (
-            <TabsTrigger key={key} value={key} className="text-xs sm:text-sm">
-              {label}
-            </TabsTrigger>
+      {grouped === null ? (
+        <div className="space-y-6">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="space-y-3">
+              <Skeleton className="h-5 w-40 rounded-md" />
+              <Skeleton className="h-36 rounded-2xl" />
+              <Skeleton className="h-36 rounded-2xl" />
+            </div>
           ))}
-        </TabsList>
-        {STAGES.map(({ key }) => (
-          <TabsContent key={key} value={key} className="mt-4">
-            <StageMatches stage={key} />
-          </TabsContent>
-        ))}
-      </Tabs>
+        </div>
+      ) : grouped.length === 0 ? (
+        <div
+          className="rounded-2xl p-12 text-center"
+          style={{ background: "oklch(0.12 0.028 145)", border: "1px solid oklch(1 0 0 / 8%)" }}
+        >
+          <p style={{ color: "oklch(0.44 0.05 145)" }}>Nenhum jogo agendado ainda</p>
+        </div>
+      ) : (
+        <div className="space-y-8">
+          {grouped.map(([key, dayMatches]) => (
+            <div key={key}>
+              {/* Date header */}
+              <div className="mb-3 flex items-center gap-3">
+                <h2
+                  className="font-display text-sm font-bold uppercase tracking-widest capitalize"
+                  style={{ color: "oklch(0.62 0.16 145)" }}
+                >
+                  {formatDateHeader(dayMatches[0].utcDate)}
+                </h2>
+                <div
+                  className="h-px flex-1"
+                  style={{ background: "oklch(1 0 0 / 6%)" }}
+                />
+                <span
+                  className="text-xs font-medium"
+                  style={{ color: "oklch(0.36 0.04 145)" }}
+                >
+                  {dayMatches.length} {dayMatches.length === 1 ? "jogo" : "jogos"}
+                </span>
+              </div>
+
+              <div className="space-y-3">
+                {dayMatches.map((m) => (
+                  <MatchCard key={m._id} match={m} />
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

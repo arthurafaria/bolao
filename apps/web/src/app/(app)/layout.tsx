@@ -1,7 +1,7 @@
 "use client";
 
 import { Authenticated, AuthLoading, Unauthenticated, useQuery } from "convex/react";
-import { LayoutDashboard, LogOut, Shield, Trophy, Users } from "lucide-react";
+import { BookOpen, LayoutDashboard, LogOut, Shield, Trophy, User } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import type React from "react";
@@ -10,10 +10,12 @@ import { useEffect } from "react";
 import { api } from "@bolao/backend/convex/_generated/api";
 import { authClient } from "@/lib/auth-client";
 
-const navItems: { href: "/dashboard" | "/predictions" | "/leagues" | "/profile"; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
+const navItems: { href: "/dashboard" | "/predictions" | "/leagues" | "/regras" | "/profile"; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
   { href: "/dashboard", label: "Início", icon: LayoutDashboard },
   { href: "/predictions", label: "Palpites", icon: Shield },
   { href: "/leagues", label: "Ligas", icon: Trophy },
+  { href: "/regras", label: "Regras", icon: BookOpen },
+  { href: "/profile", label: "Perfil", icon: User },
 ];
 
 function AppNav() {

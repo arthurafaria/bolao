@@ -20,25 +20,18 @@ function calcPoints(
     return { points: 10, isExact: true, isCorrectResult: true };
   }
 
-  const predResult = Math.sign(predHome - predAway);
-  const actualResult = Math.sign(actualHome - actualAway);
+  const isCorrectResult =
+    Math.sign(predHome - predAway) === Math.sign(actualHome - actualAway);
 
-  if (predResult !== actualResult) {
-    return { points: 0, isExact: false, isCorrectResult: false };
+  // +2 for each team's exact goal count, regardless of result
+  const homeBonus = predHome === actualHome ? 2 : 0;
+  const awayBonus = predAway === actualAway ? 2 : 0;
+
+  if (isCorrectResult) {
+    return { points: 5 + homeBonus + awayBonus, isExact: false, isCorrectResult: true };
   }
 
-  const predDiff = predHome - predAway;
-  const actualDiff = actualHome - actualAway;
-
-  if (predDiff === actualDiff) {
-    return { points: 7, isExact: false, isCorrectResult: true };
-  }
-
-  if (predHome === actualHome || predAway === actualAway) {
-    return { points: 5, isExact: false, isCorrectResult: true };
-  }
-
-  return { points: 3, isExact: false, isCorrectResult: true };
+  return { points: homeBonus + awayBonus, isExact: false, isCorrectResult: false };
 }
 
 export const upsert = mutation({

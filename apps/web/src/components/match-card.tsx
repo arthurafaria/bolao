@@ -8,6 +8,8 @@ import Image from "next/image";
 import { type ChangeEvent, useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 
+import { translateTeamName } from "@/lib/team-translations";
+
 type MatchWithTeams = {
   _id: Id<"matches">;
   homeTeam: { name: string; shortName: string; crest: string } | null;
@@ -129,8 +131,10 @@ function PointsBadge({ points }: { points: number }) {
     ? { bg: "oklch(0.83 0.20 90 / 0.15)", color: "oklch(0.83 0.20 90)", label: `⭐ ${points} pts` }
     : points >= 7
     ? { bg: "oklch(0.70 0.22 145 / 0.15)", color: "oklch(0.72 0.20 145)", label: `${points} pts` }
-    : points >= 3
+    : points >= 5
     ? { bg: "oklch(1 0 0 / 6%)", color: "oklch(0.60 0.04 145)", label: `${points} pts` }
+    : points > 0
+    ? { bg: "oklch(0.70 0.18 60 / 0.12)", color: "oklch(0.72 0.18 60)", label: `${points} pts` }
     : { bg: "oklch(0.67 0.22 22 / 0.12)", color: "oklch(0.67 0.22 22)", label: "0 pts" };
 
   return (
@@ -185,8 +189,10 @@ export function MatchCard({ match }: { match: MatchWithTeams }) {
   }, [dirty, upsert, match._id, home, away]);
 
   const matchDate = new Date(match.utcDate);
-  const dateStr = matchDate.toLocaleDateString("pt-BR", { day: "2-digit", month: "short" }).replace(".", "").toUpperCase();
   const timeStr = matchDate.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+  const lockDate = new Date(matchDate.getTime() - 60 * 60 * 1000);
+  const lockTimeStr = lockDate.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+  const lockDateStr = lockDate.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" });
   const groupLetter = match.group?.replace(/^GROUP_/, "") ?? match.group;
   const stageLabel = match.group ? `GRUPO ${groupLetter}` : match.stage.replace(/_/g, " ");
 
@@ -212,21 +218,33 @@ export function MatchCard({ match }: { match: MatchWithTeams }) {
         >
           {stageLabel}
         </span>
-        <span className="text-xs font-medium" style={{ color: "oklch(0.48 0.05 145)" }}>
-          {dateStr} · {timeStr}
-        </span>
+        <div className="flex flex-col items-end gap-0.5">
+          <span className="text-xs font-medium" style={{ color: "oklch(0.48 0.05 145)" }}>
+            {timeStr}
+          </span>
+          {!isLocked && (
+            <span className="text-xs" style={{ color: "oklch(0.38 0.06 22)" }}>
+              fecha {lockDateStr} às {lockTimeStr}
+            </span>
+          )}
+          {isLocked && !isFinished && (
+            <span className="text-xs" style={{ color: "oklch(0.42 0.04 145)" }}>
+              fechado
+            </span>
+          )}
+        </div>
       </div>
 
       {/* Match body */}
       <div className="flex items-center justify-between gap-3 px-5 py-5">
         {/* Home team */}
         <div className="flex flex-1 flex-col items-center gap-2">
-          <TeamCrest crest={match.homeTeam?.crest ?? ""} name={match.homeTeam?.shortName ?? "??"} />
+          <TeamCrest crest={match.homeTeam?.crest ?? ""} name={translateTeamName(match.homeTeam?.shortName ?? "??")} />
           <span
             className="font-display max-w-[80px] text-center text-sm font-bold uppercase leading-tight tracking-wide"
             style={{ color: "oklch(0.88 0 0)" }}
           >
-            {match.homeTeam?.shortName ?? "TBD"}
+            {translateTeamName(match.homeTeam?.shortName ?? "") || "TBD"}
           </span>
         </div>
 
@@ -306,12 +324,12 @@ export function MatchCard({ match }: { match: MatchWithTeams }) {
 
         {/* Away team */}
         <div className="flex flex-1 flex-col items-center gap-2">
-          <TeamCrest crest={match.awayTeam?.crest ?? ""} name={match.awayTeam?.shortName ?? "??"} />
+          <TeamCrest crest={match.awayTeam?.crest ?? ""} name={translateTeamName(match.awayTeam?.shortName ?? "??")} />
           <span
             className="font-display max-w-[80px] text-center text-sm font-bold uppercase leading-tight tracking-wide"
             style={{ color: "oklch(0.88 0 0)" }}
           >
-            {match.awayTeam?.shortName ?? "TBD"}
+            {translateTeamName(match.awayTeam?.shortName ?? "") || "TBD"}
           </span>
         </div>
       </div>

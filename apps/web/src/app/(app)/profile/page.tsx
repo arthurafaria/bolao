@@ -1,17 +1,12 @@
 "use client";
 
 import { api } from "@bolao/backend/convex/_generated/api";
-import { Badge } from "@bolao/ui/components/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@bolao/ui/components/card";
-import { Progress } from "@bolao/ui/components/progress";
-import { Separator } from "@bolao/ui/components/separator";
-import { Skeleton } from "@bolao/ui/components/skeleton";
 import { useQuery } from "convex/react";
-import { Shield, Star, Trophy, User } from "lucide-react";
+import { LogOut, Shield, Star, Trophy } from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 import { authClient } from "@/lib/auth-client";
-import { useRouter } from "next/navigation";
-import { Button } from "@bolao/ui/components/button";
 
 export default function ProfilePage() {
   const user = useQuery(api.auth.getCurrentUser);
@@ -19,86 +14,198 @@ export default function ProfilePage() {
   const leagues = useQuery(api.leagues.getUserLeagues);
   const router = useRouter();
 
+  const accuracy =
+    stats && stats.total > 0
+      ? Math.round((stats.correct / stats.total) * 100)
+      : 0;
+
   function handleSignOut() {
     authClient.signOut({ fetchOptions: { onSuccess: () => router.push("/") } });
   }
 
-  const accuracy = stats && stats.total > 0
-    ? Math.round((stats.correct / stats.total) * 100)
-    : 0;
-
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-4">
-        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-primary">
-          <User className="h-8 w-8" />
+      <div>
+        <h1
+          className="font-display text-3xl font-black uppercase leading-tight tracking-tight"
+          style={{ color: "oklch(0.94 0 0)" }}
+        >
+          Perfil
+        </h1>
+      </div>
+
+      {/* User card */}
+      <div
+        className="flex items-center gap-4 rounded-2xl p-5"
+        style={{ background: "oklch(0.12 0.028 145)", border: "1px solid oklch(1 0 0 / 8%)" }}
+      >
+        <div
+          className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full text-xl font-black"
+          style={{ background: "oklch(0.70 0.22 145 / 0.15)", color: "oklch(0.70 0.22 145)" }}
+        >
+          {user?.name?.[0]?.toUpperCase() ?? "?"}
         </div>
-        <div>
-          <h1 className="text-xl font-bold">{user?.name ?? "..."}</h1>
-          <p className="text-sm text-muted-foreground">{user?.email}</p>
+        <div className="min-w-0">
+          <p className="truncate font-display text-lg font-bold text-white">
+            {user?.name ?? "..."}
+          </p>
+          <p className="truncate text-sm" style={{ color: "oklch(0.44 0.05 145)" }}>
+            {user?.email ?? ""}
+          </p>
         </div>
       </div>
 
+      {/* Stats grid */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         {[
-          { label: "Total de pontos", value: stats?.totalPoints ?? 0, icon: <Trophy className="h-4 w-4" /> },
-          { label: "Palpites feitos", value: stats?.total ?? 0, icon: <Shield className="h-4 w-4" /> },
-          { label: "Placares exatos", value: stats?.exact ?? 0, icon: <Star className="h-4 w-4" /> },
-          { label: "Ligas", value: leagues?.length ?? 0, icon: <Trophy className="h-4 w-4" /> },
-        ].map(({ label, value, icon }) => (
-          <Card key={label}>
-            <CardContent className="flex items-center gap-3 p-4">
-              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                {icon}
-              </div>
-              <div>
-                <p className="text-xl font-bold">{value}</p>
-                <p className="text-xs text-muted-foreground leading-tight">{label}</p>
-              </div>
-            </CardContent>
-          </Card>
+          {
+            label: "Pontos",
+            value: stats?.totalPoints ?? 0,
+            icon: Trophy,
+            accent: true,
+          },
+          {
+            label: "Palpites",
+            value: stats?.total ?? 0,
+            icon: Shield,
+            accent: false,
+          },
+          {
+            label: "Exatos",
+            value: stats?.exact ?? 0,
+            icon: Star,
+            accent: false,
+          },
+          {
+            label: "Ligas",
+            value: leagues?.length ?? 0,
+            icon: Trophy,
+            accent: false,
+          },
+        ].map(({ label, value, icon: Icon, accent }) => (
+          <div
+            key={label}
+            className="rounded-2xl p-4"
+            style={{
+              background: accent ? "oklch(0.70 0.22 145 / 0.10)" : "oklch(0.12 0.028 145)",
+              border: `1px solid ${accent ? "oklch(0.70 0.22 145 / 0.25)" : "oklch(1 0 0 / 8%)"}`,
+            }}
+          >
+            <p
+              className="mb-1 text-xs font-semibold uppercase tracking-widest"
+              style={{ color: accent ? "oklch(0.62 0.16 145)" : "oklch(0.44 0.05 145)" }}
+            >
+              {label}
+            </p>
+            <p
+              className="font-display text-4xl font-black leading-none tabular-nums"
+              style={{ color: accent ? "oklch(0.78 0.22 145)" : "oklch(0.92 0 0)" }}
+            >
+              {value}
+            </p>
+          </div>
         ))}
       </div>
 
+      {/* Accuracy bar */}
       {stats && stats.total > 0 && (
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base">Taxa de acerto</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">{stats.correct} acertos de {stats.total} palpites</span>
-              <span className="font-bold">{accuracy}%</span>
-            </div>
-            <Progress value={accuracy} className="h-2" />
-          </CardContent>
-        </Card>
+        <div
+          className="rounded-2xl p-5"
+          style={{ background: "oklch(0.12 0.028 145)", border: "1px solid oklch(1 0 0 / 8%)" }}
+        >
+          <div className="mb-3 flex items-center justify-between">
+            <p
+              className="font-display text-sm font-bold uppercase tracking-wide"
+              style={{ color: "oklch(0.88 0 0)" }}
+            >
+              Taxa de acerto
+            </p>
+            <span
+              className="font-display text-2xl font-black tabular-nums"
+              style={{ color: "oklch(0.70 0.22 145)" }}
+            >
+              {accuracy}%
+            </span>
+          </div>
+          <div
+            className="h-2 w-full overflow-hidden rounded-full"
+            style={{ background: "oklch(1 0 0 / 8%)" }}
+          >
+            <div
+              className="h-full rounded-full transition-all duration-500"
+              style={{
+                width: `${accuracy}%`,
+                background: "linear-gradient(90deg, oklch(0.60 0.20 145), oklch(0.78 0.22 145))",
+              }}
+            />
+          </div>
+          <p className="mt-2 text-xs" style={{ color: "oklch(0.42 0.04 145)" }}>
+            {stats.correct} acertos de {stats.total} palpites computados
+          </p>
+        </div>
       )}
 
+      {/* Leagues */}
       {leagues && leagues.length > 0 && (
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base">Minhas ligas</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2">
+        <div
+          className="rounded-2xl p-5"
+          style={{ background: "oklch(0.12 0.028 145)", border: "1px solid oklch(1 0 0 / 8%)" }}
+        >
+          <p
+            className="font-display mb-4 text-sm font-bold uppercase tracking-wide"
+            style={{ color: "oklch(0.88 0 0)" }}
+          >
+            Minhas ligas
+          </p>
+          <div className="space-y-2">
             {leagues.map(
               (league) =>
                 league && (
-                  <div key={league._id} className="flex items-center justify-between py-2">
-                    <span className="text-sm font-medium">{league.name}</span>
-                    <Badge variant="secondary">{league.myPoints} pts</Badge>
-                  </div>
+                  <Link key={league._id} href={`/leagues/${league._id}` as `/leagues/${string}`}>
+                    <div
+                      className="flex items-center justify-between rounded-xl px-4 py-3 transition-all hover:brightness-110"
+                      style={{
+                        background: "oklch(0.10 0.025 145)",
+                        border: "1px solid oklch(1 0 0 / 6%)",
+                      }}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div
+                          className="flex h-8 w-8 items-center justify-center rounded-lg"
+                          style={{ background: "oklch(0.70 0.22 145 / 0.10)" }}
+                        >
+                          <Trophy className="h-4 w-4" style={{ color: "oklch(0.70 0.22 145)" }} />
+                        </div>
+                        <span className="text-sm font-semibold text-white">{league.name}</span>
+                      </div>
+                      <span
+                        className="font-display text-sm font-bold tabular-nums"
+                        style={{ color: "oklch(0.70 0.22 145)" }}
+                      >
+                        {league.myPoints} pts
+                      </span>
+                    </div>
+                  </Link>
                 ),
             )}
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       )}
 
-      <Separator />
-
-      <Button variant="destructive" onClick={handleSignOut} className="w-full">
+      {/* Sign out */}
+      <button
+        type="button"
+        onClick={handleSignOut}
+        className="flex w-full items-center justify-center gap-2 rounded-2xl py-3.5 text-sm font-semibold transition-all hover:brightness-110"
+        style={{
+          background: "oklch(0.67 0.22 22 / 0.10)",
+          border: "1px solid oklch(0.67 0.22 22 / 0.25)",
+          color: "oklch(0.72 0.20 22)",
+        }}
+      >
+        <LogOut className="h-4 w-4" />
         Sair da conta
-      </Button>
+      </button>
     </div>
   );
 }

@@ -36,7 +36,7 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const token = await getToken();
+  const token = await getToken().catch(() => null);
   return (
     <html lang="pt-BR" suppressHydrationWarning>
       <body className={`${barlow.variable} ${barlowCondensed.variable} ${dmMono.variable} antialiased`}>

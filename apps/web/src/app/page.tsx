@@ -101,7 +101,7 @@ export default function LandingPage() {
           className="relative mb-10 max-w-md text-lg leading-relaxed"
           style={{ color: "oklch(0.62 0.05 145)" }}
         >
-          Preveja o placar dos 64 jogos. Dispute com amigos. Comprove que você entende de futebol.
+          Preveja o placar dos 104 jogos. Dispute com amigos. Comprove que você entende de futebol.
         </p>
 
         <div className="relative flex flex-col gap-3 sm:flex-row">
@@ -132,7 +132,7 @@ export default function LandingPage() {
           style={{ borderTop: "1px solid oklch(1 0 0 / 8%)", paddingTop: "2rem" }}
         >
           {[
-            { num: "64", label: "Jogos" },
+            { num: "104", label: "Jogos" },
             { num: "48", label: "Seleções" },
             { num: "1", label: "Campeão" },
           ].map(({ num, label }) => (
@@ -165,7 +165,7 @@ export default function LandingPage() {
               {
                 icon: Shield,
                 title: "Palpite de placar",
-                desc: "Preveja o placar exato de cada partida. Acertou? 10 pontos. Acertou o vencedor? 5 pontos.",
+                desc: "Preveja o placar exato dos 104 jogos. Acertou o placar? 10 pontos. Acertou o resultado? 5 pontos.",
                 color: "oklch(0.70 0.22 145)",
                 bg: "oklch(0.70 0.22 145 / 0.08)",
               },
