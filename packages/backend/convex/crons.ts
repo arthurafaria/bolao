@@ -5,9 +5,16 @@ import { internal } from "./_generated/api";
 const crons = cronJobs();
 
 crons.cron(
-  "sync today matches",
+  "sync WC today",
   "0 * * * *",
   internal.footballData.syncToday,
+  {},
+);
+
+crons.cron(
+  "sync BSA today",
+  "30 * * * *",
+  internal.footballData.syncTodayBSA,
   {},
 );
 

@@ -43,11 +43,12 @@ export default function SignInPage() {
     <div>
       <div className="mb-8">
         <h1
-          className="font-display mb-1 text-4xl font-black uppercase leading-tight tracking-tight text-white"
+          className="font-display mb-1 text-4xl font-black uppercase leading-tight tracking-tight text-balance"
+          style={{ color: "var(--b-text)" }}
         >
           Bem-vindo<br />de volta
         </h1>
-        <p style={{ color: "oklch(0.54 0.05 145)" }}>
+        <p style={{ color: "var(--b-text-3)" }}>
           Entre na sua conta e continue jogando
         </p>
       </div>
@@ -62,7 +63,7 @@ export default function SignInPage() {
               <Label
                 htmlFor="email"
                 className="text-sm font-semibold uppercase tracking-wider"
-                style={{ color: "oklch(0.60 0.05 145)" }}
+                style={{ color: "var(--b-text-3)" }}
               >
                 Email
               </Label>
@@ -74,9 +75,9 @@ export default function SignInPage() {
                 onChange={(e) => field.handleChange(e.target.value)}
                 className="h-11"
                 style={{
-                  background: "oklch(0.14 0.03 145)",
-                  borderColor: "oklch(1 0 0 / 10%)",
-                  color: "white",
+                  background: "var(--b-input-bg)",
+                  borderColor: "var(--b-border-md)",
+                  color: "var(--b-text)",
                 }}
               />
               {field.state.meta.errors[0] && (
@@ -94,7 +95,7 @@ export default function SignInPage() {
               <Label
                 htmlFor="password"
                 className="text-sm font-semibold uppercase tracking-wider"
-                style={{ color: "oklch(0.60 0.05 145)" }}
+                style={{ color: "var(--b-text-3)" }}
               >
                 Senha
               </Label>
@@ -106,9 +107,9 @@ export default function SignInPage() {
                 onChange={(e) => field.handleChange(e.target.value)}
                 className="h-11"
                 style={{
-                  background: "oklch(0.14 0.03 145)",
-                  borderColor: "oklch(1 0 0 / 10%)",
-                  color: "white",
+                  background: "var(--b-input-bg)",
+                  borderColor: "var(--b-border-md)",
+                  color: "var(--b-text)",
                 }}
               />
               {field.state.meta.errors[0] && (
@@ -133,12 +134,12 @@ export default function SignInPage() {
         </form.Subscribe>
       </form>
 
-      <p className="mt-6 text-center text-sm" style={{ color: "oklch(0.46 0.04 145)" }}>
+      <p className="mt-6 text-center text-sm" style={{ color: "var(--b-text-3)" }}>
         Não tem conta?{" "}
         <Link
           href="/sign-up"
-          className="font-semibold transition-colors hover:text-white"
-          style={{ color: "oklch(0.70 0.22 145)" }}
+          className="font-semibold transition-colors"
+          style={{ color: "var(--b-brand)" }}
         >
           Criar conta
         </Link>

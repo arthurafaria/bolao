@@ -35,7 +35,8 @@ export default defineSchema({
     .index("by_apiId", ["apiId"])
     .index("by_status", ["status"])
     .index("by_utcDate", ["utcDate"])
-    .index("by_tournament_stage", ["tournament", "stage"]),
+    .index("by_tournament_stage", ["tournament", "stage"])
+    .index("by_tournament_date", ["tournament", "utcDate"]),
 
   predictions: defineTable({
     userId: v.string(),

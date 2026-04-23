@@ -5,6 +5,7 @@ import { Skeleton } from "@bolao/ui/components/skeleton";
 import { useQuery } from "convex/react";
 
 import { MatchCard } from "@/components/match-card";
+import { useTournament } from "@/contexts/tournament-context";
 
 type Match = NonNullable<Awaited<ReturnType<typeof api.matches.getAllByDate>>>[number];
 
@@ -34,7 +35,8 @@ function groupByDate(matches: NonNullable<Match>[]): [string, NonNullable<Match>
 }
 
 export default function PredictionsPage() {
-  const matches = useQuery(api.matches.getAllByDate, { tournament: "WC2026" });
+  const { tournament } = useTournament();
+  const matches = useQuery(api.matches.getAllByDate, { tournament });
 
   const grouped =
     matches === undefined
@@ -45,10 +47,10 @@ export default function PredictionsPage() {
     <div className="space-y-2">
       <div className="mb-6">
         <h1 className="font-display text-3xl font-black uppercase leading-tight tracking-tight"
-          style={{ color: "oklch(0.94 0 0)" }}>
+          style={{ color: "var(--b-text)" }}>
           Palpites
         </h1>
-        <p className="text-sm" style={{ color: "oklch(0.44 0.05 145)" }}>
+        <p className="text-sm" style={{ color: "var(--b-text-3)" }}>
           Palpites se fecham 1 hora antes de cada jogo
         </p>
       </div>
@@ -66,9 +68,9 @@ export default function PredictionsPage() {
       ) : grouped.length === 0 ? (
         <div
           className="rounded-2xl p-12 text-center"
-          style={{ background: "oklch(0.12 0.028 145)", border: "1px solid oklch(1 0 0 / 8%)" }}
+          style={{ background: "var(--b-card)", border: "1px solid var(--b-border)" }}
         >
-          <p style={{ color: "oklch(0.44 0.05 145)" }}>Nenhum jogo agendado ainda</p>
+          <p style={{ color: "var(--b-text-3)" }}>Nenhum jogo agendado ainda</p>
         </div>
       ) : (
         <div className="space-y-8">
@@ -78,17 +80,17 @@ export default function PredictionsPage() {
               <div className="mb-3 flex items-center gap-3">
                 <h2
                   className="font-display text-sm font-bold uppercase tracking-widest capitalize"
-                  style={{ color: "oklch(0.62 0.16 145)" }}
+                  style={{ color: "var(--b-brand)" }}
                 >
                   {formatDateHeader(dayMatches[0].utcDate)}
                 </h2>
                 <div
                   className="h-px flex-1"
-                  style={{ background: "oklch(1 0 0 / 6%)" }}
+                  style={{ background: "var(--b-border)" }}
                 />
                 <span
                   className="text-xs font-medium"
-                  style={{ color: "oklch(0.36 0.04 145)" }}
+                  style={{ color: "var(--b-text-4)" }}
                 >
                   {dayMatches.length} {dayMatches.length === 1 ? "jogo" : "jogos"}
                 </span>

@@ -28,7 +28,7 @@ export default function ProfilePage() {
       <div>
         <h1
           className="font-display text-3xl font-black uppercase leading-tight tracking-tight"
-          style={{ color: "oklch(0.94 0 0)" }}
+          style={{ color: "var(--b-text)" }}
         >
           Perfil
         </h1>
@@ -37,19 +37,19 @@ export default function ProfilePage() {
       {/* User card */}
       <div
         className="flex items-center gap-4 rounded-2xl p-5"
-        style={{ background: "oklch(0.12 0.028 145)", border: "1px solid oklch(1 0 0 / 8%)" }}
+        style={{ background: "var(--b-card)", border: "1px solid var(--b-border)" }}
       >
         <div
           className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full text-xl font-black"
-          style={{ background: "oklch(0.70 0.22 145 / 0.15)", color: "oklch(0.70 0.22 145)" }}
+          style={{ background: "var(--b-brand-15)", color: "var(--b-brand)" }}
         >
           {user?.name?.[0]?.toUpperCase() ?? "?"}
         </div>
         <div className="min-w-0">
-          <p className="truncate font-display text-lg font-bold text-white">
+          <p className="truncate font-display text-lg font-bold" style={{ color: "var(--b-text)" }}>
             {user?.name ?? "..."}
           </p>
-          <p className="truncate text-sm" style={{ color: "oklch(0.44 0.05 145)" }}>
+          <p className="truncate text-sm" style={{ color: "var(--b-text-3)" }}>
             {user?.email ?? ""}
           </p>
         </div>
@@ -87,19 +87,19 @@ export default function ProfilePage() {
             key={label}
             className="rounded-2xl p-4"
             style={{
-              background: accent ? "oklch(0.70 0.22 145 / 0.10)" : "oklch(0.12 0.028 145)",
-              border: `1px solid ${accent ? "oklch(0.70 0.22 145 / 0.25)" : "oklch(1 0 0 / 8%)"}`,
+              background: accent ? "var(--b-brand-10)" : "var(--b-card)",
+              border: `1px solid ${accent ? "var(--b-brand-25)" : "var(--b-border)"}`,
             }}
           >
             <p
               className="mb-1 text-xs font-semibold uppercase tracking-widest"
-              style={{ color: accent ? "oklch(0.62 0.16 145)" : "oklch(0.44 0.05 145)" }}
+              style={{ color: accent ? "var(--b-brand)" : "var(--b-text-3)" }}
             >
               {label}
             </p>
             <p
               className="font-display text-4xl font-black leading-none tabular-nums"
-              style={{ color: accent ? "oklch(0.78 0.22 145)" : "oklch(0.92 0 0)" }}
+              style={{ color: accent ? "var(--b-brand-hi)" : "var(--b-text)" }}
             >
               {value}
             </p>
@@ -111,35 +111,35 @@ export default function ProfilePage() {
       {stats && stats.total > 0 && (
         <div
           className="rounded-2xl p-5"
-          style={{ background: "oklch(0.12 0.028 145)", border: "1px solid oklch(1 0 0 / 8%)" }}
+          style={{ background: "var(--b-card)", border: "1px solid var(--b-border)" }}
         >
           <div className="mb-3 flex items-center justify-between">
             <p
               className="font-display text-sm font-bold uppercase tracking-wide"
-              style={{ color: "oklch(0.88 0 0)" }}
+              style={{ color: "var(--b-text)" }}
             >
               Taxa de acerto
             </p>
             <span
               className="font-display text-2xl font-black tabular-nums"
-              style={{ color: "oklch(0.70 0.22 145)" }}
+              style={{ color: "var(--b-brand)" }}
             >
               {accuracy}%
             </span>
           </div>
           <div
             className="h-2 w-full overflow-hidden rounded-full"
-            style={{ background: "oklch(1 0 0 / 8%)" }}
+            style={{ background: "var(--b-tint-md)" }}
           >
             <div
               className="h-full rounded-full transition-all duration-500"
               style={{
                 width: `${accuracy}%`,
-                background: "linear-gradient(90deg, oklch(0.60 0.20 145), oklch(0.78 0.22 145))",
+                background: "linear-gradient(90deg, var(--b-brand-40), var(--b-brand))",
               }}
             />
           </div>
-          <p className="mt-2 text-xs" style={{ color: "oklch(0.42 0.04 145)" }}>
+          <p className="mt-2 text-xs" style={{ color: "var(--b-text-3)" }}>
             {stats.correct} acertos de {stats.total} palpites computados
           </p>
         </div>
@@ -149,11 +149,11 @@ export default function ProfilePage() {
       {leagues && leagues.length > 0 && (
         <div
           className="rounded-2xl p-5"
-          style={{ background: "oklch(0.12 0.028 145)", border: "1px solid oklch(1 0 0 / 8%)" }}
+          style={{ background: "var(--b-card)", border: "1px solid var(--b-border)" }}
         >
           <p
             className="font-display mb-4 text-sm font-bold uppercase tracking-wide"
-            style={{ color: "oklch(0.88 0 0)" }}
+            style={{ color: "var(--b-text)" }}
           >
             Minhas ligas
           </p>
@@ -165,22 +165,22 @@ export default function ProfilePage() {
                     <div
                       className="flex items-center justify-between rounded-xl px-4 py-3 transition-all hover:brightness-110"
                       style={{
-                        background: "oklch(0.10 0.025 145)",
-                        border: "1px solid oklch(1 0 0 / 6%)",
+                        background: "var(--b-inner)",
+                        border: "1px solid var(--b-border-sm)",
                       }}
                     >
                       <div className="flex items-center gap-3">
                         <div
                           className="flex h-8 w-8 items-center justify-center rounded-lg"
-                          style={{ background: "oklch(0.70 0.22 145 / 0.10)" }}
+                          style={{ background: "var(--b-brand-10)" }}
                         >
-                          <Trophy className="h-4 w-4" style={{ color: "oklch(0.70 0.22 145)" }} />
+                          <Trophy className="h-4 w-4" style={{ color: "var(--b-brand)" }} />
                         </div>
-                        <span className="text-sm font-semibold text-white">{league.name}</span>
+                        <span className="text-sm font-semibold" style={{ color: "var(--b-text)" }}>{league.name}</span>
                       </div>
                       <span
                         className="font-display text-sm font-bold tabular-nums"
-                        style={{ color: "oklch(0.70 0.22 145)" }}
+                        style={{ color: "var(--b-brand)" }}
                       >
                         {league.myPoints} pts
                       </span>
@@ -200,7 +200,7 @@ export default function ProfilePage() {
         style={{
           background: "oklch(0.67 0.22 22 / 0.10)",
           border: "1px solid oklch(0.67 0.22 22 / 0.25)",
-          color: "oklch(0.72 0.20 22)",
+          color: "oklch(0.67 0.22 22)",
         }}
       >
         <LogOut className="h-4 w-4" />

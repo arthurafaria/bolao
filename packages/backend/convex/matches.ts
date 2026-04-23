@@ -13,16 +13,25 @@ async function enrichMatch(ctx: QueryCtx, match: Doc<"matches">) {
 }
 
 export const getUpcoming = query({
-  args: { limit: v.optional(v.number()) },
+  args: { limit: v.optional(v.number()), tournament: v.optional(v.string()) },
   handler: async (ctx, args) => {
     const now = new Date().toISOString();
+    if (args.tournament) {
+      const matches = await ctx.db
+        .query("matches")
+        .withIndex("by_tournament_date", (q) =>
+          q.eq("tournament", args.tournament!).gte("utcDate", now),
+        )
+        .order("asc")
+        .take(args.limit ?? 10);
+      return Promise.all(matches.map((m) => enrichMatch(ctx, m)));
+    }
     const matches = await ctx.db
       .query("matches")
       .withIndex("by_utcDate")
       .order("asc")
       .filter((q) => q.gte(q.field("utcDate"), now))
       .take(args.limit ?? 10);
-
     return Promise.all(matches.map((m) => enrichMatch(ctx, m)));
   },
 });

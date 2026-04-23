@@ -119,6 +119,94 @@
   --radius-4xl: calc(var(--radius) + 16px);
 }
 
+/* ── Bolão semantic tokens ─────────────────────────────────────── */
+:root {
+  --b-bg:        oklch(0.96 0.008 145);
+  --b-surface:   oklch(0.93 0.007 145);
+  --b-card:      oklch(1 0 0);
+  --b-inner:     oklch(0.95 0.006 145);
+  --b-input-bg:  oklch(0.97 0.004 145);
+
+  --b-border-xs: oklch(0 0 0 / 4%);
+  --b-border-sm: oklch(0 0 0 / 7%);
+  --b-border:    oklch(0 0 0 / 10%);
+  --b-border-md: oklch(0 0 0 / 14%);
+  --b-border-lg: oklch(0 0 0 / 22%);
+
+  --b-tint:      oklch(0 0 0 / 4%);
+  --b-tint-md:   oklch(0 0 0 / 7%);
+
+  --b-text:      oklch(0.15 0.025 145);
+  --b-text-2:    oklch(0.36 0.08 145);
+  --b-text-3:    oklch(0.52 0.06 145);
+  --b-text-4:    oklch(0.64 0.04 145);
+
+  --b-brand:        oklch(0.46 0.22 145);
+  --b-brand-fg:     oklch(0.99 0 0);
+  --b-brand-hi:     oklch(0.46 0.22 145);
+  --b-brand-5:      color-mix(in oklch, var(--b-brand) 5%, transparent);
+  --b-brand-10:     color-mix(in oklch, var(--b-brand) 10%, transparent);
+  --b-brand-12:     color-mix(in oklch, var(--b-brand) 12%, transparent);
+  --b-brand-15:     color-mix(in oklch, var(--b-brand) 15%, transparent);
+  --b-brand-25:     color-mix(in oklch, var(--b-brand) 25%, transparent);
+  --b-brand-40:     color-mix(in oklch, var(--b-brand) 40%, transparent);
+
+  --b-hero-bg:
+    radial-gradient(ellipse 140% 70% at 50% 115%, oklch(0.70 0.14 145 / 0.20) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 50% at 15% 0%,   oklch(0.76 0.10 145 / 0.10) 0%, transparent 55%),
+    radial-gradient(ellipse 50% 40% at 85% 5%,   oklch(0.80 0.08 90  / 0.06) 0%, transparent 50%),
+    var(--b-bg);
+
+  --b-auth-panel-bg:
+    radial-gradient(ellipse 120% 70% at 10% 110%, oklch(0.70 0.14 145 / 0.28) 0%, transparent 55%),
+    radial-gradient(ellipse 80% 60% at 90% -10%,  oklch(0.78 0.10 90  / 0.10) 0%, transparent 50%),
+    oklch(0.93 0.010 145);
+}
+
+.dark {
+  --b-bg:        oklch(0.09 0.028 145);
+  --b-surface:   oklch(0.10 0.028 145);
+  --b-card:      oklch(0.12 0.028 145);
+  --b-inner:     oklch(0.10 0.025 145);
+  --b-input-bg:  oklch(0.14 0.03 145);
+
+  --b-border-xs: oklch(1 0 0 / 3%);
+  --b-border-sm: oklch(1 0 0 / 6%);
+  --b-border:    oklch(1 0 0 / 8%);
+  --b-border-md: oklch(1 0 0 / 10%);
+  --b-border-lg: oklch(1 0 0 / 18%);
+
+  --b-tint:      oklch(1 0 0 / 3%);
+  --b-tint-md:   oklch(1 0 0 / 6%);
+
+  --b-text:      oklch(0.92 0 0);
+  --b-text-2:    oklch(0.56 0.05 145);
+  --b-text-3:    oklch(0.44 0.05 145);
+  --b-text-4:    oklch(0.36 0.04 145);
+
+  --b-brand:        oklch(0.70 0.22 145);
+  --b-brand-fg:     oklch(0.07 0.025 145);
+  --b-brand-hi:     oklch(0.78 0.20 145);
+  --b-brand-5:      color-mix(in oklch, var(--b-brand) 5%, transparent);
+  --b-brand-10:     color-mix(in oklch, var(--b-brand) 10%, transparent);
+  --b-brand-12:     color-mix(in oklch, var(--b-brand) 12%, transparent);
+  --b-brand-15:     color-mix(in oklch, var(--b-brand) 15%, transparent);
+  --b-brand-25:     color-mix(in oklch, var(--b-brand) 25%, transparent);
+  --b-brand-40:     color-mix(in oklch, var(--b-brand) 40%, transparent);
+
+  --b-hero-bg:
+    radial-gradient(ellipse 140% 70% at 50% 115%, oklch(0.30 0.20 145 / 0.55) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 50% at 15% 0%,   oklch(0.22 0.15 145 / 0.25) 0%, transparent 55%),
+    radial-gradient(ellipse 50% 40% at 85% 5%,   oklch(0.18 0.12 90  / 0.15) 0%, transparent 50%),
+    var(--b-bg);
+
+  --b-auth-panel-bg:
+    radial-gradient(ellipse 120% 70% at 10% 110%, oklch(0.30 0.20 145 / 0.70) 0%, transparent 55%),
+    radial-gradient(ellipse 80% 60% at 90% -10%,  oklch(0.22 0.15 90  / 0.25) 0%, transparent 50%),
+    oklch(0.11 0.030 145);
+}
+/* ─────────────────────────────────────────────────────────────── */
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

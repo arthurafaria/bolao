@@ -40,7 +40,7 @@ function TeamCrest({ crest, name }: { crest: string; name: string }) {
   return (
     <div
       className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full text-xs font-bold"
-      style={{ background: "oklch(0.70 0.22 145 / 0.12)", color: "oklch(0.70 0.22 145)" }}
+      style={{ background: "var(--b-brand-12)", color: "var(--b-brand)" }}
     >
       {name.slice(0, 2).toUpperCase()}
     </div>
@@ -90,11 +90,11 @@ function ScoreInput({ value, onChange, disabled }: {
         type="button"
         disabled={disabled || value <= 0}
         onClick={decrement}
-        className="flex h-8 w-8 items-center justify-center rounded-lg text-lg font-bold transition-all disabled:opacity-25"
+        className="flex h-10 w-10 items-center justify-center rounded-lg text-lg font-bold transition-[opacity,transform] active:scale-[0.96] disabled:opacity-25"
         style={{
-          background: "oklch(1 0 0 / 6%)",
-          color: "oklch(0.70 0.22 145)",
-          border: "1px solid oklch(1 0 0 / 10%)",
+          background: "var(--b-tint-md)",
+          color: "var(--b-brand)",
+          border: "1px solid var(--b-border-md)",
         }}
       >
         −
@@ -107,17 +107,17 @@ function ScoreInput({ value, onChange, disabled }: {
         onBlur={handleBlur}
         disabled={disabled}
         className="font-display w-10 bg-transparent text-center text-3xl font-black leading-none tabular-nums outline-none disabled:opacity-40"
-        style={{ color: "white", caretColor: "oklch(0.70 0.22 145)" }}
+        style={{ color: "var(--b-text)", caretColor: "var(--b-brand)" }}
       />
       <button
         type="button"
         disabled={disabled}
         onClick={increment}
-        className="flex h-8 w-8 items-center justify-center rounded-lg text-lg font-bold transition-all disabled:opacity-25"
+        className="flex h-10 w-10 items-center justify-center rounded-lg text-lg font-bold transition-[opacity,transform] active:scale-[0.96] disabled:opacity-25"
         style={{
-          background: "oklch(1 0 0 / 6%)",
-          color: "oklch(0.70 0.22 145)",
-          border: "1px solid oklch(1 0 0 / 10%)",
+          background: "var(--b-tint-md)",
+          color: "var(--b-brand)",
+          border: "1px solid var(--b-border-md)",
         }}
       >
         +
@@ -130,16 +130,16 @@ function PointsBadge({ points }: { points: number }) {
   const { bg, color, label } = points === 10
     ? { bg: "oklch(0.83 0.20 90 / 0.15)", color: "oklch(0.83 0.20 90)", label: `⭐ ${points} pts` }
     : points >= 7
-    ? { bg: "oklch(0.70 0.22 145 / 0.15)", color: "oklch(0.72 0.20 145)", label: `${points} pts` }
+    ? { bg: "var(--b-brand-10)", color: "var(--b-brand-hi)", label: `${points} pts` }
     : points >= 5
-    ? { bg: "oklch(1 0 0 / 6%)", color: "oklch(0.60 0.04 145)", label: `${points} pts` }
+    ? { bg: "var(--b-tint-md)", color: "var(--b-text-3)", label: `${points} pts` }
     : points > 0
     ? { bg: "oklch(0.70 0.18 60 / 0.12)", color: "oklch(0.72 0.18 60)", label: `${points} pts` }
     : { bg: "oklch(0.67 0.22 22 / 0.12)", color: "oklch(0.67 0.22 22)", label: "0 pts" };
 
   return (
     <span
-      className="rounded-full px-2.5 py-0.5 text-xs font-bold"
+      className="rounded-full px-2.5 py-0.5 text-xs font-bold tabular-nums"
       style={{ background: bg, color }}
     >
       {label}
@@ -198,37 +198,37 @@ export function MatchCard({ match }: { match: MatchWithTeams }) {
 
   return (
     <div
-      className="overflow-hidden rounded-2xl transition-all"
+      className="overflow-hidden rounded-[28px]"
       style={{
-        background: "oklch(0.12 0.028 145)",
-        border: "1px solid oklch(1 0 0 / 8%)",
+        background: "var(--b-card)",
+        border: "1px solid var(--b-border)",
       }}
     >
       {/* Card header */}
       <div
         className="flex items-center justify-between px-4 py-2.5"
         style={{
-          background: "oklch(1 0 0 / 3%)",
-          borderBottom: "1px solid oklch(1 0 0 / 6%)",
+          background: "var(--b-tint)",
+          borderBottom: "1px solid var(--b-border-sm)",
         }}
       >
         <span
           className="font-display text-xs font-bold uppercase tracking-widest"
-          style={{ color: "oklch(0.48 0.05 145)" }}
+          style={{ color: "var(--b-text-3)" }}
         >
           {stageLabel}
         </span>
         <div className="flex flex-col items-end gap-0.5">
-          <span className="text-xs font-medium" style={{ color: "oklch(0.48 0.05 145)" }}>
+          <span className="text-xs font-medium" style={{ color: "var(--b-text-3)" }}>
             {timeStr}
           </span>
           {!isLocked && (
-            <span className="text-xs" style={{ color: "oklch(0.38 0.06 22)" }}>
+            <span className="text-xs" style={{ color: "oklch(0.62 0.14 35)" }}>
               fecha {lockDateStr} às {lockTimeStr}
             </span>
           )}
           {isLocked && !isFinished && (
-            <span className="text-xs" style={{ color: "oklch(0.42 0.04 145)" }}>
+            <span className="text-xs" style={{ color: "var(--b-text-4)" }}>
               fechado
             </span>
           )}
@@ -242,7 +242,7 @@ export function MatchCard({ match }: { match: MatchWithTeams }) {
           <TeamCrest crest={match.homeTeam?.crest ?? ""} name={translateTeamName(match.homeTeam?.shortName ?? "??")} />
           <span
             className="font-display max-w-[80px] text-center text-sm font-bold uppercase leading-tight tracking-wide"
-            style={{ color: "oklch(0.88 0 0)" }}
+            style={{ color: "var(--b-text)" }}
           >
             {translateTeamName(match.homeTeam?.shortName ?? "") || "TBD"}
           </span>
@@ -254,19 +254,19 @@ export function MatchCard({ match }: { match: MatchWithTeams }) {
             <div className="flex items-center gap-3">
               <span
                 className="font-display text-5xl font-black tabular-nums leading-none"
-                style={{ color: "oklch(0.88 0 0)" }}
+                style={{ color: "var(--b-text)" }}
               >
                 {match.homeScore ?? "–"}
               </span>
               <span
                 className="font-display text-2xl font-black"
-                style={{ color: "oklch(0.30 0.04 145)" }}
+                style={{ color: "var(--b-border-md)" }}
               >
                 ×
               </span>
               <span
                 className="font-display text-5xl font-black tabular-nums leading-none"
-                style={{ color: "oklch(0.88 0 0)" }}
+                style={{ color: "var(--b-text)" }}
               >
                 {match.awayScore ?? "–"}
               </span>
@@ -276,7 +276,7 @@ export function MatchCard({ match }: { match: MatchWithTeams }) {
               <ScoreInput value={home} onChange={(v) => handleChange("home", v)} disabled={isLocked} />
               <span
                 className="font-display text-xl font-black"
-                style={{ color: "oklch(0.28 0.04 145)" }}
+                style={{ color: "var(--b-border-md)" }}
               >
                 ×
               </span>
@@ -289,7 +289,7 @@ export function MatchCard({ match }: { match: MatchWithTeams }) {
             {isLocked && !isFinished && (
               <span
                 className="flex items-center gap-1 text-xs font-medium"
-                style={{ color: "oklch(0.42 0.04 145)" }}
+                style={{ color: "var(--b-text-3)" }}
               >
                 <Lock className="h-3 w-3" /> Bloqueado
               </span>
@@ -300,10 +300,10 @@ export function MatchCard({ match }: { match: MatchWithTeams }) {
                 type="button"
                 onClick={handleSave}
                 disabled={saving}
-                className="rounded-xl px-5 py-1.5 text-sm font-bold uppercase tracking-wide transition-all disabled:opacity-50"
+                className="rounded-xl px-5 py-1.5 text-sm font-bold uppercase tracking-wide transition-[opacity,transform,background-color] active:scale-[0.96] disabled:opacity-50"
                 style={{
-                  background: "oklch(0.70 0.22 145)",
-                  color: "oklch(0.07 0.025 145)",
+                  background: "var(--b-brand)",
+                  color: "var(--b-brand-fg)",
                 }}
               >
                 {saving ? "Salvando..." : "Salvar"}
@@ -311,7 +311,7 @@ export function MatchCard({ match }: { match: MatchWithTeams }) {
             )}
 
             {!dirty && prediction?.predictedHome != null && !isFinished && (
-              <span className="text-xs font-semibold" style={{ color: "oklch(0.62 0.18 145)" }}>
+              <span className="text-xs font-semibold" style={{ color: "var(--b-brand)" }}>
                 ✓ Salvo — {prediction.predictedHome} × {prediction.predictedAway}
               </span>
             )}
@@ -327,7 +327,7 @@ export function MatchCard({ match }: { match: MatchWithTeams }) {
           <TeamCrest crest={match.awayTeam?.crest ?? ""} name={translateTeamName(match.awayTeam?.shortName ?? "??")} />
           <span
             className="font-display max-w-[80px] text-center text-sm font-bold uppercase leading-tight tracking-wide"
-            style={{ color: "oklch(0.88 0 0)" }}
+            style={{ color: "var(--b-text)" }}
           >
             {translateTeamName(match.awayTeam?.shortName ?? "") || "TBD"}
           </span>

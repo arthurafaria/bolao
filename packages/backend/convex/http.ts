@@ -23,4 +23,19 @@ http.route({
   }),
 });
 
+http.route({
+  path: "/sync-bsa",
+  method: "POST",
+  handler: httpAction(async (ctx, req) => {
+    const body = await req.json().catch(() => ({})) as Record<string, string>;
+    await ctx.runAction(internal.footballData.syncAllBSA, {
+      dateFrom: body.dateFrom,
+      dateTo: body.dateTo,
+    });
+    return new Response(JSON.stringify({ ok: true }), {
+      headers: { "Content-Type": "application/json" },
+    });
+  }),
+});
+
 export default http;
