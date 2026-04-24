@@ -2,6 +2,7 @@
 
 import { api } from "@bolao/backend/convex/_generated/api";
 import { Skeleton } from "@bolao/ui/components/skeleton";
+import type { FunctionReturnType } from "convex/server";
 import { useQuery } from "convex/react";
 import { useMemo } from "react";
 
@@ -16,7 +17,7 @@ const STAGE_LABELS: Record<string, string> = {
   GROUP_STAGE: "Fase de Grupos",
 };
 
-type Match = NonNullable<Awaited<ReturnType<typeof api.matches.getAllByDate>>>[number];
+type Match = FunctionReturnType<typeof api.matches.getAllByDate>[number];
 
 function roundKey(match: NonNullable<Match>): string {
   if (match.matchday != null) return `matchday_${match.matchday}`;

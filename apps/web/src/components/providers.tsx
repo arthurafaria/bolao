@@ -2,10 +2,8 @@
 
 import { env } from "@bolao/env/web";
 import { Toaster } from "@bolao/ui/components/sonner";
-import { ConvexBetterAuthProvider } from "@convex-dev/better-auth/react";
+import { ConvexAuthNextjsProvider } from "@convex-dev/auth/nextjs";
 import { ConvexReactClient } from "convex/react";
-
-import { authClient } from "@/lib/auth-client";
 
 import { ThemeProvider } from "./theme-provider";
 
@@ -13,16 +11,14 @@ const convex = new ConvexReactClient(env.NEXT_PUBLIC_CONVEX_URL);
 
 export default function Providers({
   children,
-  initialToken,
 }: {
   children: React.ReactNode;
-  initialToken?: string | null;
 }) {
   return (
     <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
-      <ConvexBetterAuthProvider client={convex} authClient={authClient} initialToken={initialToken}>
+      <ConvexAuthNextjsProvider client={convex}>
         {children}
-      </ConvexBetterAuthProvider>
+      </ConvexAuthNextjsProvider>
       <Toaster richColors />
     </ThemeProvider>
   );

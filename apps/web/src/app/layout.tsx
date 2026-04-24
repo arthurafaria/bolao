@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import { Barlow, Barlow_Condensed, DM_Mono } from "next/font/google";
+import { ConvexAuthNextjsServerProvider } from "@convex-dev/auth/nextjs/server";
 
 import "../index.css";
 import Providers from "@/components/providers";
-import { getToken } from "@/lib/auth-server";
 
 const barlow = Barlow({
   subsets: ["latin"],
@@ -36,14 +36,15 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const token = await getToken().catch(() => null);
   return (
-    <html lang="pt-BR" suppressHydrationWarning>
-      <body className={`${barlow.variable} ${barlowCondensed.variable} ${dmMono.variable} antialiased`}>
-        <Providers initialToken={token}>
-          {children}
-        </Providers>
-      </body>
-    </html>
+    <ConvexAuthNextjsServerProvider>
+      <html lang="pt-BR" suppressHydrationWarning>
+        <body className={`${barlow.variable} ${barlowCondensed.variable} ${dmMono.variable} antialiased`}>
+          <Providers>
+            {children}
+          </Providers>
+        </body>
+      </html>
+    </ConvexAuthNextjsServerProvider>
   );
 }

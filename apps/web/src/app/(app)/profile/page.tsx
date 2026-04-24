@@ -1,26 +1,30 @@
 "use client";
 
 import { api } from "@bolao/backend/convex/_generated/api";
+import { useAuthActions } from "@convex-dev/auth/react";
 import { useQuery } from "convex/react";
-import { LogOut, Shield, Star, Trophy } from "lucide-react";
+import { Loader2, LogOut, Shield, Star, Trophy } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-
-import { authClient } from "@/lib/auth-client";
+import { useState } from "react";
 
 export default function ProfilePage() {
   const user = useQuery(api.auth.getCurrentUser);
   const stats = useQuery(api.predictions.getStats);
   const leagues = useQuery(api.leagues.getUserLeagues);
   const router = useRouter();
+  const { signOut } = useAuthActions();
+  const [isSigningOut, setIsSigningOut] = useState(false);
 
   const accuracy =
     stats && stats.total > 0
       ? Math.round((stats.correct / stats.total) * 100)
       : 0;
 
-  function handleSignOut() {
-    authClient.signOut({ fetchOptions: { onSuccess: () => router.push("/") } });
+  async function handleSignOut() {
+    setIsSigningOut(true);
+    await signOut();
+    router.push("/");
   }
 
   return (
@@ -195,16 +199,17 @@ export default function ProfilePage() {
       {/* Sign out */}
       <button
         type="button"
-        onClick={handleSignOut}
-        className="flex w-full items-center justify-center gap-2 rounded-2xl py-3.5 text-sm font-semibold transition-all hover:brightness-110"
+        onClick={() => void handleSignOut()}
+        disabled={isSigningOut}
+        className="flex w-full items-center justify-center gap-2 rounded-2xl py-3.5 text-sm font-semibold transition-[filter,opacity,transform] hover:brightness-110 active:scale-[0.96] disabled:opacity-60"
         style={{
           background: "oklch(0.67 0.22 22 / 0.10)",
           border: "1px solid oklch(0.67 0.22 22 / 0.25)",
           color: "oklch(0.67 0.22 22)",
         }}
       >
-        <LogOut className="h-4 w-4" />
-        Sair da conta
+        {isSigningOut ? <Loader2 className="h-4 w-4 animate-spin" /> : <LogOut className="h-4 w-4" />}
+        {isSigningOut ? "Saindo..." : "Sair da conta"}
       </button>
     </div>
   );

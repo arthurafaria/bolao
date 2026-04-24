@@ -6,7 +6,7 @@ import {
   mutation,
   query,
 } from "./_generated/server";
-import { authComponent } from "./auth";
+import { auth, requireUserId } from "./auth";
 
 const LOCK_WINDOW_MS = 60 * 60 * 1000; // 1 hour before match
 
@@ -41,8 +41,7 @@ export const upsert = mutation({
     predictedAway: v.number(),
   },
   handler: async (ctx, args) => {
-    const user = await authComponent.getAuthUser(ctx);
-    if (!user) throw new ConvexError("Not authenticated");
+    const userId = await requireUserId(ctx);
 
     if (args.predictedHome < 0 || args.predictedAway < 0) {
       throw new ConvexError("Scores cannot be negative");
@@ -59,7 +58,7 @@ export const upsert = mutation({
     const existing = await ctx.db
       .query("predictions")
       .withIndex("by_user_match", (q) =>
-        q.eq("userId", user._id).eq("matchId", args.matchId),
+        q.eq("userId", userId).eq("matchId", args.matchId),
       )
       .unique();
 
@@ -74,7 +73,7 @@ export const upsert = mutation({
     }
 
     return ctx.db.insert("predictions", {
-      userId: user._id,
+      userId,
       matchId: args.matchId,
       predictedHome: args.predictedHome,
       predictedAway: args.predictedAway,
@@ -85,13 +84,13 @@ export const upsert = mutation({
 export const getForMatch = query({
   args: { matchId: v.id("matches") },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) return null;
+    const userId = await auth.getUserId(ctx);
+    if (!userId) return null;
 
     return ctx.db
       .query("predictions")
       .withIndex("by_user_match", (q) =>
-        q.eq("userId", identity.subject).eq("matchId", args.matchId),
+        q.eq("userId", userId).eq("matchId", args.matchId),
       )
       .unique();
   },
@@ -100,12 +99,12 @@ export const getForMatch = query({
 export const getUserPredictions = query({
   args: {},
   handler: async (ctx) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) return [];
+    const userId = await auth.getUserId(ctx);
+    if (!userId) return [];
 
     return ctx.db
       .query("predictions")
-      .withIndex("by_user", (q) => q.eq("userId", identity.subject))
+      .withIndex("by_user", (q) => q.eq("userId", userId))
       .take(200);
   },
 });
@@ -113,8 +112,8 @@ export const getUserPredictions = query({
 export const getLeagueMemberPredictions = query({
   args: { matchId: v.id("matches"), leagueId: v.id("leagues") },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) return null;
+    const userId = await auth.getUserId(ctx);
+    if (!userId) return null;
 
     const match = await ctx.db.get(args.matchId);
     if (!match) return null;
@@ -126,7 +125,7 @@ export const getLeagueMemberPredictions = query({
     const membership = await ctx.db
       .query("leagueMembers")
       .withIndex("by_league_user", (q) =>
-        q.eq("leagueId", args.leagueId).eq("userId", identity.subject),
+        q.eq("leagueId", args.leagueId).eq("userId", userId),
       )
       .unique();
     if (!membership || membership.status !== "ACTIVE") return null;
@@ -198,12 +197,12 @@ export const computeForMatch = internalMutation({
 export const getStats = query({
   args: {},
   handler: async (ctx) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) return null;
+    const userId = await auth.getUserId(ctx);
+    if (!userId) return null;
 
     const allPredictions = await ctx.db
       .query("predictions")
-      .withIndex("by_user", (q) => q.eq("userId", identity.subject))
+      .withIndex("by_user", (q) => q.eq("userId", userId))
       .take(200);
 
     const calculated = allPredictions.filter((p) => p.calculatedAt !== undefined);

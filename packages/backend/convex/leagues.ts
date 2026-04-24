@@ -1,7 +1,7 @@
 import { ConvexError, v } from "convex/values";
 
 import { mutation, query } from "./_generated/server";
-import { authComponent } from "./auth";
+import { auth, requireUserId } from "./auth";
 
 function generateInviteCode(): string {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
@@ -19,8 +19,7 @@ export const create = mutation({
     joinType: v.union(v.literal("OPEN"), v.literal("MODERATED")),
   },
   handler: async (ctx, args) => {
-    const user = await authComponent.getAuthUser(ctx);
-    if (!user) throw new ConvexError("Not authenticated");
+    const userId = await requireUserId(ctx);
 
     if (args.name.trim().length < 3) {
       throw new ConvexError("League name must be at least 3 characters");
@@ -41,7 +40,7 @@ export const create = mutation({
     const leagueId = await ctx.db.insert("leagues", {
       name: args.name.trim(),
       description: args.description,
-      ownerId: user._id,
+      ownerId: userId,
       joinType: args.joinType,
       inviteCode: inviteCode!,
       memberCount: 1,
@@ -49,7 +48,7 @@ export const create = mutation({
 
     await ctx.db.insert("leagueMembers", {
       leagueId,
-      userId: user._id,
+      userId,
       totalPoints: 0,
       exactScores: 0,
       correctResults: 0,
@@ -64,8 +63,7 @@ export const create = mutation({
 export const join = mutation({
   args: { inviteCode: v.string() },
   handler: async (ctx, args) => {
-    const user = await authComponent.getAuthUser(ctx);
-    if (!user) throw new ConvexError("Not authenticated");
+    const userId = await requireUserId(ctx);
 
     const league = await ctx.db
       .query("leagues")
@@ -82,7 +80,7 @@ export const join = mutation({
     const existing = await ctx.db
       .query("leagueMembers")
       .withIndex("by_league_user", (q) =>
-        q.eq("leagueId", league._id).eq("userId", user._id),
+        q.eq("leagueId", league._id).eq("userId", userId),
       )
       .unique();
 
@@ -96,14 +94,14 @@ export const join = mutation({
         .withIndex("by_league_status", (q) =>
           q.eq("leagueId", league._id).eq("status", "PENDING"),
         )
-        .filter((q) => q.eq(q.field("userId"), user._id))
+        .filter((q) => q.eq(q.field("userId"), userId))
         .unique();
 
       if (pendingRequest) throw new ConvexError("Request already pending");
 
       await ctx.db.insert("leagueJoinRequests", {
         leagueId: league._id,
-        userId: user._id,
+        userId,
         requestedAt: Date.now(),
         status: "PENDING",
       });
@@ -116,7 +114,7 @@ export const join = mutation({
     } else {
       await ctx.db.insert("leagueMembers", {
         leagueId: league._id,
-        userId: user._id,
+        userId,
         totalPoints: 0,
         exactScores: 0,
         correctResults: 0,
@@ -134,8 +132,7 @@ export const join = mutation({
 export const approveRequest = mutation({
   args: { requestId: v.id("leagueJoinRequests") },
   handler: async (ctx, args) => {
-    const user = await authComponent.getAuthUser(ctx);
-    if (!user) throw new ConvexError("Not authenticated");
+    const userId = await requireUserId(ctx);
 
     const request = await ctx.db.get(args.requestId);
     if (!request || request.status !== "PENDING") {
@@ -143,7 +140,7 @@ export const approveRequest = mutation({
     }
 
     const league = await ctx.db.get(request.leagueId);
-    if (!league || league.ownerId !== user._id) {
+    if (!league || league.ownerId !== userId) {
       throw new ConvexError("Not authorized");
     }
 
@@ -181,14 +178,13 @@ export const approveRequest = mutation({
 export const rejectRequest = mutation({
   args: { requestId: v.id("leagueJoinRequests") },
   handler: async (ctx, args) => {
-    const user = await authComponent.getAuthUser(ctx);
-    if (!user) throw new ConvexError("Not authenticated");
+    const userId = await requireUserId(ctx);
 
     const request = await ctx.db.get(args.requestId);
     if (!request) throw new ConvexError("Request not found");
 
     const league = await ctx.db.get(request.leagueId);
-    if (!league || league.ownerId !== user._id) {
+    if (!league || league.ownerId !== userId) {
       throw new ConvexError("Not authorized");
     }
 
@@ -199,15 +195,14 @@ export const rejectRequest = mutation({
 export const removeMember = mutation({
   args: { leagueId: v.id("leagues"), targetUserId: v.string() },
   handler: async (ctx, args) => {
-    const user = await authComponent.getAuthUser(ctx);
-    if (!user) throw new ConvexError("Not authenticated");
+    const userId = await requireUserId(ctx);
 
     const league = await ctx.db.get(args.leagueId);
-    if (!league || league.ownerId !== user._id) {
+    if (!league || league.ownerId !== userId) {
       throw new ConvexError("Not authorized");
     }
 
-    if (args.targetUserId === user._id) {
+    if (args.targetUserId === userId) {
       throw new ConvexError("Owner cannot remove themselves");
     }
 
@@ -232,20 +227,19 @@ export const removeMember = mutation({
 export const leave = mutation({
   args: { leagueId: v.id("leagues") },
   handler: async (ctx, args) => {
-    const user = await authComponent.getAuthUser(ctx);
-    if (!user) throw new ConvexError("Not authenticated");
+    const userId = await requireUserId(ctx);
 
     const league = await ctx.db.get(args.leagueId);
     if (!league) throw new ConvexError("League not found");
 
-    if (league.ownerId === user._id) {
+    if (league.ownerId === userId) {
       throw new ConvexError("Owner cannot leave the league");
     }
 
     const membership = await ctx.db
       .query("leagueMembers")
       .withIndex("by_league_user", (q) =>
-        q.eq("leagueId", args.leagueId).eq("userId", user._id),
+        q.eq("leagueId", args.leagueId).eq("userId", userId),
       )
       .unique();
 
@@ -268,11 +262,10 @@ export const update = mutation({
     joinType: v.optional(v.union(v.literal("OPEN"), v.literal("MODERATED"))),
   },
   handler: async (ctx, args) => {
-    const user = await authComponent.getAuthUser(ctx);
-    if (!user) throw new ConvexError("Not authenticated");
+    const userId = await requireUserId(ctx);
 
     const league = await ctx.db.get(args.leagueId);
-    if (!league || league.ownerId !== user._id) {
+    if (!league || league.ownerId !== userId) {
       throw new ConvexError("Not authorized");
     }
 
@@ -321,12 +314,12 @@ export const getRanking = query({
 export const getUserLeagues = query({
   args: {},
   handler: async (ctx) => {
-    const user = await authComponent.safeGetAuthUser(ctx);
-    if (!user) return [];
+    const userId = await auth.getUserId(ctx);
+    if (!userId) return [];
 
     const memberships = await ctx.db
       .query("leagueMembers")
-      .withIndex("by_user", (q) => q.eq("userId", user._id))
+      .withIndex("by_user", (q) => q.eq("userId", userId))
       .filter((q) => q.eq(q.field("status"), "ACTIVE"))
       .take(50);
 
@@ -344,11 +337,11 @@ export const getUserLeagues = query({
 export const getPendingRequests = query({
   args: { leagueId: v.id("leagues") },
   handler: async (ctx, args) => {
-    const user = await authComponent.safeGetAuthUser(ctx);
-    if (!user) return [];
+    const userId = await auth.getUserId(ctx);
+    if (!userId) return [];
 
     const league = await ctx.db.get(args.leagueId);
-    if (!league || league.ownerId !== user._id) return [];
+    if (!league || league.ownerId !== userId) return [];
 
     return ctx.db
       .query("leagueJoinRequests")

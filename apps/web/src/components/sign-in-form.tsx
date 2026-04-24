@@ -1,15 +1,15 @@
 import { Button } from "@bolao/ui/components/button";
 import { Input } from "@bolao/ui/components/input";
 import { Label } from "@bolao/ui/components/label";
+import { useAuthActions } from "@convex-dev/auth/react";
 import { useForm } from "@tanstack/react-form";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import z from "zod";
 
-import { authClient } from "@/lib/auth-client";
-
 export default function SignInForm({ onSwitchToSignUp }: { onSwitchToSignUp: () => void }) {
   const router = useRouter();
+  const { signIn } = useAuthActions();
 
   const form = useForm({
     defaultValues: {
@@ -18,14 +18,11 @@ export default function SignInForm({ onSwitchToSignUp }: { onSwitchToSignUp: () 
     },
     onSubmit: async ({ value }) => {
       try {
-        const { error } = await authClient.signIn.email({
+        await signIn("password", {
           email: value.email,
           password: value.password,
+          flow: "signIn",
         });
-        if (error) {
-          toast.error(error.message || error.statusText);
-          return;
-        }
         toast.success("Sign in successful");
         router.push("/dashboard");
       } catch {

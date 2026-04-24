@@ -1,39 +1,26 @@
-import { createClient, type GenericCtx } from "@convex-dev/better-auth";
-import { convex } from "@convex-dev/better-auth/plugins";
-import { betterAuth } from "better-auth/minimal";
+import Resend from "@auth/core/providers/resend";
+import { Password } from "@convex-dev/auth/providers/Password";
+import { convexAuth } from "@convex-dev/auth/server";
+import { ConvexError } from "convex/values";
 
-import { components } from "./_generated/api";
-import type { DataModel } from "./_generated/dataModel";
 import { query } from "./_generated/server";
-import authConfig from "./auth.config";
 
-const siteUrl = process.env.SITE_URL!;
+export const { auth, signIn, signOut, store, isAuthenticated } = convexAuth({
+  providers: [Resend, Password],
+});
 
-export const authComponent = createClient<DataModel>(components.betterAuth);
+type AuthCtx = Parameters<typeof auth.getUserId>[0];
 
-function createAuth(ctx: GenericCtx<DataModel>) {
-  return betterAuth({
-    baseURL: siteUrl,
-    trustedOrigins: [siteUrl],
-    database: authComponent.adapter(ctx),
-    emailAndPassword: {
-      enabled: true,
-      requireEmailVerification: false,
-    },
-    plugins: [
-      convex({
-        authConfig,
-        jwksRotateOnTokenGenerationError: true,
-      }),
-    ],
-  });
+export async function requireUserId(ctx: AuthCtx) {
+  const userId = await auth.getUserId(ctx);
+  if (!userId) throw new ConvexError("Not authenticated");
+  return userId;
 }
-
-export { createAuth };
 
 export const getCurrentUser = query({
   args: {},
   handler: async (ctx) => {
-    return await authComponent.safeGetAuthUser(ctx);
+    const userId = await auth.getUserId(ctx);
+    return userId ? await ctx.db.get(userId) : null;
   },
 });

@@ -3,16 +3,34 @@
 import { Button } from "@bolao/ui/components/button";
 import { Input } from "@bolao/ui/components/input";
 import { Label } from "@bolao/ui/components/label";
+import { useAuthActions } from "@convex-dev/auth/react";
 import { useForm } from "@tanstack/react-form";
+import { Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { z } from "zod";
 
-import { authClient } from "@/lib/auth-client";
+function getSignUpErrorMessage(error: unknown) {
+  const message = error instanceof Error ? error.message.toLowerCase() : "";
+  if (message.includes("already") || message.includes("exist")) {
+    return "Esse email já tem conta. Tente entrar em vez de criar uma nova.";
+  }
+  if (message.includes("invalidaccountid")) {
+    return "Sessão de cadastro antiga detectada. Recarregue a página e tente novamente.";
+  }
+  if (message.includes("jwt_private_key") || message.includes("jwks")) {
+    return "Configuração de autenticação local ausente. As chaves do Convex Auth precisam estar setadas.";
+  }
+  if (message.includes("password")) {
+    return "A senha não foi aceita. Use pelo menos 8 caracteres.";
+  }
+  return "Erro ao criar conta. Tente novamente.";
+}
 
 export default function SignUpPage() {
   const router = useRouter();
+  const { signIn } = useAuthActions();
 
   const form = useForm({
     defaultValues: { name: "", email: "", password: "" },
@@ -25,18 +43,15 @@ export default function SignUpPage() {
     },
     onSubmit: async ({ value }) => {
       try {
-        const { error } = await authClient.signUp.email({
+        await signIn("password", {
           name: value.name,
           email: value.email,
           password: value.password,
+          flow: "signUp",
         });
-        if (error) {
-          toast.error(error.message || "Erro ao criar conta");
-          return;
-        }
         router.push("/dashboard");
-      } catch {
-        toast.error("Erro ao criar conta. Tente novamente.");
+      } catch (error) {
+        toast.error(getSignUpErrorMessage(error));
       }
     },
   });
@@ -104,7 +119,14 @@ export default function SignUpPage() {
               className="mt-2 h-11 w-full font-display text-base font-bold uppercase tracking-wide"
               disabled={!canSubmit || isSubmitting}
             >
-              {isSubmitting ? "Criando..." : "Criar conta"}
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Criando...
+                </>
+              ) : (
+                "Criar conta"
+              )}
             </Button>
           )}
         </form.Subscribe>

@@ -1,7 +1,10 @@
+import { authTables } from "@convex-dev/auth/server";
 import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
 
 export default defineSchema({
+  ...authTables,
+
   teams: defineTable({
     name: v.string(),
     shortName: v.string(),

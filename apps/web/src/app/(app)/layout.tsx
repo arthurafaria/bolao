@@ -2,15 +2,17 @@
 
 import { Authenticated, AuthLoading, Unauthenticated, useQuery } from "convex/react";
 import { useMutation } from "convex/react";
-import { BookOpen, ChevronDown, LayoutDashboard, LogOut, Shield, Trophy, User } from "lucide-react";
+import { useAuthActions } from "@convex-dev/auth/react";
+import { BookOpen, ChevronDown, LayoutDashboard, Loader2, LogOut, Shield, Trophy, User } from "lucide-react";
 import Link from "next/link";
+import type { Route } from "next";
 import { usePathname, useRouter } from "next/navigation";
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
 
 import { ThemeSwitch } from "@bolao/ui/components/theme-switch-button";
+import { Skeleton } from "@bolao/ui/components/skeleton";
 import { api } from "@bolao/backend/convex/_generated/api";
-import { authClient } from "@/lib/auth-client";
 import {
   COMPETITIONS,
   TournamentProvider,
@@ -59,7 +61,7 @@ function AppNav() {
               return (
                 <li key={href}>
                   <Link
-                    href={href}
+                    href={href as Route}
                     className="flex items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-medium transition-[background-color,color]"
                     style={{
                       background: active ? "var(--b-brand-12)" : "transparent",
@@ -100,7 +102,7 @@ function AppNav() {
             return (
               <li key={href}>
                 <Link
-                  href={href}
+                  href={href as Route}
                   className="flex flex-col items-center gap-1 rounded-xl px-5 py-1.5 text-xs font-medium transition-colors"
                   style={{ color: active ? "var(--b-brand-hi)" : "var(--b-text-3)" }}
                 >
@@ -122,47 +124,77 @@ function AppNav() {
 function UserSidebarBottom() {
   const user = useQuery(api.auth.getCurrentUser);
   const router = useRouter();
+  const { signOut } = useAuthActions();
+  const [isSigningOut, setIsSigningOut] = useState(false);
+
+  async function handleSignOut() {
+    setIsSigningOut(true);
+    await signOut();
+    router.push("/");
+  }
 
   return (
     <div
       className="px-3 py-4"
       style={{ borderTop: "1px solid var(--b-border)" }}
     >
-      <div className="flex items-center gap-3 rounded-xl px-3 py-2.5">
-        <div
-          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-bold"
-          style={{ background: "var(--b-brand-15)", color: "var(--b-brand)" }}
-        >
-          {user?.name?.[0]?.toUpperCase() ?? "?"}
+      {user === undefined ? (
+        <div className="flex items-center gap-3 rounded-xl px-3 py-2.5">
+          <Skeleton className="h-8 w-8 shrink-0 rounded-full" />
+          <div className="min-w-0 flex-1 space-y-2">
+            <Skeleton className="h-3 w-28 rounded-md" />
+            <Skeleton className="h-3 w-36 rounded-md" />
+          </div>
+          <Skeleton className="h-8 w-8 rounded-lg" />
         </div>
-        <div className="min-w-0 flex-1">
-          <p className="truncate text-sm font-medium" style={{ color: "var(--b-text)" }}>{user?.name ?? "..."}</p>
-          <p className="truncate text-xs" style={{ color: "var(--b-text-3)" }}>{user?.email ?? ""}</p>
+      ) : (
+        <div className="flex items-center gap-3 rounded-xl px-3 py-2.5">
+          <div
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-bold"
+            style={{ background: "var(--b-brand-15)", color: "var(--b-brand)" }}
+          >
+            {user?.name?.[0]?.toUpperCase() ?? "?"}
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-sm font-medium" style={{ color: "var(--b-text)" }}>{user?.name ?? "..."}</p>
+            <p className="truncate text-xs" style={{ color: "var(--b-text-3)" }}>{user?.email ?? ""}</p>
+          </div>
+          <button
+            type="button"
+            onClick={() => void handleSignOut()}
+            disabled={isSigningOut}
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg transition-[background-color,opacity,transform] hover:bg-black/5 active:scale-[0.96] disabled:opacity-60 dark:hover:bg-white/5"
+            style={{ color: "var(--b-text-3)" }}
+            title="Sair"
+          >
+            {isSigningOut ? <Loader2 className="h-4 w-4 animate-spin" /> : <LogOut className="h-4 w-4" />}
+          </button>
         </div>
-        <button
-          type="button"
-          onClick={() => authClient.signOut({ fetchOptions: { onSuccess: () => router.push("/") } })}
-          className="shrink-0 rounded-lg p-1.5 transition-colors hover:bg-black/5 dark:hover:bg-white/5"
-          style={{ color: "var(--b-text-3)" }}
-          title="Sair"
-        >
-          <LogOut className="h-4 w-4" />
-        </button>
-      </div>
+      )}
     </div>
   );
 }
 
 function MobileSignOut() {
   const router = useRouter();
+  const { signOut } = useAuthActions();
+  const [isSigningOut, setIsSigningOut] = useState(false);
+
+  async function handleSignOut() {
+    setIsSigningOut(true);
+    await signOut();
+    router.push("/");
+  }
+
   return (
     <button
       type="button"
-      onClick={() => authClient.signOut({ fetchOptions: { onSuccess: () => router.push("/") } })}
-      className="flex flex-col items-center gap-1 rounded-xl px-5 py-1.5 text-xs font-medium"
+      onClick={() => void handleSignOut()}
+      disabled={isSigningOut}
+      className="flex flex-col items-center gap-1 rounded-xl px-5 py-1.5 text-xs font-medium transition-[opacity,transform] active:scale-[0.96] disabled:opacity-60"
       style={{ color: "var(--b-text-3)" }}
     >
-      <LogOut className="h-5 w-5" />
+      {isSigningOut ? <Loader2 className="h-5 w-5 animate-spin" /> : <LogOut className="h-5 w-5" />}
       Sair
     </button>
   );
