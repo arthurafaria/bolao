@@ -48,6 +48,12 @@ CONVEX_URL=...
 FOOTBALL_DATA_API_KEY=...
 ```
 
+Instale o pre-commit hook (Biome):
+
+```bash
+bun run setup:hooks
+```
+
 Suba o ambiente de desenvolvimento:
 
 ```bash
@@ -66,6 +72,7 @@ Acesse em [http://localhost:3001](http://localhost:3001).
 | `bun run build` | Build de todos os workspaces |
 | `bun run check-types` | TypeScript em todos os workspaces |
 | `bun run check` | Biome lint + format (com autofix) |
+| `bun run setup:hooks` | Instala pre-commit hook localmente |
 
 ## Adicionar componentes UI
 

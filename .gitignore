@@ -6,7 +6,11 @@ node_modules
 # Build outputs
 dist
 build
+.next
 *.tsbuildinfo
+
+# Convex generated files
+packages/backend/convex/_generated
 
 # Environment variables
 .env
