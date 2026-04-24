@@ -51,9 +51,10 @@ function AppNav() {
 		<>
 			{/* Desktop sidebar */}
 			<aside
-				className="hidden md:flex md:min-h-screen md:w-60 md:shrink-0 md:flex-col"
+				className="hidden md:flex md:min-h-screen md:w-64 md:shrink-0 md:flex-col"
 				style={{
-					background: "var(--b-surface)",
+					background:
+						"linear-gradient(180deg, color-mix(in oklch, var(--b-surface) 92%, var(--b-card)), var(--b-surface))",
 					borderRight: "1px solid var(--b-border)",
 				}}
 			>
@@ -63,8 +64,12 @@ function AppNav() {
 					style={{ borderBottom: "1px solid var(--b-border)" }}
 				>
 					<div
-						className="flex h-9 w-9 items-center justify-center rounded-xl"
-						style={{ background: "var(--b-brand)" }}
+						className="flex h-10 w-10 items-center justify-center rounded-2xl"
+						style={{
+							background:
+								"linear-gradient(135deg, var(--b-brand), oklch(0.72 0.22 155))",
+							boxShadow: "var(--b-shadow-soft)",
+						}}
 					>
 						<Trophy
 							className="h-4.5 w-4.5"
@@ -80,7 +85,7 @@ function AppNav() {
 				</div>
 
 				{/* Nav items */}
-				<nav className="flex-1 px-3 py-4">
+				<nav className="flex-1 px-4 py-5">
 					<ul className="space-y-1">
 						{navItems.map(({ href, label, icon: Icon }) => {
 							const active =
@@ -89,10 +94,13 @@ function AppNav() {
 								<li key={href}>
 									<Link
 										href={href as Route}
-										className="flex items-center gap-3 rounded-xl px-4 py-2.5 font-medium text-sm transition-[background-color,color]"
+										className="flex min-h-11 items-center gap-3 rounded-[20px] px-4 py-3 font-medium text-sm transition-[background-color,color,transform] active:scale-[0.96]"
 										style={{
-											background: active ? "var(--b-brand-12)" : "transparent",
+											background: active
+												? "linear-gradient(135deg, var(--b-brand-12), color-mix(in oklch, var(--b-brand) 18%, transparent))"
+												: "transparent",
 											color: active ? "var(--b-brand-hi)" : "var(--b-text-3)",
+											boxShadow: active ? "var(--b-shadow-soft)" : "none",
 										}}
 									>
 										<Icon className="h-4.5 w-4.5 shrink-0" />
@@ -182,14 +190,14 @@ function UserSidebarBottom() {
 						className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full font-bold text-xs"
 						style={{ background: "var(--b-brand-15)", color: "var(--b-brand)" }}
 					>
-						{user?.name?.[0]?.toUpperCase() ?? "?"}
+						{(user?.name ?? user?.email)?.[0]?.toUpperCase() ?? "?"}
 					</div>
 					<div className="min-w-0 flex-1">
 						<p
 							className="truncate font-medium text-sm"
 							style={{ color: "var(--b-text)" }}
 						>
-							{user?.name ?? "..."}
+							{user?.name ?? user?.email?.split("@")[0] ?? "Usuário"}
 						</p>
 						<p
 							className="truncate text-xs"
@@ -362,9 +370,10 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 						<header
 							className="sticky top-0 z-40 flex items-center justify-between px-4 py-3 md:px-6 md:py-4"
 							style={{
-								background: "color-mix(in oklch, var(--b-bg) 96%, transparent)",
+								background:
+									"color-mix(in oklch, var(--b-bg) 92%, transparent)",
 								borderBottom: "1px solid var(--b-border)",
-								backdropFilter: "blur(12px)",
+								backdropFilter: "blur(18px)",
 							}}
 						>
 							{/* Mobile logo */}
@@ -373,8 +382,12 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 								className="flex items-center gap-2 md:hidden"
 							>
 								<div
-									className="flex h-7 w-7 items-center justify-center rounded-lg"
-									style={{ background: "var(--b-brand)" }}
+									className="flex h-8 w-8 items-center justify-center rounded-xl"
+									style={{
+										background:
+											"linear-gradient(135deg, var(--b-brand), oklch(0.72 0.22 155))",
+										boxShadow: "var(--b-shadow-soft)",
+									}}
 								>
 									<Trophy
 										className="h-3.5 w-3.5"
@@ -396,7 +409,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 						</header>
 
 						<main className="flex-1 px-4 py-5 pb-24 md:px-6 md:py-6 md:pb-6">
-							<div className="mx-auto max-w-3xl">{children}</div>
+							<div className="mx-auto max-w-5xl">{children}</div>
 						</main>
 					</div>
 				</div>

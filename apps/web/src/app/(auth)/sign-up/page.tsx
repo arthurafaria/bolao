@@ -1,11 +1,10 @@
 "use client";
-
 import { Button } from "@bolao/ui/components/button";
 import { Input } from "@bolao/ui/components/input";
 import { Label } from "@bolao/ui/components/label";
 import { useAuthActions } from "@convex-dev/auth/react";
 import { useForm } from "@tanstack/react-form";
-import { Loader2 } from "lucide-react";
+import { Check, Loader2, Sparkles, Trophy } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -27,6 +26,12 @@ function getSignUpErrorMessage(error: unknown) {
 	}
 	return "Erro ao criar conta. Tente novamente.";
 }
+
+const benefits = [
+	"Cadastre-se em menos de 1 minuto",
+	"Crie ou entre em ligas privadas",
+	"Acompanhe ranking, pontos e próximos jogos",
+];
 
 export default function SignUpPage() {
 	const router = useRouter();
@@ -57,19 +62,68 @@ export default function SignUpPage() {
 	});
 
 	return (
-		<div>
-			<div className="mb-8">
-				<h1
-					className="mb-1 text-balance font-black font-display text-4xl uppercase leading-tight tracking-tight"
-					style={{ color: "var(--b-text)" }}
+		<div className="space-y-8">
+			<div className="space-y-5">
+				<div
+					className="inline-flex items-center gap-2 rounded-full px-4 py-1.5 font-semibold text-xs uppercase tracking-[0.22em]"
+					style={{ background: "var(--b-brand-10)", color: "var(--b-brand)" }}
 				>
-					Crie sua
-					<br />
-					conta
-				</h1>
-				<p style={{ color: "var(--b-text-3)" }}>
-					Grátis. Sem cartão. Comece agora.
-				</p>
+					<Sparkles className="h-4 w-4" />
+					Crie sua conta
+				</div>
+
+				<div className="space-y-3">
+					<h1
+						className="text-balance font-black font-display text-5xl uppercase leading-none tracking-tight"
+						style={{ color: "var(--b-text)" }}
+					>
+						Entre no jogo
+						<br />
+						com estilo
+					</h1>
+					<p className="max-w-sm text-pretty leading-relaxed" style={{ color: "var(--b-text-2)" }}>
+						Abra sua conta grátis e comece a disputar ranking, ligas e moral no
+						grupo com uma experiência mais organizada.
+					</p>
+				</div>
+			</div>
+
+			<div
+				className="rounded-[30px] p-5"
+				style={{
+					background:
+						"linear-gradient(180deg, color-mix(in oklch, var(--b-brand) 10%, var(--b-card)), color-mix(in oklch, var(--b-card) 92%, transparent))",
+					boxShadow: "var(--b-shadow-card)",
+				}}
+			>
+				<div className="flex items-start gap-4">
+					<div
+						className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl"
+						style={{ background: "var(--b-brand)", color: "var(--b-brand-fg)" }}
+					>
+						<Trophy className="h-5 w-5" />
+					</div>
+					<div>
+						<p className="font-display text-2xl uppercase leading-none" style={{ color: "var(--b-text)", fontWeight: 800 }}>
+							Resumo do kickoff
+						</p>
+						<div className="mt-4 space-y-3">
+							{benefits.map((benefit) => (
+								<div key={benefit} className="flex items-center gap-3">
+									<div
+										className="flex h-7 w-7 items-center justify-center rounded-full"
+										style={{ background: "var(--b-card)", color: "var(--b-brand)" }}
+									>
+										<Check className="h-4 w-4" />
+									</div>
+									<span className="text-sm leading-relaxed" style={{ color: "var(--b-text)" }}>
+										{benefit}
+									</span>
+								</div>
+							))}
+						</div>
+					</div>
+				</div>
 			</div>
 
 			<form
@@ -84,27 +138,27 @@ export default function SignUpPage() {
 						name: "name" as const,
 						label: "Nome",
 						type: "text",
-						placeholder: "Seu nome",
+						placeholder: "Como a galera vai te ver no ranking",
 					},
 					{
 						name: "email" as const,
 						label: "Email",
 						type: "email",
-						placeholder: "seu@email.com",
+						placeholder: "voce@bolao.com",
 					},
 					{
 						name: "password" as const,
 						label: "Senha",
 						type: "password",
-						placeholder: "Mínimo 8 caracteres",
+						placeholder: "Crie uma senha com 8 caracteres ou mais",
 					},
 				].map(({ name, label, type, placeholder }) => (
 					<form.Field key={name} name={name}>
 						{(field) => (
-							<div className="space-y-1.5">
+							<div className="space-y-2">
 								<Label
 									htmlFor={name}
-									className="font-semibold text-sm uppercase tracking-wider"
+									className="font-semibold text-xs uppercase tracking-[0.22em]"
 									style={{ color: "var(--b-text-3)" }}
 								>
 									{label}
@@ -115,18 +169,16 @@ export default function SignUpPage() {
 									placeholder={placeholder}
 									value={field.state.value}
 									onChange={(e) => field.handleChange(e.target.value)}
-									className="h-11"
+									className="h-13 rounded-[22px] border-0 px-4 text-base shadow-none"
 									style={{
 										background: "var(--b-input-bg)",
-										borderColor: "var(--b-border-md)",
 										color: "var(--b-text)",
+										boxShadow:
+											"inset 0 0 0 1px var(--b-border-md), 0 1px 0 rgb(255 255 255 / 0.35)",
 									}}
 								/>
 								{field.state.meta.errors[0] && (
-									<p
-										className="text-xs"
-										style={{ color: "oklch(0.67 0.22 22)" }}
-									>
+									<p className="text-xs" style={{ color: "oklch(0.67 0.22 22)" }}>
 										{field.state.meta.errors[0]?.message}
 									</p>
 								)}
@@ -134,6 +186,14 @@ export default function SignUpPage() {
 						)}
 					</form.Field>
 				))}
+
+				<div
+					className="rounded-[26px] px-4 py-3 text-sm leading-relaxed"
+					style={{ background: "var(--b-tint)", color: "var(--b-text-3)" }}
+				>
+					Sem cartão, sem complicação. Entrou, escolheu o torneio e já pode
+					começar a palpitar.
+				</div>
 
 				<form.Subscribe
 					selector={(s) => ({
@@ -144,33 +204,31 @@ export default function SignUpPage() {
 					{({ canSubmit, isSubmitting }) => (
 						<Button
 							type="submit"
-							className="mt-2 h-11 w-full font-bold font-display text-base uppercase tracking-wide"
+							className="mt-2 h-13 w-full rounded-[22px] font-bold font-display text-sm uppercase tracking-[0.18em]"
 							disabled={!canSubmit || isSubmitting}
+							style={{ boxShadow: "var(--b-shadow-soft)" }}
 						>
 							{isSubmitting ? (
 								<>
 									<Loader2 className="h-4 w-4 animate-spin" />
-									Criando...
+									Criando conta
 								</>
 							) : (
-								"Criar conta"
+								"Criar conta grátis"
 							)}
 						</Button>
 					)}
 				</form.Subscribe>
 			</form>
 
-			<p
-				className="mt-6 text-center text-sm"
-				style={{ color: "var(--b-text-3)" }}
-			>
+			<p className="text-center text-sm leading-relaxed" style={{ color: "var(--b-text-3)" }}>
 				Já tem conta?{" "}
 				<Link
 					href="/sign-in"
 					className="font-semibold transition-colors"
 					style={{ color: "var(--b-brand)" }}
 				>
-					Entrar
+					Entrar agora
 				</Link>
 			</p>
 		</div>

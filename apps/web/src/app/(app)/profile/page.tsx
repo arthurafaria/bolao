@@ -50,14 +50,14 @@ export default function ProfilePage() {
 					className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full font-black text-xl"
 					style={{ background: "var(--b-brand-15)", color: "var(--b-brand)" }}
 				>
-					{user?.name?.[0]?.toUpperCase() ?? "?"}
+					{(user?.name ?? user?.email)?.[0]?.toUpperCase() ?? "?"}
 				</div>
 				<div className="min-w-0">
 					<p
 						className="truncate font-bold font-display text-lg"
 						style={{ color: "var(--b-text)" }}
 					>
-						{user?.name ?? "..."}
+						{user?.name ?? user?.email?.split("@")[0] ?? "Usuário"}
 					</p>
 					<p className="truncate text-sm" style={{ color: "var(--b-text-3)" }}>
 						{user?.email ?? ""}
