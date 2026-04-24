@@ -370,8 +370,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 						<header
 							className="sticky top-0 z-40 flex items-center justify-between px-4 py-3 md:px-6 md:py-4"
 							style={{
-								background:
-									"color-mix(in oklch, var(--b-bg) 92%, transparent)",
+								background: "color-mix(in oklch, var(--b-bg) 92%, transparent)",
 								borderBottom: "1px solid var(--b-border)",
 								backdropFilter: "blur(18px)",
 							}}

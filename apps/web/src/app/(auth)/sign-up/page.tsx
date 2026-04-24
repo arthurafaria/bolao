@@ -81,7 +81,10 @@ export default function SignUpPage() {
 						<br />
 						com estilo
 					</h1>
-					<p className="max-w-sm text-pretty leading-relaxed" style={{ color: "var(--b-text-2)" }}>
+					<p
+						className="max-w-sm text-pretty leading-relaxed"
+						style={{ color: "var(--b-text-2)" }}
+					>
 						Abra sua conta grátis e comece a disputar ranking, ligas e moral no
 						grupo com uma experiência mais organizada.
 					</p>
@@ -104,7 +107,10 @@ export default function SignUpPage() {
 						<Trophy className="h-5 w-5" />
 					</div>
 					<div>
-						<p className="font-display text-2xl uppercase leading-none" style={{ color: "var(--b-text)", fontWeight: 800 }}>
+						<p
+							className="font-display text-2xl uppercase leading-none"
+							style={{ color: "var(--b-text)", fontWeight: 800 }}
+						>
 							Resumo do kickoff
 						</p>
 						<div className="mt-4 space-y-3">
@@ -112,11 +118,17 @@ export default function SignUpPage() {
 								<div key={benefit} className="flex items-center gap-3">
 									<div
 										className="flex h-7 w-7 items-center justify-center rounded-full"
-										style={{ background: "var(--b-card)", color: "var(--b-brand)" }}
+										style={{
+											background: "var(--b-card)",
+											color: "var(--b-brand)",
+										}}
 									>
 										<Check className="h-4 w-4" />
 									</div>
-									<span className="text-sm leading-relaxed" style={{ color: "var(--b-text)" }}>
+									<span
+										className="text-sm leading-relaxed"
+										style={{ color: "var(--b-text)" }}
+									>
 										{benefit}
 									</span>
 								</div>
@@ -178,7 +190,10 @@ export default function SignUpPage() {
 									}}
 								/>
 								{field.state.meta.errors[0] && (
-									<p className="text-xs" style={{ color: "oklch(0.67 0.22 22)" }}>
+									<p
+										className="text-xs"
+										style={{ color: "oklch(0.67 0.22 22)" }}
+									>
 										{field.state.meta.errors[0]?.message}
 									</p>
 								)}
@@ -221,7 +236,10 @@ export default function SignUpPage() {
 				</form.Subscribe>
 			</form>
 
-			<p className="text-center text-sm leading-relaxed" style={{ color: "var(--b-text-3)" }}>
+			<p
+				className="text-center text-sm leading-relaxed"
+				style={{ color: "var(--b-text-3)" }}
+			>
 				Já tem conta?{" "}
 				<Link
 					href="/sign-in"

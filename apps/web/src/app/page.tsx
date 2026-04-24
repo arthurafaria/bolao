@@ -65,7 +65,10 @@ export default function LandingPage() {
 							boxShadow: "var(--b-shadow-soft)",
 						}}
 					>
-						<Trophy className="h-5 w-5" style={{ color: "var(--b-brand-fg)" }} />
+						<Trophy
+							className="h-5 w-5"
+							style={{ color: "var(--b-brand-fg)" }}
+						/>
 					</div>
 					<div>
 						<p
@@ -74,7 +77,10 @@ export default function LandingPage() {
 						>
 							Bolão 2026
 						</p>
-						<p className="text-xs uppercase tracking-[0.24em]" style={{ color: "var(--b-text-3)" }}>
+						<p
+							className="text-xs uppercase tracking-[0.24em]"
+							style={{ color: "var(--b-text-3)" }}
+						>
 							Copa e Brasileirão
 						</p>
 					</div>
@@ -104,7 +110,8 @@ export default function LandingPage() {
 									key={tag}
 									className="rounded-full px-4 py-1.5 font-semibold text-xs uppercase tracking-[0.22em]"
 									style={{
-										background: "color-mix(in oklch, var(--b-card) 76%, transparent)",
+										background:
+											"color-mix(in oklch, var(--b-card) 76%, transparent)",
 										color: "var(--b-brand)",
 										boxShadow: "var(--b-shadow-soft)",
 									}}
@@ -127,16 +134,15 @@ export default function LandingPage() {
 							para quem
 							<br />
 							leva futebol
-							<br />
-							a sério
+							<br />a sério
 						</h1>
 
 						<p
 							className="mt-6 max-w-xl text-pretty text-lg leading-relaxed md:text-xl"
 							style={{ color: "var(--b-text-2)" }}
 						>
-							Faça palpites, acompanhe ligas e veja a tabela mudar em tempo
-							real com uma experiência mais elegante do que qualquer planilha no
+							Faça palpites, acompanhe ligas e veja a tabela mudar em tempo real
+							com uma experiência mais elegante do que qualquer planilha no
 							grupo.
 						</p>
 
@@ -152,7 +158,8 @@ export default function LandingPage() {
 								href="/sign-in"
 								className={`${buttonVariants({ variant: "outline", size: "lg" })} min-h-12 px-7 text-sm uppercase tracking-[0.18em]`}
 								style={{
-									background: "color-mix(in oklch, var(--b-card) 84%, transparent)",
+									background:
+										"color-mix(in oklch, var(--b-card) 84%, transparent)",
 									borderColor: "var(--b-border-md)",
 									boxShadow: "var(--b-shadow-soft)",
 								}}
@@ -183,7 +190,10 @@ export default function LandingPage() {
 									>
 										{item.value}
 									</p>
-									<p className="mt-2 text-sm leading-relaxed" style={{ color: "var(--b-text-3)" }}>
+									<p
+										className="mt-2 text-sm leading-relaxed"
+										style={{ color: "var(--b-text-3)" }}
+									>
 										{item.label}
 									</p>
 								</div>
@@ -194,7 +204,10 @@ export default function LandingPage() {
 					<div className="relative">
 						<div
 							className="absolute -top-6 -right-4 hidden h-24 w-24 rounded-full blur-3xl lg:block"
-							style={{ background: "color-mix(in oklch, var(--b-brand) 36%, transparent)" }}
+							style={{
+								background:
+									"color-mix(in oklch, var(--b-brand) 36%, transparent)",
+							}}
 						/>
 						<div
 							className="relative overflow-hidden rounded-[40px] p-5 sm:p-6"
@@ -214,16 +227,31 @@ export default function LandingPage() {
 								}}
 							/>
 
-							<div className="relative flex items-center justify-between rounded-[28px] px-4 py-4" style={{ background: "var(--b-tint)" }}>
+							<div
+								className="relative flex items-center justify-between rounded-[28px] px-4 py-4"
+								style={{ background: "var(--b-tint)" }}
+							>
 								<div>
-									<p className="text-xs uppercase tracking-[0.24em]" style={{ color: "var(--b-text-3)" }}>
+									<p
+										className="text-xs uppercase tracking-[0.24em]"
+										style={{ color: "var(--b-text-3)" }}
+									>
 										Dashboard do bolão
 									</p>
-									<p className="mt-1 font-display text-3xl uppercase" style={{ color: "var(--b-text)", fontWeight: 800 }}>
+									<p
+										className="mt-1 font-display text-3xl uppercase"
+										style={{ color: "var(--b-text)", fontWeight: 800 }}
+									>
 										Modo decisão
 									</p>
 								</div>
-								<div className="rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em]" style={{ background: "var(--b-brand-10)", color: "var(--b-brand)" }}>
+								<div
+									className="rounded-full px-3 py-1 font-semibold text-xs uppercase tracking-[0.18em]"
+									style={{
+										background: "var(--b-brand-10)",
+										color: "var(--b-brand)",
+									}}
+								>
 									Ao vivo
 								</div>
 							</div>
@@ -238,14 +266,26 @@ export default function LandingPage() {
 								>
 									<div className="flex items-center justify-between">
 										<div>
-											<p className="text-xs uppercase tracking-[0.24em]" style={{ color: "var(--b-text-3)" }}>
+											<p
+												className="text-xs uppercase tracking-[0.24em]"
+												style={{ color: "var(--b-text-3)" }}
+											>
 												Sua rodada
 											</p>
-											<p className="mt-2 font-display text-5xl tabular-nums leading-none" style={{ color: "var(--b-text)", fontWeight: 900 }}>
+											<p
+												className="mt-2 font-display text-5xl tabular-nums leading-none"
+												style={{ color: "var(--b-text)", fontWeight: 900 }}
+											>
 												78
 											</p>
 										</div>
-										<div className="rounded-2xl px-3 py-2 text-sm font-semibold" style={{ background: "var(--b-brand-10)", color: "var(--b-brand)" }}>
+										<div
+											className="rounded-2xl px-3 py-2 font-semibold text-sm"
+											style={{
+												background: "var(--b-brand-10)",
+												color: "var(--b-brand)",
+											}}
+										>
 											+12 hoje
 										</div>
 									</div>
@@ -255,9 +295,17 @@ export default function LandingPage() {
 											["Resultados certos", "7"],
 											["Posição na liga", "2º"],
 										].map(([label, value]) => (
-											<div key={label} className="flex items-center justify-between text-sm">
-												<span style={{ color: "var(--b-text-3)" }}>{label}</span>
-												<span className="font-semibold tabular-nums" style={{ color: "var(--b-text)" }}>
+											<div
+												key={label}
+												className="flex items-center justify-between text-sm"
+											>
+												<span style={{ color: "var(--b-text-3)" }}>
+													{label}
+												</span>
+												<span
+													className="font-semibold tabular-nums"
+													style={{ color: "var(--b-text)" }}
+												>
 													{value}
 												</span>
 											</div>
@@ -274,11 +322,17 @@ export default function LandingPage() {
 											boxShadow: "var(--b-shadow-card)",
 										}}
 									>
-										<div className="flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.18em]" style={{ color: "var(--b-brand)" }}>
+										<div
+											className="flex items-center gap-2 font-semibold text-sm uppercase tracking-[0.18em]"
+											style={{ color: "var(--b-brand)" }}
+										>
 											<Sparkles className="h-4 w-4" />
 											Visão rápida
 										</div>
-										<p className="mt-4 text-pretty text-sm leading-relaxed" style={{ color: "var(--b-text)" }}>
+										<p
+											className="mt-4 text-pretty text-sm leading-relaxed"
+											style={{ color: "var(--b-text)" }}
+										>
 											Seu próximo palpite fecha às 17:00. Ainda dá tempo de
 											cravar o placar e tomar a ponta da liga.
 										</p>
@@ -291,7 +345,10 @@ export default function LandingPage() {
 											boxShadow: "var(--b-shadow-card)",
 										}}
 									>
-										<p className="text-xs uppercase tracking-[0.24em]" style={{ color: "var(--b-text-3)" }}>
+										<p
+											className="text-xs uppercase tracking-[0.24em]"
+											style={{ color: "var(--b-text-3)" }}
+										>
 											Top da semana
 										</p>
 										<div className="mt-4 space-y-3">
@@ -303,17 +360,34 @@ export default function LandingPage() {
 												<div
 													key={name}
 													className="flex items-center justify-between rounded-[22px] px-4 py-3"
-													style={{ background: index === 2 ? "var(--b-brand-10)" : "var(--b-tint)" }}
+													style={{
+														background:
+															index === 2
+																? "var(--b-brand-10)"
+																: "var(--b-tint)",
+													}}
 												>
 													<div className="flex items-center gap-3">
-														<div className="flex h-9 w-9 items-center justify-center rounded-full font-bold text-xs" style={{ background: "var(--b-card)", color: "var(--b-text)" }}>
+														<div
+															className="flex h-9 w-9 items-center justify-center rounded-full font-bold text-xs"
+															style={{
+																background: "var(--b-card)",
+																color: "var(--b-text)",
+															}}
+														>
 															{index + 1}
 														</div>
-														<span className="font-medium" style={{ color: "var(--b-text)" }}>
+														<span
+															className="font-medium"
+															style={{ color: "var(--b-text)" }}
+														>
 															{name}
 														</span>
 													</div>
-													<span className="font-display text-xl tabular-nums" style={{ color: "var(--b-brand)", fontWeight: 800 }}>
+													<span
+														className="font-display text-xl tabular-nums"
+														style={{ color: "var(--b-brand)", fontWeight: 800 }}
+													>
 														{points}
 													</span>
 												</div>
@@ -328,34 +402,48 @@ export default function LandingPage() {
 
 				<section className="mx-auto max-w-7xl px-6 pb-20 md:px-10">
 					<div className="grid gap-5 lg:grid-cols-3">
-						{featureCards.map(({ icon: Icon, title, description, highlight }) => (
-							<div
-								key={title}
-								className="rounded-[34px] p-7"
-								style={{
-									background:
-										"color-mix(in oklch, var(--b-card) 90%, transparent)",
-									boxShadow: "var(--b-shadow-card)",
-									outline: "1px solid var(--b-border-sm)",
-								}}
-							>
+						{featureCards.map(
+							({ icon: Icon, title, description, highlight }) => (
 								<div
-									className="flex h-12 w-12 items-center justify-center rounded-2xl"
-									style={{ background: "var(--b-brand-10)", color: "var(--b-brand)" }}
+									key={title}
+									className="rounded-[34px] p-7"
+									style={{
+										background:
+											"color-mix(in oklch, var(--b-card) 90%, transparent)",
+										boxShadow: "var(--b-shadow-card)",
+										outline: "1px solid var(--b-border-sm)",
+									}}
 								>
-									<Icon className="h-5 w-5" />
+									<div
+										className="flex h-12 w-12 items-center justify-center rounded-2xl"
+										style={{
+											background: "var(--b-brand-10)",
+											color: "var(--b-brand)",
+										}}
+									>
+										<Icon className="h-5 w-5" />
+									</div>
+									<h2
+										className="mt-5 font-display text-3xl uppercase leading-none"
+										style={{ color: "var(--b-text)", fontWeight: 800 }}
+									>
+										{title}
+									</h2>
+									<p
+										className="mt-4 text-pretty leading-relaxed"
+										style={{ color: "var(--b-text-2)" }}
+									>
+										{description}
+									</p>
+									<p
+										className="mt-5 font-semibold text-sm uppercase tracking-[0.18em]"
+										style={{ color: "var(--b-brand)" }}
+									>
+										{highlight}
+									</p>
 								</div>
-								<h2 className="mt-5 font-display text-3xl uppercase leading-none" style={{ color: "var(--b-text)", fontWeight: 800 }}>
-									{title}
-								</h2>
-								<p className="mt-4 text-pretty leading-relaxed" style={{ color: "var(--b-text-2)" }}>
-									{description}
-								</p>
-								<p className="mt-5 text-sm font-semibold uppercase tracking-[0.18em]" style={{ color: "var(--b-brand)" }}>
-									{highlight}
-								</p>
-							</div>
-						))}
+							),
+						)}
 					</div>
 				</section>
 
@@ -370,10 +458,16 @@ export default function LandingPage() {
 						}}
 					>
 						<div>
-							<p className="text-xs font-semibold uppercase tracking-[0.24em]" style={{ color: "var(--b-brand)" }}>
+							<p
+								className="font-semibold text-xs uppercase tracking-[0.24em]"
+								style={{ color: "var(--b-brand)" }}
+							>
 								Como funciona
 							</p>
-							<h2 className="mt-4 text-balance font-display text-5xl uppercase leading-none" style={{ color: "var(--b-text)", fontWeight: 900 }}>
+							<h2
+								className="mt-4 text-balance font-display text-5xl uppercase leading-none"
+								style={{ color: "var(--b-text)", fontWeight: 900 }}
+							>
 								Menos fricção.
 								<br />
 								Mais disputa.
@@ -386,17 +480,25 @@ export default function LandingPage() {
 									key={step}
 									className="flex gap-4 rounded-[28px] px-5 py-5"
 									style={{
-										background: "color-mix(in oklch, var(--b-card) 84%, transparent)",
+										background:
+											"color-mix(in oklch, var(--b-card) 84%, transparent)",
 										boxShadow: "var(--b-shadow-soft)",
 									}}
 								>
 									<div
 										className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl font-display text-xl"
-										style={{ background: "var(--b-brand-10)", color: "var(--b-brand)", fontWeight: 800 }}
+										style={{
+											background: "var(--b-brand-10)",
+											color: "var(--b-brand)",
+											fontWeight: 800,
+										}}
 									>
 										{index + 1}
 									</div>
-									<p className="self-center text-pretty leading-relaxed" style={{ color: "var(--b-text)" }}>
+									<p
+										className="self-center text-pretty leading-relaxed"
+										style={{ color: "var(--b-text)" }}
+									>
 										{step}
 									</p>
 								</div>
@@ -407,16 +509,28 @@ export default function LandingPage() {
 
 				<section className="px-6 pb-24 md:px-10">
 					<div className="mx-auto max-w-5xl text-center">
-						<div className="mb-5 inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.22em]" style={{ background: "var(--b-brand-10)", color: "var(--b-brand)" }}>
+						<div
+							className="mb-5 inline-flex items-center gap-2 rounded-full px-4 py-1.5 font-semibold text-xs uppercase tracking-[0.22em]"
+							style={{
+								background: "var(--b-brand-10)",
+								color: "var(--b-brand)",
+							}}
+						>
 							<Star className="h-4 w-4" />
 							Bora subir esse ranking
 						</div>
-						<h2 className="text-balance font-display text-5xl uppercase leading-none md:text-7xl" style={{ color: "var(--b-text)", fontWeight: 900 }}>
+						<h2
+							className="text-balance font-display text-5xl uppercase leading-none md:text-7xl"
+							style={{ color: "var(--b-text)", fontWeight: 900 }}
+						>
 							Seu grupo merece
 							<br />
 							um bolão à altura
 						</h2>
-						<p className="mx-auto mt-5 max-w-2xl text-pretty text-lg leading-relaxed" style={{ color: "var(--b-text-2)" }}>
+						<p
+							className="mx-auto mt-5 max-w-2xl text-pretty text-lg leading-relaxed"
+							style={{ color: "var(--b-text-2)" }}
+						>
 							Cadastre-se em segundos e transforme cada rodada em uma briga boa
 							por pontos, posição e moral.
 						</p>

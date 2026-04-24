@@ -51,7 +51,10 @@ function StatCard({
 				{value}
 			</p>
 			{sub && (
-				<p className="mt-3 text-sm leading-relaxed" style={{ color: "var(--b-text-3)" }}>
+				<p
+					className="mt-3 text-sm leading-relaxed"
+					style={{ color: "var(--b-text-3)" }}
+				>
 					{sub}
 				</p>
 			)}
@@ -145,10 +148,17 @@ export default function DashboardPage() {
 						>
 							Início
 						</h1>
-						<p className="mt-3 text-sm uppercase tracking-[0.22em]" style={{ color: "var(--b-text-3)" }}>
-							{COMPETITIONS[tournament].label} {COMPETITIONS[tournament].sublabel}
+						<p
+							className="mt-3 text-sm uppercase tracking-[0.22em]"
+							style={{ color: "var(--b-text-3)" }}
+						>
+							{COMPETITIONS[tournament].label}{" "}
+							{COMPETITIONS[tournament].sublabel}
 						</p>
-						<p className="mt-5 max-w-2xl text-pretty text-base leading-relaxed sm:text-lg" style={{ color: "var(--b-text-2)" }}>
+						<p
+							className="mt-5 max-w-2xl text-pretty text-base leading-relaxed sm:text-lg"
+							style={{ color: "var(--b-text-2)" }}
+						>
 							Veja rapidamente seu momento no bolão, o que ainda falta palpitar
 							e onde estão as melhores chances de somar pontos hoje.
 						</p>
@@ -158,22 +168,32 @@ export default function DashboardPage() {
 						<div
 							className="rounded-[30px] p-5"
 							style={{
-								background: "color-mix(in oklch, var(--b-card) 84%, transparent)",
+								background:
+									"color-mix(in oklch, var(--b-card) 84%, transparent)",
 								boxShadow: "var(--b-shadow-card)",
 							}}
 						>
 							<div className="flex items-center gap-3">
 								<div
 									className="flex h-11 w-11 items-center justify-center rounded-2xl"
-									style={{ background: "var(--b-brand-10)", color: "var(--b-brand)" }}
+									style={{
+										background: "var(--b-brand-10)",
+										color: "var(--b-brand)",
+									}}
 								>
 									<CalendarClock className="h-5 w-5" />
 								</div>
 								<div>
-									<p className="text-xs uppercase tracking-[0.22em]" style={{ color: "var(--b-text-3)" }}>
+									<p
+										className="text-xs uppercase tracking-[0.22em]"
+										style={{ color: "var(--b-text-3)" }}
+									>
 										Próxima janela
 									</p>
-									<p className="mt-1 font-semibold" style={{ color: "var(--b-text)" }}>
+									<p
+										className="mt-1 font-semibold"
+										style={{ color: "var(--b-text)" }}
+									>
 										{nextMatch
 											? new Date(nextMatch.utcDate).toLocaleString("pt-BR", {
 													day: "2-digit",
@@ -185,7 +205,10 @@ export default function DashboardPage() {
 									</p>
 								</div>
 							</div>
-							<p className="mt-4 text-sm leading-relaxed" style={{ color: "var(--b-text-3)" }}>
+							<p
+								className="mt-4 text-sm leading-relaxed"
+								style={{ color: "var(--b-text-3)" }}
+							>
 								{nextMatch
 									? `${pendingPredictions} jogo${pendingPredictions === 1 ? "" : "s"} dessa lista ainda sem palpite salvo.`
 									: "Quando a agenda sair, seus próximos jogos aparecem aqui."}
@@ -195,29 +218,42 @@ export default function DashboardPage() {
 						<div
 							className="rounded-[30px] p-5"
 							style={{
-								background: "color-mix(in oklch, var(--b-card) 84%, transparent)",
+								background:
+									"color-mix(in oklch, var(--b-card) 84%, transparent)",
 								boxShadow: "var(--b-shadow-card)",
 							}}
 						>
 							<div className="flex items-center gap-3">
 								<div
 									className="flex h-11 w-11 items-center justify-center rounded-2xl"
-									style={{ background: "var(--b-brand-10)", color: "var(--b-brand)" }}
+									style={{
+										background: "var(--b-brand-10)",
+										color: "var(--b-brand)",
+									}}
 								>
 									<Target className="h-5 w-5" />
 								</div>
 								<div>
-									<p className="text-xs uppercase tracking-[0.22em]" style={{ color: "var(--b-text-3)" }}>
+									<p
+										className="text-xs uppercase tracking-[0.22em]"
+										style={{ color: "var(--b-text-3)" }}
+									>
 										Status da rodada
 									</p>
-									<p className="mt-1 font-semibold" style={{ color: "var(--b-text)" }}>
+									<p
+										className="mt-1 font-semibold"
+										style={{ color: "var(--b-text)" }}
+									>
 										{(stats?.exact ?? 0) > 0
 											? "Você já cravou placares"
 											: "Hora de buscar os exatos"}
 									</p>
 								</div>
 							</div>
-							<p className="mt-4 text-sm leading-relaxed" style={{ color: "var(--b-text-3)" }}>
+							<p
+								className="mt-4 text-sm leading-relaxed"
+								style={{ color: "var(--b-text-3)" }}
+							>
 								{(stats?.total ?? 0) > 0
 									? `Você já registrou ${stats?.total ?? 0} palpites até agora.`
 									: "Seu primeiro palpite ainda está esperando por você."}
@@ -345,15 +381,24 @@ export default function DashboardPage() {
 											<Icon className="h-5 w-5" />
 										</div>
 										<div>
-											<p className="text-xs uppercase tracking-[0.22em]" style={{ color: "var(--b-text-3)" }}>
+											<p
+												className="text-xs uppercase tracking-[0.22em]"
+												style={{ color: "var(--b-text-3)" }}
+											>
 												{title}
 											</p>
-											<p className="mt-1 font-display text-3xl tabular-nums" style={{ color: "var(--b-text)", fontWeight: 800 }}>
+											<p
+												className="mt-1 font-display text-3xl tabular-nums"
+												style={{ color: "var(--b-text)", fontWeight: 800 }}
+											>
 												{value}
 											</p>
 										</div>
 									</div>
-									<p className="mt-4 text-sm leading-relaxed" style={{ color: "var(--b-text-3)" }}>
+									<p
+										className="mt-4 text-sm leading-relaxed"
+										style={{ color: "var(--b-text-3)" }}
+									>
 										{copy}
 									</p>
 								</div>
@@ -413,11 +458,17 @@ export default function DashboardPage() {
 													<div className="text-right">
 														<p
 															className="font-display text-3xl tabular-nums leading-none"
-															style={{ color: "var(--b-brand)", fontWeight: 800 }}
+															style={{
+																color: "var(--b-brand)",
+																fontWeight: 800,
+															}}
 														>
 															{league.myPoints}
 														</p>
-														<p className="mt-1 text-xs uppercase tracking-[0.18em]" style={{ color: "var(--b-text-3)" }}>
+														<p
+															className="mt-1 text-xs uppercase tracking-[0.18em]"
+															style={{ color: "var(--b-text-3)" }}
+														>
 															pontos
 														</p>
 													</div>

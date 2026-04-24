@@ -82,7 +82,8 @@ export default function AuthLayout({
 						<div
 							className="mb-5 inline-flex items-center gap-2 rounded-full px-4 py-1.5 font-semibold text-xs uppercase tracking-[0.22em]"
 							style={{
-								background: "color-mix(in oklch, var(--b-card) 78%, transparent)",
+								background:
+									"color-mix(in oklch, var(--b-card) 78%, transparent)",
 								color: "var(--b-brand)",
 								boxShadow: "var(--b-shadow-soft)",
 							}}
@@ -91,7 +92,7 @@ export default function AuthLayout({
 							Seu bolão com cara de final
 						</div>
 						<div
-							className="mb-5 font-display uppercase leading-none text-balance"
+							className="mb-5 text-balance font-display uppercase leading-none"
 							style={{
 								fontSize: "clamp(3.4rem, 5vw, 5rem)",
 								fontWeight: 900,
@@ -103,11 +104,11 @@ export default function AuthLayout({
 							arquibancada
 						</div>
 						<p
-							className="max-w-md text-lg leading-relaxed text-pretty"
+							className="max-w-md text-pretty text-lg leading-relaxed"
 							style={{ color: "var(--b-text-2)" }}
 						>
-							Crie sua conta, acompanhe os torneios e transforme cada rodada
-							em uma disputa bonita, rápida e organizada com a galera.
+							Crie sua conta, acompanhe os torneios e transforme cada rodada em
+							uma disputa bonita, rápida e organizada com a galera.
 						</p>
 
 						<div className="mt-10 grid max-w-lg gap-4">
