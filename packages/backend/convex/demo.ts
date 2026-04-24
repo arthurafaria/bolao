@@ -13,11 +13,12 @@ const DEMO_TEAMS = [
 export const seedDemo = mutation({
   args: {},
   handler: async (ctx) => {
-    const existing = await ctx.db
+    // Clear stale demo matches to allow re-seeding with updated config
+    const stale = await ctx.db
       .query("matches")
       .withIndex("by_tournament_stage", (q) => q.eq("tournament", "DEMO"))
-      .first();
-    if (existing) return { alreadySeeded: true };
+      .collect();
+    for (const m of stale) await ctx.db.delete(m._id);
 
     const teamIds: Record<number, Id<"teams">> = {};
     for (const t of DEMO_TEAMS) {
@@ -69,7 +70,7 @@ export const seedDemo = mutation({
       homeScore: 1,
       awayScore: 2,
       stage: "GROUP_STAGE",
-      group: "GRUPO B",
+      group: "GRUPO A",
       matchday: 1,
       tournament: "DEMO",
     });
@@ -81,7 +82,7 @@ export const seedDemo = mutation({
       utcDate: at(2),
       status: "TIMED",
       stage: "GROUP_STAGE",
-      group: "GRUPO C",
+      group: "GRUPO A",
       matchday: 1,
       tournament: "DEMO",
     });
@@ -105,7 +106,7 @@ export const seedDemo = mutation({
       utcDate: at(8),
       status: "TIMED",
       stage: "GROUP_STAGE",
-      group: "GRUPO B",
+      group: "GRUPO A",
       matchday: 2,
       tournament: "DEMO",
     });

@@ -67,7 +67,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
 
           {/* Stats */}
           <div className="relative flex gap-8">
-            {[{ n: "64", l: "Jogos" }, { n: "48", l: "Países" }, { n: "1", l: "Campeão" }].map(({ n, l }) => (
+            {[{ n: "+400", l: "Jogos" }, { n: "50", l: "Membros" }, { n: "1", l: "Campeão" }].map(({ n, l }) => (
               <div key={l}>
                 <div className="font-display text-3xl font-black leading-none tabular-nums" style={{ color: "var(--b-text)" }}>{n}</div>
                 <div className="mt-0.5 text-xs font-semibold uppercase tracking-widest" style={{ color: "var(--b-text-3)" }}>{l}</div>

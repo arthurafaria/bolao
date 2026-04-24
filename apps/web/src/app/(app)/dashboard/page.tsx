@@ -4,6 +4,7 @@ import { api } from "@bolao/backend/convex/_generated/api";
 import { useQuery } from "convex/react";
 import { Shield, Trophy } from "lucide-react";
 import Link from "next/link";
+import { useMemo } from "react";
 import type { Route } from "next";
 
 import { COMPETITIONS, useTournament } from "@/contexts/tournament-context";
@@ -84,6 +85,12 @@ export default function DashboardPage() {
   const upcoming = useQuery(api.matches.getUpcoming, { limit: 5, tournament });
   const stats = useQuery(api.predictions.getStats);
   const leagues = useQuery(api.leagues.getUserLeagues);
+  const allPredictions = useQuery(api.predictions.getUserPredictions);
+
+  const predMap = useMemo(() => {
+    if (!allPredictions) return undefined;
+    return new Map(allPredictions.map((p) => [p.matchId as string, p]));
+  }, [allPredictions]);
 
   return (
     <div className="space-y-8">
@@ -130,7 +137,13 @@ export default function DashboardPage() {
           </div>
         ) : (
           <div className="space-y-3">
-            {upcoming.map((m) => m && <MatchCard key={m._id} match={m} />)}
+            {upcoming.map((m) => m && (
+              <MatchCard
+                key={m._id}
+                match={m}
+                prediction={predMap ? (predMap.get(m._id) ?? null) : undefined}
+              />
+            ))}
           </div>
         )}
       </div>

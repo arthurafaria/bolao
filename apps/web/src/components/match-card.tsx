@@ -2,13 +2,22 @@
 
 import { api } from "@bolao/backend/convex/_generated/api";
 import type { Id } from "@bolao/backend/convex/_generated/dataModel";
-import { useMutation, useQuery } from "convex/react";
+import { useMutation } from "convex/react";
 import { Lock } from "lucide-react";
 import Image from "next/image";
 import { type ChangeEvent, useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 
+import { getCrest } from "@/lib/crest-overrides";
 import { translateTeamName } from "@/lib/team-translations";
+
+type Prediction = {
+  _id: Id<"predictions">;
+  predictedHome: number;
+  predictedAway: number;
+  points?: number;
+  calculatedAt?: number;
+};
 
 type MatchWithTeams = {
   _id: Id<"matches">;
@@ -20,10 +29,13 @@ type MatchWithTeams = {
   awayScore?: number;
   stage: string;
   group?: string;
+  matchday?: number;
 };
 
 function TeamCrest({ crest, name }: { crest: string; name: string }) {
-  if (crest?.startsWith("http")) {
+  const [errored, setErrored] = useState(false);
+
+  if (!errored && crest?.startsWith("http")) {
     return (
       <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center">
         <Image
@@ -31,8 +43,9 @@ function TeamCrest({ crest, name }: { crest: string; name: string }) {
           alt={name}
           width={48}
           height={48}
+          unoptimized
           className="h-12 w-12 object-contain drop-shadow-sm"
-          onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
+          onError={() => setErrored(true)}
         />
       </div>
     );
@@ -147,8 +160,7 @@ function PointsBadge({ points }: { points: number }) {
   );
 }
 
-export function MatchCard({ match }: { match: MatchWithTeams }) {
-  const prediction = useQuery(api.predictions.getForMatch, { matchId: match._id });
+export function MatchCard({ match, prediction }: { match: MatchWithTeams; prediction?: Prediction | null }) {
   const upsert = useMutation(api.predictions.upsert);
 
   const lockTime = new Date(match.utcDate).getTime() - 60 * 60 * 1000;
@@ -194,7 +206,11 @@ export function MatchCard({ match }: { match: MatchWithTeams }) {
   const lockTimeStr = lockDate.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
   const lockDateStr = lockDate.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" });
   const groupLetter = match.group?.replace(/^GROUP_/, "") ?? match.group;
-  const stageLabel = match.group ? `GRUPO ${groupLetter}` : match.stage.replace(/_/g, " ");
+  const stageLabel = match.group
+    ? `GRUPO ${groupLetter}`
+    : match.matchday
+    ? `RODADA ${match.matchday}`
+    : match.stage.replace(/_/g, " ");
 
   return (
     <div
@@ -228,8 +244,13 @@ export function MatchCard({ match }: { match: MatchWithTeams }) {
             </span>
           )}
           {isLocked && !isFinished && (
-            <span className="text-xs" style={{ color: "var(--b-text-4)" }}>
+            <span className="text-xs font-bold" style={{ color: "var(--b-text-4)" }}>
               fechado
+            </span>
+          )}
+          {isFinished && (
+            <span className="text-xs font-bold" style={{ color: "var(--b-text-3)" }}>
+              Encerrado
             </span>
           )}
         </div>
@@ -239,7 +260,7 @@ export function MatchCard({ match }: { match: MatchWithTeams }) {
       <div className="flex items-center justify-between gap-3 px-5 py-5">
         {/* Home team */}
         <div className="flex flex-1 flex-col items-center gap-2">
-          <TeamCrest crest={match.homeTeam?.crest ?? ""} name={translateTeamName(match.homeTeam?.shortName ?? "??")} />
+          <TeamCrest crest={getCrest(match.homeTeam?.shortName ?? "", match.homeTeam?.crest ?? "")} name={translateTeamName(match.homeTeam?.shortName ?? "??")} />
           <span
             className="font-display max-w-[80px] text-center text-sm font-bold uppercase leading-tight tracking-wide"
             style={{ color: "var(--b-text)" }}
@@ -316,15 +337,20 @@ export function MatchCard({ match }: { match: MatchWithTeams }) {
               </span>
             )}
 
-            {isFinished && prediction?.points != null && (
-              <PointsBadge points={prediction.points} />
+            {isFinished && prediction?.predictedHome != null && (
+              <div className="flex flex-col items-center gap-1">
+                {prediction.points != null && <PointsBadge points={prediction.points} />}
+                <span className="text-xs font-bold" style={{ color: "var(--b-text-3)" }}>
+                  Palpite: {prediction.predictedHome} × {prediction.predictedAway}
+                </span>
+              </div>
             )}
           </div>
         </div>
 
         {/* Away team */}
         <div className="flex flex-1 flex-col items-center gap-2">
-          <TeamCrest crest={match.awayTeam?.crest ?? ""} name={translateTeamName(match.awayTeam?.shortName ?? "??")} />
+          <TeamCrest crest={getCrest(match.awayTeam?.shortName ?? "", match.awayTeam?.crest ?? "")} name={translateTeamName(match.awayTeam?.shortName ?? "??")} />
           <span
             className="font-display max-w-[80px] text-center text-sm font-bold uppercase leading-tight tracking-wide"
             style={{ color: "var(--b-text)" }}

@@ -1,4 +1,9 @@
 const translations: Record<string, string> = {
+  // Brasileirão — apelidos curtos da API
+  Mineiro: "Atlético-MG",
+  Paranaense: "Athletico-PR",
+  "Clube do Remo": "Remo",
+
   // América do Sul
   Brazil: "Brasil",
   Argentina: "Argentina",
