@@ -1,4 +1,3 @@
-import Resend from "@auth/core/providers/resend";
 import { Password } from "@convex-dev/auth/providers/Password";
 import { convexAuth } from "@convex-dev/auth/server";
 import { ConvexError, v } from "convex/values";
@@ -7,7 +6,6 @@ import { mutation, query } from "./_generated/server";
 
 export const { auth, signIn, signOut, store, isAuthenticated } = convexAuth({
 	providers: [
-		Resend,
 		Password({
 			profile(params) {
 				const name = params.name as string | undefined;
