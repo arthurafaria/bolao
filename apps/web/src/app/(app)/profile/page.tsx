@@ -2,11 +2,20 @@
 
 import { api } from "@bolao/backend/convex/_generated/api";
 import { useAuthActions } from "@convex-dev/auth/react";
-import { useQuery } from "convex/react";
-import { Loader2, LogOut, Shield, Star, Trophy } from "lucide-react";
+import { useMutation, useQuery } from "convex/react";
+import {
+	Check,
+	Loader2,
+	LogOut,
+	Pencil,
+	Shield,
+	Star,
+	Trophy,
+	X,
+} from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export default function ProfilePage() {
 	const user = useQuery(api.auth.getCurrentUser);
@@ -15,6 +24,27 @@ export default function ProfilePage() {
 	const router = useRouter();
 	const { signOut } = useAuthActions();
 	const [isSigningOut, setIsSigningOut] = useState(false);
+	const [editingName, setEditingName] = useState(false);
+	const [nameInput, setNameInput] = useState("");
+	const [isSavingName, setIsSavingName] = useState(false);
+	const setCurrentUserName = useMutation(api.auth.setCurrentUserName);
+	const nameInputRef = useRef<HTMLInputElement>(null);
+
+	useEffect(() => {
+		if (editingName) nameInputRef.current?.focus();
+	}, [editingName]);
+
+	async function handleSaveName() {
+		const trimmed = nameInput.trim();
+		if (!trimmed || trimmed.length < 2) return;
+		setIsSavingName(true);
+		try {
+			await setCurrentUserName({ name: trimmed });
+			setEditingName(false);
+		} finally {
+			setIsSavingName(false);
+		}
+	}
 
 	const accuracy =
 		stats && stats.total > 0
@@ -52,13 +82,68 @@ export default function ProfilePage() {
 				>
 					{(user?.name ?? user?.email)?.[0]?.toUpperCase() ?? "?"}
 				</div>
-				<div className="min-w-0">
-					<p
-						className="truncate font-bold font-display text-lg"
-						style={{ color: "var(--b-text)" }}
-					>
-						{user?.name ?? user?.email?.split("@")[0] ?? "Usuário"}
-					</p>
+				<div className="min-w-0 flex-1">
+					{editingName ? (
+						<div className="flex items-center gap-2">
+							<input
+								ref={nameInputRef}
+								type="text"
+								value={nameInput}
+								onChange={(e) => setNameInput(e.target.value)}
+								onKeyDown={(e) => {
+									if (e.key === "Enter") void handleSaveName();
+									if (e.key === "Escape") setEditingName(false);
+								}}
+								className="min-w-0 flex-1 rounded-lg px-2 py-1 font-bold font-display text-base outline-none"
+								style={{
+									background: "var(--b-inner)",
+									border: "1px solid var(--b-brand-25)",
+									color: "var(--b-text)",
+								}}
+							/>
+							<button
+								type="button"
+								onClick={() => void handleSaveName()}
+								disabled={isSavingName || nameInput.trim().length < 2}
+								style={{ color: "var(--b-brand)" }}
+								className="shrink-0 disabled:opacity-40"
+							>
+								{isSavingName ? (
+									<Loader2 className="h-4 w-4 animate-spin" />
+								) : (
+									<Check className="h-4 w-4" />
+								)}
+							</button>
+							<button
+								type="button"
+								onClick={() => setEditingName(false)}
+								style={{ color: "var(--b-text-3)" }}
+								className="shrink-0"
+							>
+								<X className="h-4 w-4" />
+							</button>
+						</div>
+					) : (
+						<div className="flex items-center gap-2">
+							<p
+								className="truncate font-bold font-display text-lg"
+								style={{ color: "var(--b-text)" }}
+							>
+								{user?.name ?? user?.email?.split("@")[0] ?? "Usuário"}
+							</p>
+							<button
+								type="button"
+								onClick={() => {
+									setNameInput(user?.name ?? "");
+									setEditingName(true);
+								}}
+								style={{ color: "var(--b-text-3)" }}
+								className="shrink-0 transition-colors hover:text-[var(--b-brand)]"
+							>
+								<Pencil className="h-3.5 w-3.5" />
+							</button>
+						</div>
+					)}
 					<p className="truncate text-sm" style={{ color: "var(--b-text-3)" }}>
 						{user?.email ?? ""}
 					</p>

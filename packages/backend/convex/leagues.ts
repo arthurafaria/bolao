@@ -1,6 +1,7 @@
 import { ConvexError, v } from "convex/values";
 
 import { mutation, query } from "./_generated/server";
+import type { Id } from "./_generated/dataModel";
 import { auth, requireUserId } from "./auth";
 
 function generateInviteCode(): string {
@@ -313,7 +314,15 @@ export const getRanking = query({
 			.filter((q) => q.eq(q.field("status"), "ACTIVE"))
 			.take(50);
 
-		return members;
+		return Promise.all(
+			members.map(async (member) => {
+				const user = await ctx.db.get(member.userId as Id<"users">);
+				return {
+					...member,
+					name: user?.name ?? user?.email?.split("@")[0] ?? "Jogador",
+				};
+			}),
+		);
 	},
 });
 
@@ -349,11 +358,21 @@ export const getPendingRequests = query({
 		const league = await ctx.db.get(args.leagueId);
 		if (!league || league.ownerId !== userId) return [];
 
-		return ctx.db
+		const requests = await ctx.db
 			.query("leagueJoinRequests")
 			.withIndex("by_league_status", (q) =>
 				q.eq("leagueId", args.leagueId).eq("status", "PENDING"),
 			)
 			.take(50);
+
+		return Promise.all(
+			requests.map(async (req) => {
+				const user = await ctx.db.get(req.userId as Id<"users">);
+				return {
+					...req,
+					name: user?.name ?? user?.email?.split("@")[0] ?? "Jogador",
+				};
+			}),
+		);
 	},
 });

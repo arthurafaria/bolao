@@ -15,7 +15,7 @@ import { toast } from "sonner";
 function RankingRow({
 	position,
 	member,
-	isMe,
+	currentUserId,
 }: {
 	position: number;
 	member: {
@@ -23,11 +23,11 @@ function RankingRow({
 		totalPoints: number;
 		exactScores: number;
 		correctResults: number;
+		name: string;
 	};
-	isMe: boolean;
+	currentUserId: string | undefined;
 }) {
-	const user = useQuery(api.auth.getCurrentUser);
-	const isCurrentUser = isMe && user?._id === member.userId;
+	const isCurrentUser = currentUserId === member.userId;
 
 	return (
 		<div
@@ -56,9 +56,15 @@ function RankingRow({
 			</span>
 			<div className="min-w-0 flex-1">
 				<div className="flex items-center gap-1.5">
-					<span className="truncate font-medium text-sm">
-						{isCurrentUser ? "Você" : `Jogador ${member.userId.slice(-4)}`}
-					</span>
+					<span className="truncate font-medium text-sm">{member.name}</span>
+					{isCurrentUser && (
+						<Badge
+							variant="secondary"
+							className="h-4 shrink-0 px-1 text-[10px]"
+						>
+							você
+						</Badge>
+					)}
 					{position === 1 && (
 						<Crown className="h-3.5 w-3.5 shrink-0 text-accent" />
 					)}
@@ -185,7 +191,7 @@ export default function LeagueDetailPage({
 										key={member._id}
 										position={idx + 1}
 										member={member}
-										isMe={true}
+										currentUserId={currentUser?._id}
 									/>
 								))}
 							</div>

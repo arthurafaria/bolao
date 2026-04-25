@@ -100,9 +100,7 @@ export default function ManageLeaguePage({
 								key={req._id}
 								className="flex items-center justify-between rounded-lg border border-border p-3"
 							>
-								<span className="font-medium text-sm">
-									Usuário {req.userId.slice(-6)}
-								</span>
+								<span className="font-medium text-sm">{req.name}</span>
 								<div className="flex gap-2">
 									<Button
 										size="sm"
@@ -141,8 +139,8 @@ export default function ManageLeaguePage({
 							<div>
 								<span className="font-medium text-sm">
 									{member.userId === currentUser._id
-										? "Você (admin)"
-										: `Jogador ${member.userId.slice(-4)}`}
+										? `${member.name} (admin)`
+										: member.name}
 								</span>
 								<p className="text-muted-foreground text-xs">
 									{member.totalPoints} pts

@@ -30,14 +30,14 @@ const STORAGE_KEY = "bolao_tournament";
 const TournamentContext = createContext<{
 	tournament: TournamentCode;
 	setTournament: (t: TournamentCode) => void;
-}>({ tournament: "WC2026", setTournament: () => {} });
+}>({ tournament: "BSA2026", setTournament: () => {} });
 
 export function TournamentProvider({
 	children,
 }: {
 	children: React.ReactNode;
 }) {
-	const [tournament, setTournamentState] = useState<TournamentCode>("WC2026");
+	const [tournament, setTournamentState] = useState<TournamentCode>("BSA2026");
 
 	useEffect(() => {
 		const saved = localStorage.getItem(STORAGE_KEY) as TournamentCode | null;

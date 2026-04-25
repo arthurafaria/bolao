@@ -68,105 +68,99 @@ export default function SignInPage() {
 			</div>
 
 			<form
-					onSubmit={(e) => {
-						e.preventDefault();
-						form.handleSubmit();
-					}}
-					className="space-y-4"
-				>
-					<form.Field name="email">
-						{(field) => (
-							<div className="space-y-1.5">
-								<Label
-									htmlFor="email"
-									className="font-semibold text-sm uppercase tracking-wider"
-									style={{ color: "var(--b-text-3)" }}
-								>
-									Email
-								</Label>
-								<Input
-									id="email"
-									type="email"
-									placeholder="seu@email.com"
-									value={field.state.value}
-									onChange={(e) => field.handleChange(e.target.value)}
-									className="h-11"
-									style={{
-										background: "var(--b-input-bg)",
-										borderColor: "var(--b-border-md)",
-										color: "var(--b-text)",
-									}}
-								/>
-								{field.state.meta.errors[0] && (
-									<p
-										className="text-xs"
-										style={{ color: "oklch(0.67 0.22 22)" }}
-									>
-										{field.state.meta.errors[0]?.message}
-									</p>
-								)}
-							</div>
-						)}
-					</form.Field>
-
-					<form.Field name="password">
-						{(field) => (
-							<div className="space-y-1.5">
-								<Label
-									htmlFor="password"
-									className="font-semibold text-sm uppercase tracking-wider"
-									style={{ color: "var(--b-text-3)" }}
-								>
-									Senha
-								</Label>
-								<Input
-									id="password"
-									type="password"
-									placeholder="••••••••"
-									value={field.state.value}
-									onChange={(e) => field.handleChange(e.target.value)}
-									className="h-11"
-									style={{
-										background: "var(--b-input-bg)",
-										borderColor: "var(--b-border-md)",
-										color: "var(--b-text)",
-									}}
-								/>
-								{field.state.meta.errors[0] && (
-									<p
-										className="text-xs"
-										style={{ color: "oklch(0.67 0.22 22)" }}
-									>
-										{field.state.meta.errors[0]?.message}
-									</p>
-								)}
-							</div>
-						)}
-					</form.Field>
-
-					<form.Subscribe
-						selector={(s) => ({
-							canSubmit: s.canSubmit,
-							isSubmitting: s.isSubmitting,
-						})}
-					>
-						{({ canSubmit, isSubmitting }) => (
-							<Button
-								type="submit"
-								className="mt-2 h-11 w-full font-bold font-display text-base uppercase tracking-wide"
-								disabled={!canSubmit || isSubmitting}
+				onSubmit={(e) => {
+					e.preventDefault();
+					form.handleSubmit();
+				}}
+				className="space-y-4"
+			>
+				<form.Field name="email">
+					{(field) => (
+						<div className="space-y-1.5">
+							<Label
+								htmlFor="email"
+								className="font-semibold text-sm uppercase tracking-wider"
+								style={{ color: "var(--b-text-3)" }}
 							>
-								{isSubmitting ? (
-									<>
-										<Loader2 className="h-4 w-4 animate-spin" />
-										Entrando...
-									</>
-								) : (
-									"Entrar"
-								)}
-							</Button>
-						)}
-					</form.Subscribe>
+								Email
+							</Label>
+							<Input
+								id="email"
+								type="email"
+								placeholder="seu@email.com"
+								value={field.state.value}
+								onChange={(e) => field.handleChange(e.target.value)}
+								className="h-11"
+								style={{
+									background: "var(--b-input-bg)",
+									borderColor: "var(--b-border-md)",
+									color: "var(--b-text)",
+								}}
+							/>
+							{field.state.meta.errors[0] && (
+								<p className="text-xs" style={{ color: "oklch(0.67 0.22 22)" }}>
+									{field.state.meta.errors[0]?.message}
+								</p>
+							)}
+						</div>
+					)}
+				</form.Field>
+
+				<form.Field name="password">
+					{(field) => (
+						<div className="space-y-1.5">
+							<Label
+								htmlFor="password"
+								className="font-semibold text-sm uppercase tracking-wider"
+								style={{ color: "var(--b-text-3)" }}
+							>
+								Senha
+							</Label>
+							<Input
+								id="password"
+								type="password"
+								placeholder="••••••••"
+								value={field.state.value}
+								onChange={(e) => field.handleChange(e.target.value)}
+								className="h-11"
+								style={{
+									background: "var(--b-input-bg)",
+									borderColor: "var(--b-border-md)",
+									color: "var(--b-text)",
+								}}
+							/>
+							{field.state.meta.errors[0] && (
+								<p className="text-xs" style={{ color: "oklch(0.67 0.22 22)" }}>
+									{field.state.meta.errors[0]?.message}
+								</p>
+							)}
+						</div>
+					)}
+				</form.Field>
+
+				<form.Subscribe
+					selector={(s) => ({
+						canSubmit: s.canSubmit,
+						isSubmitting: s.isSubmitting,
+					})}
+				>
+					{({ canSubmit, isSubmitting }) => (
+						<Button
+							type="submit"
+							className="mt-2 h-11 w-full font-bold font-display text-base uppercase tracking-wide"
+							disabled={!canSubmit || isSubmitting}
+						>
+							{isSubmitting ? (
+								<>
+									<Loader2 className="h-4 w-4 animate-spin" />
+									Entrando...
+								</>
+							) : (
+								"Entrar"
+							)}
+						</Button>
+					)}
+				</form.Subscribe>
 			</form>
 
 			<p

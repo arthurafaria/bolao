@@ -145,10 +145,10 @@ export const syncToday = internalAction({
 	args: {},
 	handler: async (ctx) => {
 		const today = new Date();
-		const tomorrow = new Date(today);
-		tomorrow.setDate(today.getDate() + 1);
+		const future = new Date(today);
+		future.setDate(today.getDate() + 60);
 		const fmt = (d: Date) => d.toISOString().slice(0, 10);
-		await doSync(ctx, "WC", "WC2026", fmt(today), fmt(tomorrow));
+		await doSync(ctx, "WC", "WC2026", fmt(today), fmt(future));
 	},
 });
 
