@@ -11,6 +11,9 @@ import { toast } from "sonner";
 import { z } from "zod";
 
 function getSignUpErrorMessage(error: unknown) {
+	if (process.env.NODE_ENV !== "production") {
+		console.error("[sign-up error]", error);
+	}
 	const message = error instanceof Error ? error.message.toLowerCase() : "";
 	if (message.includes("already") || message.includes("exist")) {
 		return "Esse email já tem conta. Tente entrar em vez de criar uma nova.";
@@ -18,8 +21,13 @@ function getSignUpErrorMessage(error: unknown) {
 	if (message.includes("invalidaccountid")) {
 		return "Sessão de cadastro antiga detectada. Recarregue a página e tente novamente.";
 	}
-	if (message.includes("jwt_private_key") || message.includes("jwks")) {
-		return "Configuração de autenticação local ausente. As chaves do Convex Auth precisam estar setadas.";
+	if (
+		message.includes("jwt_private_key") ||
+		message.includes("jwks") ||
+		message.includes("privatekeyinfo") ||
+		message.includes("rsaencryption")
+	) {
+		return "Configuração de autenticação ausente. As chaves RSA do Convex Auth precisam estar setadas no deployment de produção.";
 	}
 	if (message.includes("password")) {
 		return "A senha não foi aceita. Use pelo menos 8 caracteres.";
