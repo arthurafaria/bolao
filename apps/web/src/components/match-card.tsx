@@ -10,7 +10,6 @@ import { toast } from "sonner";
 
 import { getCrest } from "@/lib/crest-overrides";
 import { getPointsTier } from "@/lib/points-palette";
-import { getStadium } from "@/lib/stadiums";
 import { translateTeamName } from "@/lib/team-translations";
 
 type Prediction = {
@@ -246,9 +245,7 @@ export function MatchCard({
 		: match.matchday
 			? `RODADA ${match.matchday}`
 			: match.stage.replace(/_/g, " ");
-	const venue =
-		match.venue?.trim() ||
-		getStadium(match.homeTeam?.shortName, match.homeTeam?.name);
+	const venue = match.venue?.trim();
 
 	const showPointsBadgeAbove = isFinished && prediction?.predictedHome != null;
 
@@ -275,15 +272,13 @@ export function MatchCard({
 					>
 						{stageLabel}
 					</span>
-					{venue && (
-						<span
-							className="mt-0.5 flex max-w-[230px] items-center gap-1 truncate text-xs"
-							style={{ color: "var(--b-text-4)" }}
-						>
-							<MapPin className="h-3 w-3 shrink-0" />
-							<span className="truncate">{venue}</span>
-						</span>
-					)}
+					<span
+						className="mt-0.5 flex max-w-[230px] items-center gap-1 truncate text-xs"
+						style={{ color: "var(--b-text-4)" }}
+					>
+						<MapPin className="h-3 w-3 shrink-0" />
+						<span className="truncate">{venue ?? "Estádio a confirmar"}</span>
+					</span>
 				</div>
 				<div className="flex flex-col items-end gap-0.5">
 					<span
