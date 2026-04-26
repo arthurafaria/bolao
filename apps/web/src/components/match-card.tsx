@@ -3,13 +3,14 @@
 import { api } from "@bolao/backend/convex/_generated/api";
 import type { Id } from "@bolao/backend/convex/_generated/dataModel";
 import { useMutation } from "convex/react";
-import { Lock } from "lucide-react";
+import { Lock, MapPin } from "lucide-react";
 import Image from "next/image";
 import { type ChangeEvent, useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { getCrest } from "@/lib/crest-overrides";
 import { getPointsTier } from "@/lib/points-palette";
+import { getStadium } from "@/lib/stadiums";
 import { translateTeamName } from "@/lib/team-translations";
 
 type Prediction = {
@@ -245,6 +246,9 @@ export function MatchCard({
 		: match.matchday
 			? `RODADA ${match.matchday}`
 			: match.stage.replace(/_/g, " ");
+	const venue =
+		match.venue?.trim() ||
+		getStadium(match.homeTeam?.shortName, match.homeTeam?.name);
 
 	const showPointsBadgeAbove = isFinished && prediction?.predictedHome != null;
 
@@ -264,20 +268,23 @@ export function MatchCard({
 					borderBottom: "1px solid var(--b-border-sm)",
 				}}
 			>
-				<span
-					className="font-bold font-display text-xs uppercase tracking-widest"
-					style={{ color: "var(--b-text-3)" }}
-				>
-					{stageLabel}
-				</span>
-				{match.venue && (
+				<div className="min-w-0">
 					<span
-						className="max-w-[200px] truncate text-center text-xs"
-						style={{ color: "var(--b-text-4)" }}
+						className="block font-bold font-display text-xs uppercase tracking-widest"
+						style={{ color: "var(--b-text-3)" }}
 					>
-						{match.venue}
+						{stageLabel}
 					</span>
-				)}
+					{venue && (
+						<span
+							className="mt-0.5 flex max-w-[230px] items-center gap-1 truncate text-xs"
+							style={{ color: "var(--b-text-4)" }}
+						>
+							<MapPin className="h-3 w-3 shrink-0" />
+							<span className="truncate">{venue}</span>
+						</span>
+					)}
+				</div>
 				<div className="flex flex-col items-end gap-0.5">
 					<span
 						className="font-medium text-xs"
@@ -343,25 +350,35 @@ export function MatchCard({
 
 					{/* Score display */}
 					{readOnly && prediction?.predictedHome != null ? (
-						<div className="flex items-center gap-3">
-							<span
-								className="font-black font-display text-5xl tabular-nums leading-none"
-								style={{ color: "var(--b-text)" }}
-							>
-								{prediction.predictedHome}
-							</span>
-							<span
-								className="font-black font-display text-2xl"
-								style={{ color: "var(--b-border-md)" }}
-							>
-								×
-							</span>
-							<span
-								className="font-black font-display text-5xl tabular-nums leading-none"
-								style={{ color: "var(--b-text)" }}
-							>
-								{prediction.predictedAway}
-							</span>
+						<div className="flex flex-col items-center gap-1">
+							<div className="flex items-center gap-3">
+								<span
+									className="font-black font-display text-5xl tabular-nums leading-none"
+									style={{ color: "var(--b-text)" }}
+								>
+									{prediction.predictedHome}
+								</span>
+								<span
+									className="font-black font-display text-2xl"
+									style={{ color: "var(--b-border-md)" }}
+								>
+									×
+								</span>
+								<span
+									className="font-black font-display text-5xl tabular-nums leading-none"
+									style={{ color: "var(--b-text)" }}
+								>
+									{prediction.predictedAway}
+								</span>
+							</div>
+							{isFinished && (
+								<span
+									className="font-bold text-xs"
+									style={{ color: "var(--b-text-3)" }}
+								>
+									Resultado: {match.homeScore ?? "–"} × {match.awayScore ?? "–"}
+								</span>
+							)}
 						</div>
 					) : isFinished ? (
 						<div className="flex items-center gap-3">
@@ -444,14 +461,12 @@ export function MatchCard({
 								</span>
 							)}
 
-						{isFinished && prediction?.predictedHome != null && (
+						{isFinished && prediction?.predictedHome != null && !readOnly && (
 							<span
 								className="font-bold text-xs"
 								style={{ color: "var(--b-text-3)" }}
 							>
-								{readOnly
-									? `Resultado: ${match.homeScore ?? "–"} × ${match.awayScore ?? "–"}`
-									: `Palpite: ${prediction.predictedHome} × ${prediction.predictedAway}`}
+								Palpite: {prediction.predictedHome} × {prediction.predictedAway}
 							</span>
 						)}
 					</div>
