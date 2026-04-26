@@ -118,7 +118,15 @@ async function doSync(
 
 		synced++;
 
-		if (result.justFinished) {
+		if (result.shouldComputePoints) {
+			if (
+				match.score.fullTime.home == null ||
+				match.score.fullTime.away == null
+			) {
+				console.warn(
+					`[${tournament}] shouldComputePoints=true but score is null for apiId=${match.id}`,
+				);
+			}
 			await ctx.runMutation(internal.predictions.computeForMatch, {
 				matchId: result.id,
 			});
@@ -145,10 +153,12 @@ export const syncToday = internalAction({
 	args: {},
 	handler: async (ctx) => {
 		const today = new Date();
+		const yesterday = new Date(today);
+		yesterday.setDate(today.getDate() - 1);
 		const future = new Date(today);
 		future.setDate(today.getDate() + 60);
 		const fmt = (d: Date) => d.toISOString().slice(0, 10);
-		await doSync(ctx, "WC", "WC2026", fmt(today), fmt(future));
+		await doSync(ctx, "WC", "WC2026", fmt(yesterday), fmt(future));
 	},
 });
 
@@ -165,9 +175,11 @@ export const syncTodayBSA = internalAction({
 	args: {},
 	handler: async (ctx) => {
 		const today = new Date();
+		const yesterday = new Date(today);
+		yesterday.setDate(today.getDate() - 1);
 		const tomorrow = new Date(today);
 		tomorrow.setDate(today.getDate() + 1);
 		const fmt = (d: Date) => d.toISOString().slice(0, 10);
-		await doSync(ctx, "BSA", "BSA2026", fmt(today), fmt(tomorrow));
+		await doSync(ctx, "BSA", "BSA2026", fmt(yesterday), fmt(tomorrow));
 	},
 });

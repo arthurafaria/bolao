@@ -1,5 +1,6 @@
 import { ConvexError, v } from "convex/values";
-import { internalMutation, mutation, query } from "./_generated/server";
+import { internal } from "./_generated/api";
+import { action, internalMutation, mutation, query } from "./_generated/server";
 import { auth, requireUserId } from "./auth";
 
 const LOCK_WINDOW_MS = 60 * 60 * 1000; // 1 hour before match
@@ -193,6 +194,78 @@ export const computeForMatch = internalMutation({
 				});
 			}
 		}
+	},
+});
+
+export const getMemberLockedPredictions = query({
+	args: {
+		leagueId: v.id("leagues"),
+		memberUserId: v.string(),
+		tournament: v.string(),
+	},
+	handler: async (ctx, args) => {
+		const callerId = await auth.getUserId(ctx);
+		if (!callerId) return null;
+
+		const callerMembership = await ctx.db
+			.query("leagueMembers")
+			.withIndex("by_league_user", (q) =>
+				q.eq("leagueId", args.leagueId).eq("userId", callerId),
+			)
+			.unique();
+		if (!callerMembership || callerMembership.status !== "ACTIVE") return null;
+
+		const targetMembership = await ctx.db
+			.query("leagueMembers")
+			.withIndex("by_league_user", (q) =>
+				q.eq("leagueId", args.leagueId).eq("userId", args.memberUserId),
+			)
+			.unique();
+		if (!targetMembership || targetMembership.status !== "ACTIVE") return null;
+
+		const predictions = await ctx.db
+			.query("predictions")
+			.withIndex("by_user", (q) => q.eq("userId", args.memberUserId))
+			.take(200);
+
+		const now = Date.now();
+		const results = [];
+
+		for (const pred of predictions) {
+			const match = await ctx.db.get(pred.matchId);
+			if (!match) continue;
+			if (match.tournament !== args.tournament) continue;
+			const matchTime = new Date(match.utcDate).getTime();
+			if (now < matchTime - LOCK_WINDOW_MS) continue;
+
+			const [homeTeam, awayTeam] = await Promise.all([
+				ctx.db.get(match.homeTeamId),
+				ctx.db.get(match.awayTeamId),
+			]);
+			results.push({ match: { ...match, homeTeam, awayTeam }, prediction: pred });
+		}
+
+		return results.sort(
+			(a, b) =>
+				new Date(b.match.utcDate).getTime() -
+				new Date(a.match.utcDate).getTime(),
+		);
+	},
+});
+
+export const recomputeAll = action({
+	args: {},
+	handler: async (ctx) => {
+		const matches = await ctx.runQuery(internal.matches.getFinishedWithScore);
+		let computed = 0;
+		for (const match of matches) {
+			await ctx.runMutation(internal.predictions.computeForMatch, {
+				matchId: match._id,
+			});
+			computed++;
+		}
+		console.log(`[recomputeAll] Recomputed points for ${computed} matches`);
+		return { computed };
 	},
 });
 

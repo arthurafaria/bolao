@@ -9,6 +9,7 @@ import { type ChangeEvent, useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { getCrest } from "@/lib/crest-overrides";
+import { getPointsTier } from "@/lib/points-palette";
 import { translateTeamName } from "@/lib/team-translations";
 
 type Prediction = {
@@ -144,43 +145,27 @@ function ScoreInput({
 }
 
 function PointsBadge({ points }: { points: number }) {
-	const { bg, color, label } =
-		points === 10
-			? {
-					bg: "oklch(0.83 0.20 90 / 0.15)",
-					color: "oklch(0.83 0.20 90)",
-					label: `⭐ ${points} pts`,
-				}
-			: points >= 7
-				? {
-						bg: "var(--b-brand-10)",
-						color: "var(--b-brand-hi)",
-						label: `${points} pts`,
-					}
-				: points >= 5
-					? {
-							bg: "var(--b-tint-md)",
-							color: "var(--b-text-3)",
-							label: `${points} pts`,
-						}
-					: points > 0
-						? {
-								bg: "oklch(0.70 0.18 60 / 0.12)",
-								color: "oklch(0.72 0.18 60)",
-								label: `${points} pts`,
-							}
-						: {
-								bg: "oklch(0.67 0.22 22 / 0.12)",
-								color: "oklch(0.67 0.22 22)",
-								label: "0 pts",
-							};
-
+	const tier = getPointsTier(points);
 	return (
 		<span
 			className="rounded-full px-2.5 py-0.5 font-bold text-xs tabular-nums"
-			style={{ background: bg, color }}
+			style={{ background: tier.bg, color: tier.color }}
 		>
-			{label}
+			{tier.label}
+		</span>
+	);
+}
+
+function PendingBadge() {
+	return (
+		<span
+			className="rounded-full px-2.5 py-0.5 font-medium text-xs"
+			style={{
+				background: "var(--b-tint-md)",
+				color: "var(--b-text-4)",
+			}}
+		>
+			aguardando…
 		</span>
 	);
 }
@@ -188,9 +173,11 @@ function PointsBadge({ points }: { points: number }) {
 export function MatchCard({
 	match,
 	prediction,
+	readOnly = false,
 }: {
 	match: MatchWithTeams;
 	prediction?: Prediction | null;
+	readOnly?: boolean;
 }) {
 	const upsert = useMutation(api.predictions.upsert);
 
@@ -257,6 +244,9 @@ export function MatchCard({
 		: match.matchday
 			? `RODADA ${match.matchday}`
 			: match.stage.replace(/_/g, " ");
+
+	const showPointsBadgeAbove =
+		isFinished && prediction?.predictedHome != null;
 
 	return (
 		<div
@@ -332,6 +322,18 @@ export function MatchCard({
 
 				{/* Score */}
 				<div className="flex min-w-[160px] flex-col items-center gap-3">
+					{/* Points badge above the score */}
+					{showPointsBadgeAbove && (
+						<div>
+							{prediction.points != null ? (
+								<PointsBadge points={prediction.points} />
+							) : (
+								<PendingBadge />
+							)}
+						</div>
+					)}
+
+					{/* Score display */}
 					{isFinished ? (
 						<div className="flex items-center gap-3">
 							<span
@@ -351,6 +353,27 @@ export function MatchCard({
 								style={{ color: "var(--b-text)" }}
 							>
 								{match.awayScore ?? "–"}
+							</span>
+						</div>
+					) : readOnly && prediction?.predictedHome != null ? (
+						<div className="flex items-center gap-3">
+							<span
+								className="font-black font-display text-5xl tabular-nums leading-none"
+								style={{ color: "var(--b-text-4)" }}
+							>
+								{prediction.predictedHome}
+							</span>
+							<span
+								className="font-black font-display text-2xl"
+								style={{ color: "var(--b-border-md)" }}
+							>
+								×
+							</span>
+							<span
+								className="font-black font-display text-5xl tabular-nums leading-none"
+								style={{ color: "var(--b-text-4)" }}
+							>
+								{prediction.predictedAway}
 							</span>
 						</div>
 					) : (
@@ -376,7 +399,7 @@ export function MatchCard({
 
 					{/* Status / action */}
 					<div className="flex items-center gap-2">
-						{isLocked && !isFinished && (
+						{isLocked && !isFinished && !readOnly && (
 							<span
 								className="flex items-center gap-1 font-medium text-xs"
 								style={{ color: "var(--b-text-3)" }}
@@ -385,7 +408,7 @@ export function MatchCard({
 							</span>
 						)}
 
-						{!isLocked && dirty && (
+						{!isLocked && !readOnly && dirty && (
 							<button
 								type="button"
 								onClick={handleSave}
@@ -400,7 +423,7 @@ export function MatchCard({
 							</button>
 						)}
 
-						{!dirty && prediction?.predictedHome != null && !isFinished && (
+						{!dirty && !readOnly && prediction?.predictedHome != null && !isFinished && (
 							<span
 								className="font-semibold text-xs"
 								style={{ color: "var(--b-brand)" }}
@@ -411,18 +434,13 @@ export function MatchCard({
 						)}
 
 						{isFinished && prediction?.predictedHome != null && (
-							<div className="flex flex-col items-center gap-1">
-								{prediction.points != null && (
-									<PointsBadge points={prediction.points} />
-								)}
-								<span
-									className="font-bold text-xs"
-									style={{ color: "var(--b-text-3)" }}
-								>
-									Palpite: {prediction.predictedHome} ×{" "}
-									{prediction.predictedAway}
-								</span>
-							</div>
+							<span
+								className="font-bold text-xs"
+								style={{ color: "var(--b-text-3)" }}
+							>
+								Palpite: {prediction.predictedHome} ×{" "}
+								{prediction.predictedAway}
+							</span>
 						)}
 					</div>
 				</div>

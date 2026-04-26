@@ -12,26 +12,34 @@ import Link from "next/link";
 import { use, useState } from "react";
 import { toast } from "sonner";
 
+import { getPointsTier } from "@/lib/points-palette";
+
 function RankingRow({
 	position,
+	leagueId,
 	member,
 	currentUserId,
 }: {
 	position: number;
+	leagueId: string;
 	member: {
 		userId: string;
 		totalPoints: number;
 		exactScores: number;
 		correctResults: number;
 		name: string;
+		lastPoints?: number;
 	};
 	currentUserId: string | undefined;
 }) {
 	const isCurrentUser = currentUserId === member.userId;
+	const lastTier =
+		member.lastPoints != null ? getPointsTier(member.lastPoints) : null;
 
 	return (
-		<div
-			className={`flex items-center gap-3 rounded-lg px-4 py-3 ${
+		<Link
+			href={`/leagues/${leagueId}/members/${member.userId}`}
+			className={`flex items-center gap-3 rounded-lg px-4 py-3 transition-colors ${
 				isCurrentUser
 					? "border border-primary/20 bg-primary/10"
 					: "hover:bg-muted/40"
@@ -73,10 +81,20 @@ function RankingRow({
 					{member.exactScores} exatos · {member.correctResults} acertos
 				</p>
 			</div>
-			<span className="font-bold text-sm tabular-nums">
-				{member.totalPoints} pts
-			</span>
-		</div>
+			<div className="flex flex-col items-end gap-1">
+				<span className="font-bold text-sm tabular-nums">
+					{member.totalPoints} pts
+				</span>
+				{lastTier && (
+					<span
+						className="rounded-full px-1.5 py-px font-bold text-[10px] tabular-nums"
+						style={{ background: lastTier.bg, color: lastTier.color }}
+					>
+						{lastTier.label} último
+					</span>
+				)}
+			</div>
+		</Link>
 	);
 }
 
@@ -190,6 +208,7 @@ export default function LeagueDetailPage({
 									<RankingRow
 										key={member._id}
 										position={idx + 1}
+										leagueId={id}
 										member={member}
 										currentUserId={currentUser?._id}
 									/>

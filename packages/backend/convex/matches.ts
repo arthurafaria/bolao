@@ -2,7 +2,7 @@ import { v } from "convex/values";
 
 import type { Doc } from "./_generated/dataModel";
 import type { QueryCtx } from "./_generated/server";
-import { internalMutation, query } from "./_generated/server";
+import { internalMutation, internalQuery, query } from "./_generated/server";
 
 async function enrichMatch(ctx: QueryCtx, match: Doc<"matches">) {
 	const [homeTeam, awayTeam] = await Promise.all([
@@ -157,6 +157,12 @@ export const upsertMatch = internalMutation({
 
 		if (existing) {
 			const wasFinished = existing.status === "FINISHED";
+			const newlyFinished = !wasFinished && args.status === "FINISHED";
+			const scoreNowVisible =
+				args.status === "FINISHED" &&
+				(existing.homeScore == null || existing.awayScore == null) &&
+				args.homeScore != null &&
+				args.awayScore != null;
 			await ctx.db.patch(existing._id, {
 				status: args.status,
 				homeScore: args.homeScore,
@@ -165,11 +171,24 @@ export const upsertMatch = internalMutation({
 			});
 			return {
 				id: existing._id,
-				justFinished: !wasFinished && args.status === "FINISHED",
+				shouldComputePoints: newlyFinished || scoreNowVisible,
 			};
 		}
 
 		const id = await ctx.db.insert("matches", args);
-		return { id, justFinished: false };
+		return { id, shouldComputePoints: false };
+	},
+});
+
+export const getFinishedWithScore = internalQuery({
+	args: {},
+	handler: async (ctx) => {
+		const matches = await ctx.db
+			.query("matches")
+			.withIndex("by_status", (q) => q.eq("status", "FINISHED"))
+			.take(500);
+		return matches.filter(
+			(m) => m.homeScore != null && m.awayScore != null,
+		);
 	},
 });

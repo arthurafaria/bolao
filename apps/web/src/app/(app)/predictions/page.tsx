@@ -8,49 +8,9 @@ import { useMemo } from "react";
 
 import { MatchCard } from "@/components/match-card";
 import { useTournament } from "@/contexts/tournament-context";
-
-const STAGE_LABELS: Record<string, string> = {
-	ROUND_OF_16: "Oitavas de Final",
-	QUARTER_FINALS: "Quartas de Final",
-	SEMI_FINALS: "Semifinais",
-	FINAL: "Final",
-	GROUP_STAGE: "Fase de Grupos",
-};
+import { groupByRound } from "@/lib/match-grouping";
 
 type Match = FunctionReturnType<typeof api.matches.getAllByDate>[number];
-
-function roundKey(match: NonNullable<Match>): string {
-	if (match.matchday != null) return `matchday_${match.matchday}`;
-	if (match.group) return `stage_${match.stage}_${match.group}`;
-	return `stage_${match.stage}`;
-}
-
-function roundLabel(match: NonNullable<Match>): string {
-	const groupLetter = match.group?.replace(/^(?:GRUPO|GROUP)[_\s]+/, "");
-	if (groupLetter) return `Grupo ${groupLetter}`;
-	if (match.matchday != null) return `Rodada ${match.matchday}`;
-	return STAGE_LABELS[match.stage] ?? match.stage.replace(/_/g, " ");
-}
-
-function groupByRound(
-	matches: NonNullable<Match>[],
-): [string, string, NonNullable<Match>[]][] {
-	const map = new Map<
-		string,
-		{ label: string; matches: NonNullable<Match>[] }
-	>();
-	for (const m of matches) {
-		const key = roundKey(m);
-		const entry = map.get(key) ?? { label: roundLabel(m), matches: [] };
-		entry.matches.push(m);
-		map.set(key, entry);
-	}
-	return Array.from(map.entries()).map(([key, { label, matches }]) => [
-		key,
-		label,
-		matches,
-	]);
-}
 
 function DemoTutorial() {
 	const steps = [

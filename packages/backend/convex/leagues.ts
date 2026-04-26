@@ -1,7 +1,6 @@
 import { ConvexError, v } from "convex/values";
-
-import { mutation, query } from "./_generated/server";
 import type { Id } from "./_generated/dataModel";
+import { mutation, query } from "./_generated/server";
 import { auth, requireUserId } from "./auth";
 
 function generateInviteCode(): string {
@@ -316,10 +315,26 @@ export const getRanking = query({
 
 		return Promise.all(
 			members.map(async (member) => {
-				const user = await ctx.db.get(member.userId as Id<"users">);
+				const [user, recentPreds] = await Promise.all([
+					ctx.db.get(member.userId as Id<"users">),
+					ctx.db
+						.query("predictions")
+						.withIndex("by_user", (q) => q.eq("userId", member.userId))
+						.filter((q) => q.neq(q.field("calculatedAt"), undefined))
+						.take(200),
+				]);
+
+				const lastPoints =
+					recentPreds.length > 0
+						? recentPreds.sort(
+								(a, b) => (b.calculatedAt ?? 0) - (a.calculatedAt ?? 0),
+							)[0]?.points
+						: undefined;
+
 				return {
 					...member,
 					name: user?.name ?? user?.email?.split("@")[0] ?? "Jogador",
+					lastPoints,
 				};
 			}),
 		);
