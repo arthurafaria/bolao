@@ -272,7 +272,7 @@ export function MatchCard({
 				</span>
 				{match.venue && (
 					<span
-						className="text-xs truncate max-w-[200px] text-center"
+						className="max-w-[200px] truncate text-center text-xs"
 						style={{ color: "var(--b-text-4)" }}
 					>
 						{match.venue}
