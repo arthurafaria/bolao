@@ -342,7 +342,28 @@ export function MatchCard({
 					)}
 
 					{/* Score display */}
-					{isFinished ? (
+					{readOnly && prediction?.predictedHome != null ? (
+						<div className="flex items-center gap-3">
+							<span
+								className="font-black font-display text-5xl tabular-nums leading-none"
+								style={{ color: "var(--b-text)" }}
+							>
+								{prediction.predictedHome}
+							</span>
+							<span
+								className="font-black font-display text-2xl"
+								style={{ color: "var(--b-border-md)" }}
+							>
+								×
+							</span>
+							<span
+								className="font-black font-display text-5xl tabular-nums leading-none"
+								style={{ color: "var(--b-text)" }}
+							>
+								{prediction.predictedAway}
+							</span>
+						</div>
+					) : isFinished ? (
 						<div className="flex items-center gap-3">
 							<span
 								className="font-black font-display text-5xl tabular-nums leading-none"
@@ -361,27 +382,6 @@ export function MatchCard({
 								style={{ color: "var(--b-text)" }}
 							>
 								{match.awayScore ?? "–"}
-							</span>
-						</div>
-					) : readOnly && prediction?.predictedHome != null ? (
-						<div className="flex items-center gap-3">
-							<span
-								className="font-black font-display text-5xl tabular-nums leading-none"
-								style={{ color: "var(--b-text-4)" }}
-							>
-								{prediction.predictedHome}
-							</span>
-							<span
-								className="font-black font-display text-2xl"
-								style={{ color: "var(--b-border-md)" }}
-							>
-								×
-							</span>
-							<span
-								className="font-black font-display text-5xl tabular-nums leading-none"
-								style={{ color: "var(--b-text-4)" }}
-							>
-								{prediction.predictedAway}
 							</span>
 						</div>
 					) : (
@@ -449,7 +449,9 @@ export function MatchCard({
 								className="font-bold text-xs"
 								style={{ color: "var(--b-text-3)" }}
 							>
-								Palpite: {prediction.predictedHome} × {prediction.predictedAway}
+								{readOnly
+									? `Resultado: ${match.homeScore ?? "–"} × ${match.awayScore ?? "–"}`
+									: `Palpite: ${prediction.predictedHome} × ${prediction.predictedAway}`}
 							</span>
 						)}
 					</div>
