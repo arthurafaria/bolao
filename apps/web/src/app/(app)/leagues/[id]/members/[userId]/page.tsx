@@ -31,7 +31,9 @@ export default function MemberProfilePage({
 	const currentUser = useQuery(api.auth.getCurrentUser);
 
 	const member = ranking?.find((m) => m.userId === userId);
-	const position = ranking ? ranking.findIndex((m) => m.userId === userId) + 1 : 0;
+	const position = ranking
+		? ranking.findIndex((m) => m.userId === userId) + 1
+		: 0;
 	const isCurrentUser = currentUser?._id === userId;
 
 	if (lockedPredictions === undefined || ranking === undefined) {

@@ -104,19 +104,19 @@ export default function PredictionsPage() {
 	const grouped =
 		matches === undefined
 			? null
-			: groupByRound(matches.filter((m): m is NonNullable<Match> => m !== null)).sort(
-					([, , a], [, , b]) => {
-						const aFinished = a.every((m) => m.status === "FINISHED");
-						const bFinished = b.every((m) => m.status === "FINISHED");
-						if (aFinished !== bFinished) return aFinished ? 1 : -1;
-						const aDetermined = a.some((m) => m.status === "TIMED");
-						const bDetermined = b.some((m) => m.status === "TIMED");
-						if (aDetermined !== bDetermined) return aDetermined ? -1 : 1;
-						const timeA = new Date(a[0].utcDate).getTime();
-						const timeB = new Date(b[0].utcDate).getTime();
-						return aFinished ? timeB - timeA : timeA - timeB;
-					},
-				);
+			: groupByRound(
+					matches.filter((m): m is NonNullable<Match> => m !== null),
+				).sort(([, , a], [, , b]) => {
+					const aFinished = a.every((m) => m.status === "FINISHED");
+					const bFinished = b.every((m) => m.status === "FINISHED");
+					if (aFinished !== bFinished) return aFinished ? 1 : -1;
+					const aDetermined = a.some((m) => m.status === "TIMED");
+					const bDetermined = b.some((m) => m.status === "TIMED");
+					if (aDetermined !== bDetermined) return aDetermined ? -1 : 1;
+					const timeA = new Date(a[0].utcDate).getTime();
+					const timeB = new Date(b[0].utcDate).getTime();
+					return aFinished ? timeB - timeA : timeA - timeB;
+				});
 
 	return (
 		<div className="space-y-2">

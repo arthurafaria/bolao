@@ -73,7 +73,10 @@ export default function RegrasPage() {
 							<div
 								key={pts}
 								className="flex items-start gap-4 rounded-xl p-4"
-								style={{ background: tier.bg, border: `1px solid ${tier.border}` }}
+								style={{
+									background: tier.bg,
+									border: `1px solid ${tier.border}`,
+								}}
 							>
 								<div
 									className="flex h-12 w-14 shrink-0 items-center justify-center rounded-lg font-black font-display text-xl tabular-nums"

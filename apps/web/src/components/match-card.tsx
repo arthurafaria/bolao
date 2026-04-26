@@ -245,8 +245,7 @@ export function MatchCard({
 			? `RODADA ${match.matchday}`
 			: match.stage.replace(/_/g, " ");
 
-	const showPointsBadgeAbove =
-		isFinished && prediction?.predictedHome != null;
+	const showPointsBadgeAbove = isFinished && prediction?.predictedHome != null;
 
 	return (
 		<div
@@ -423,23 +422,25 @@ export function MatchCard({
 							</button>
 						)}
 
-						{!dirty && !readOnly && prediction?.predictedHome != null && !isFinished && (
-							<span
-								className="font-semibold text-xs"
-								style={{ color: "var(--b-brand)" }}
-							>
-								✓ Salvo — {prediction.predictedHome} ×{" "}
-								{prediction.predictedAway}
-							</span>
-						)}
+						{!dirty &&
+							!readOnly &&
+							prediction?.predictedHome != null &&
+							!isFinished && (
+								<span
+									className="font-semibold text-xs"
+									style={{ color: "var(--b-brand)" }}
+								>
+									✓ Salvo — {prediction.predictedHome} ×{" "}
+									{prediction.predictedAway}
+								</span>
+							)}
 
 						{isFinished && prediction?.predictedHome != null && (
 							<span
 								className="font-bold text-xs"
 								style={{ color: "var(--b-text-3)" }}
 							>
-								Palpite: {prediction.predictedHome} ×{" "}
-								{prediction.predictedAway}
+								Palpite: {prediction.predictedHome} × {prediction.predictedAway}
 							</span>
 						)}
 					</div>

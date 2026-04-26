@@ -207,24 +207,26 @@ export const getMemberLockedPredictions = query({
 		const callerId = await auth.getUserId(ctx);
 		if (!callerId) return null;
 
-		const [callerMembership, targetMembership, predictions] = await Promise.all([
-			ctx.db
-				.query("leagueMembers")
-				.withIndex("by_league_user", (q) =>
-					q.eq("leagueId", args.leagueId).eq("userId", callerId),
-				)
-				.unique(),
-			ctx.db
-				.query("leagueMembers")
-				.withIndex("by_league_user", (q) =>
-					q.eq("leagueId", args.leagueId).eq("userId", args.memberUserId),
-				)
-				.unique(),
-			ctx.db
-				.query("predictions")
-				.withIndex("by_user", (q) => q.eq("userId", args.memberUserId))
-				.take(200),
-		]);
+		const [callerMembership, targetMembership, predictions] = await Promise.all(
+			[
+				ctx.db
+					.query("leagueMembers")
+					.withIndex("by_league_user", (q) =>
+						q.eq("leagueId", args.leagueId).eq("userId", callerId),
+					)
+					.unique(),
+				ctx.db
+					.query("leagueMembers")
+					.withIndex("by_league_user", (q) =>
+						q.eq("leagueId", args.leagueId).eq("userId", args.memberUserId),
+					)
+					.unique(),
+				ctx.db
+					.query("predictions")
+					.withIndex("by_user", (q) => q.eq("userId", args.memberUserId))
+					.take(200),
+			],
+		);
 
 		if (!callerMembership || callerMembership.status !== "ACTIVE") return null;
 		if (!targetMembership || targetMembership.status !== "ACTIVE") return null;
@@ -232,10 +234,15 @@ export const getMemberLockedPredictions = query({
 		const now = Date.now();
 
 		// Fetch all matches in parallel to avoid sequential DB reads
-		const matches = await Promise.all(predictions.map((p) => ctx.db.get(p.matchId)));
+		const matches = await Promise.all(
+			predictions.map((p) => ctx.db.get(p.matchId)),
+		);
 
 		type MatchDoc = NonNullable<(typeof matches)[number]>;
-		const pairs: Array<{ match: MatchDoc; prediction: (typeof predictions)[number] }> = [];
+		const pairs: Array<{
+			match: MatchDoc;
+			prediction: (typeof predictions)[number];
+		}> = [];
 		for (let i = 0; i < predictions.length; i++) {
 			const match = matches[i];
 			if (!match) continue;
@@ -267,7 +274,8 @@ export const getMemberLockedPredictions = query({
 			}))
 			.sort(
 				(a, b) =>
-					new Date(b.match.utcDate).getTime() - new Date(a.match.utcDate).getTime(),
+					new Date(b.match.utcDate).getTime() -
+					new Date(a.match.utcDate).getTime(),
 			);
 	},
 });

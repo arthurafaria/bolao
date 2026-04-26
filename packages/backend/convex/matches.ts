@@ -175,7 +175,8 @@ export const upsertMatch = internalMutation({
 			});
 			return {
 				id: existing._id,
-				shouldComputePoints: newlyFinished || scoreNowVisible || alreadyFinishedWithScore,
+				shouldComputePoints:
+					newlyFinished || scoreNowVisible || alreadyFinishedWithScore,
 			};
 		}
 
