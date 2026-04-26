@@ -115,7 +115,7 @@ export const getUserPredictions = query({
 		return ctx.db
 			.query("predictions")
 			.withIndex("by_user", (q) => q.eq("userId", userId))
-			.take(200);
+			.collect();
 	},
 });
 
@@ -144,7 +144,7 @@ export const getLeagueMemberPredictions = query({
 			.query("leagueMembers")
 			.withIndex("by_league", (q) => q.eq("leagueId", args.leagueId))
 			.filter((q) => q.eq(q.field("status"), "ACTIVE"))
-			.take(50);
+			.collect();
 
 		const predictions = await Promise.all(
 			members.map(async (m) => {
@@ -172,10 +172,8 @@ export const computeForMatch = internalMutation({
 		const allPredictions = await ctx.db
 			.query("predictions")
 			.withIndex("by_match", (q) => q.eq("matchId", args.matchId))
-			.take(200);
-		const predictions = allPredictions.filter(
-			(p) => p.calculatedAt === undefined,
-		);
+			.collect();
+		const predictions = allPredictions;
 
 		const now = Date.now();
 
@@ -186,23 +184,62 @@ export const computeForMatch = internalMutation({
 				match.homeScore,
 				match.awayScore,
 			);
+			const previousPoints = pred.points ?? 0;
+			const pointsDelta = points - previousPoints;
+			const exactDelta = (isExact ? 1 : 0) - (pred.points === 10 ? 1 : 0);
+			const correctResultDelta =
+				(isCorrectResult ? 1 : 0) - (previousPoints >= 5 ? 1 : 0);
 
 			await ctx.db.patch(pred._id, { points, calculatedAt: now });
+
+			if (pointsDelta === 0 && exactDelta === 0 && correctResultDelta === 0) {
+				continue;
+			}
 
 			const memberships = await ctx.db
 				.query("leagueMembers")
 				.withIndex("by_user", (q) => q.eq("userId", pred.userId))
 				.filter((q) => q.eq(q.field("status"), "ACTIVE"))
-				.take(50);
+				.collect();
 
 			for (const membership of memberships) {
 				await ctx.db.patch(membership._id, {
-					totalPoints: membership.totalPoints + points,
-					exactScores: membership.exactScores + (isExact ? 1 : 0),
-					correctResults: membership.correctResults + (isCorrectResult ? 1 : 0),
+					totalPoints: membership.totalPoints + pointsDelta,
+					exactScores: membership.exactScores + exactDelta,
+					correctResults: membership.correctResults + correctResultDelta,
 				});
 			}
 		}
+	},
+});
+
+export const resetComputedPoints = internalMutation({
+	args: {},
+	handler: async (ctx) => {
+		const [memberships, predictions] = await Promise.all([
+			ctx.db.query("leagueMembers").collect(),
+			ctx.db.query("predictions").collect(),
+		]);
+
+		for (const membership of memberships) {
+			await ctx.db.patch(membership._id, {
+				totalPoints: 0,
+				exactScores: 0,
+				correctResults: 0,
+			});
+		}
+
+		for (const prediction of predictions) {
+			await ctx.db.patch(prediction._id, {
+				points: undefined,
+				calculatedAt: undefined,
+			});
+		}
+
+		return {
+			resetMemberships: memberships.length,
+			resetPredictions: predictions.length,
+		};
 	},
 });
 
@@ -233,7 +270,7 @@ export const getMemberLockedPredictions = query({
 				ctx.db
 					.query("predictions")
 					.withIndex("by_user", (q) => q.eq("userId", args.memberUserId))
-					.take(200),
+					.collect(),
 			],
 		);
 
@@ -291,31 +328,15 @@ export const getMemberLockedPredictions = query({
 
 export const recomputeAll = internalAction({
 	args: {},
-	handler: async (ctx) => {
-		const matches = await ctx.runQuery(internal.matches.getFinishedWithScore);
-		let computed = 0;
-		for (const match of matches) {
-			await ctx.runMutation(internal.predictions.computeForMatch, {
-				matchId: match._id,
-			});
-			computed++;
-		}
-		console.log(`[recomputeAll] Recomputed points for ${computed} matches`);
-		return { computed };
-	},
-});
-
-// Public wrapper for admin use — guards by email, inlines recomputeAll logic
-// to avoid circular type-inference from self-referencing internal.predictions.
-export const adminRecomputeAll = action({
-	args: {},
-	handler: async (ctx): Promise<{ computed: number }> => {
-		const userId = await auth.getUserId(ctx);
-		if (!userId) throw new ConvexError("Unauthorized");
-		const adminCheck = await ctx.runQuery(internal.predictions.getAdminUser, {
-			userId,
-		});
-		if (!adminCheck?.isAdmin) throw new ConvexError("Unauthorized");
+	handler: async (
+		ctx,
+	): Promise<{
+		computed: number;
+		resetMemberships: number;
+		resetPredictions: number;
+	}> => {
+		const reset: { resetMemberships: number; resetPredictions: number } =
+			await ctx.runMutation(internal.predictions.resetComputedPoints, {});
 		const matches = await ctx.runQuery(internal.matches.getFinishedWithScore);
 		let computed = 0;
 		for (const match of matches) {
@@ -325,9 +346,45 @@ export const adminRecomputeAll = action({
 			computed++;
 		}
 		console.log(
-			`[adminRecomputeAll] Recomputed points for ${computed} matches`,
+			`[recomputeAll] Recomputed points for ${computed} matches after resetting ${reset.resetMemberships} memberships and ${reset.resetPredictions} predictions`,
 		);
-		return { computed };
+		return { computed, ...reset };
+	},
+});
+
+// Public wrapper for admin use — guards by email, inlines recomputeAll logic
+// to avoid circular type-inference from self-referencing internal.predictions.
+export const adminRecomputeAll = action({
+	args: {},
+	handler: async (
+		ctx,
+	): Promise<{
+		computed: number;
+		resetMemberships: number;
+		resetPredictions: number;
+	}> => {
+		const userId = await auth.getUserId(ctx);
+		if (!userId) throw new ConvexError("Unauthorized");
+		const adminCheck = await ctx.runQuery(internal.predictions.getAdminUser, {
+			userId,
+		});
+		if (!adminCheck?.isAdmin) throw new ConvexError("Unauthorized");
+		const reset = await ctx.runMutation(
+			internal.predictions.resetComputedPoints,
+			{},
+		);
+		const matches = await ctx.runQuery(internal.matches.getFinishedWithScore);
+		let computed = 0;
+		for (const match of matches) {
+			await ctx.runMutation(internal.predictions.computeForMatch, {
+				matchId: match._id,
+			});
+			computed++;
+		}
+		console.log(
+			`[adminRecomputeAll] Recomputed points for ${computed} matches after resetting ${reset.resetMemberships} memberships and ${reset.resetPredictions} predictions`,
+		);
+		return { computed, ...reset };
 	},
 });
 
@@ -352,7 +409,7 @@ export const getStats = query({
 		const allPredictions = await ctx.db
 			.query("predictions")
 			.withIndex("by_user", (q) => q.eq("userId", userId))
-			.take(200);
+			.collect();
 
 		const calculated = allPredictions.filter(
 			(p) => p.calculatedAt !== undefined,

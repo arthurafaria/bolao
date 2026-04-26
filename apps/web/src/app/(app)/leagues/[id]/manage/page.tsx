@@ -35,7 +35,14 @@ export default function ManageLeaguePage({
 	const rejectRequest = useMutation(api.leagues.rejectRequest);
 	const removeMember = useMutation(api.leagues.removeMember);
 
-	if (!league || !currentUser) return null;
+	if (league === undefined || currentUser === undefined) return null;
+	if (league === null || currentUser === null) {
+		return (
+			<div className="py-12 text-center text-muted-foreground">
+				Liga não encontrada ou acesso negado
+			</div>
+		);
+	}
 	if (league.ownerId !== currentUser._id) {
 		return (
 			<div className="py-12 text-center text-muted-foreground">

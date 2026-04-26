@@ -1,7 +1,24 @@
 import { ConvexError, v } from "convex/values";
 import type { Id } from "./_generated/dataModel";
+import type { QueryCtx } from "./_generated/server";
 import { mutation, query } from "./_generated/server";
 import { auth, requireUserId } from "./auth";
+
+async function getActiveMembership(
+	ctx: QueryCtx,
+	leagueId: Id<"leagues">,
+	userId: string,
+) {
+	return ctx.db
+		.query("leagueMembers")
+		.withIndex("by_league_user", (q) =>
+			q.eq("leagueId", leagueId).eq("userId", userId),
+		)
+		.unique()
+		.then((membership) =>
+			membership?.status === "ACTIVE" ? membership : null,
+		);
+}
 
 function generateInviteCode(): string {
 	const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
@@ -287,6 +304,10 @@ export const update = mutation({
 export const getById = query({
 	args: { leagueId: v.id("leagues") },
 	handler: async (ctx, args) => {
+		const userId = await auth.getUserId(ctx);
+		if (!userId) return null;
+		const membership = await getActiveMembership(ctx, args.leagueId, userId);
+		if (!membership) return null;
 		return ctx.db.get(args.leagueId);
 	},
 });
@@ -306,12 +327,17 @@ export const getByInviteCode = query({
 export const getRanking = query({
 	args: { leagueId: v.id("leagues") },
 	handler: async (ctx, args) => {
+		const userId = await auth.getUserId(ctx);
+		if (!userId) return [];
+		const membership = await getActiveMembership(ctx, args.leagueId, userId);
+		if (!membership) return [];
+
 		const members = await ctx.db
 			.query("leagueMembers")
 			.withIndex("by_league_points", (q) => q.eq("leagueId", args.leagueId))
 			.order("desc")
 			.filter((q) => q.eq(q.field("status"), "ACTIVE"))
-			.take(50);
+			.collect();
 
 		return Promise.all(
 			members.map(async (member) => {
@@ -320,7 +346,7 @@ export const getRanking = query({
 					ctx.db
 						.query("predictions")
 						.withIndex("by_user", (q) => q.eq("userId", member.userId))
-						.take(200),
+						.collect(),
 				]);
 
 				const calculatedPreds = recentPreds.filter(
@@ -353,7 +379,7 @@ export const getUserLeagues = query({
 			.query("leagueMembers")
 			.withIndex("by_user", (q) => q.eq("userId", userId))
 			.filter((q) => q.eq(q.field("status"), "ACTIVE"))
-			.take(50);
+			.collect();
 
 		const leagues = await Promise.all(
 			memberships.map(async (m) => {
@@ -380,7 +406,7 @@ export const getPendingRequests = query({
 			.withIndex("by_league_status", (q) =>
 				q.eq("leagueId", args.leagueId).eq("status", "PENDING"),
 			)
-			.take(50);
+			.collect();
 
 		return Promise.all(
 			requests.map(async (req) => {

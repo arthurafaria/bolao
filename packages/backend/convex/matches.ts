@@ -47,7 +47,7 @@ export const getByStage = query({
 					q.eq("tournament", args.tournament).eq("stage", args.stage!),
 				)
 				.order("asc")
-				.take(100);
+				.collect();
 		} else {
 			matches = await ctx.db
 				.query("matches")
@@ -55,7 +55,7 @@ export const getByStage = query({
 					q.eq("tournament", args.tournament),
 				)
 				.order("asc")
-				.take(100);
+				.collect();
 		}
 		return Promise.all(matches.map((m) => enrichMatch(ctx, m)));
 	},
@@ -90,10 +90,11 @@ export const getAllByDate = query({
 	handler: async (ctx, args) => {
 		const matches = await ctx.db
 			.query("matches")
-			.withIndex("by_utcDate")
+			.withIndex("by_tournament_date", (q) =>
+				q.eq("tournament", args.tournament),
+			)
 			.order("asc")
-			.filter((q) => q.eq(q.field("tournament"), args.tournament))
-			.take(200);
+			.collect();
 		return Promise.all(matches.map((m) => enrichMatch(ctx, m)));
 	},
 });
@@ -193,7 +194,7 @@ export const getFinishedWithScore = internalQuery({
 		const matches = await ctx.db
 			.query("matches")
 			.withIndex("by_status", (q) => q.eq("status", "FINISHED"))
-			.take(500);
+			.collect();
 		return matches.filter((m) => m.homeScore != null && m.awayScore != null);
 	},
 });
