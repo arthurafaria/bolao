@@ -147,6 +147,7 @@ export const upsertMatch = internalMutation({
 		stage: v.string(),
 		group: v.optional(v.string()),
 		matchday: v.optional(v.number()),
+		venue: v.optional(v.string()),
 		tournament: v.string(),
 	},
 	handler: async (ctx, args) => {
@@ -172,6 +173,7 @@ export const upsertMatch = internalMutation({
 				homeScore: args.homeScore,
 				awayScore: args.awayScore,
 				utcDate: args.utcDate,
+				venue: args.venue,
 			});
 			return {
 				id: existing._id,

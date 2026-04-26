@@ -22,6 +22,7 @@ interface ApiMatch {
 	matchday: number | null;
 	stage: string;
 	group: string | null;
+	venue: string | null;
 	homeTeam: ApiTeam;
 	awayTeam: ApiTeam;
 	score: {
@@ -114,6 +115,7 @@ async function doSync(
 			stage: match.stage,
 			group: match.group ?? undefined,
 			matchday: match.matchday ?? undefined,
+			venue: match.venue ?? undefined,
 			tournament,
 		});
 

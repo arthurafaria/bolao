@@ -31,6 +31,7 @@ type MatchWithTeams = {
 	stage: string;
 	group?: string;
 	matchday?: number;
+	venue?: string;
 };
 
 function TeamCrest({ crest, name }: { crest: string; name: string }) {
@@ -269,6 +270,14 @@ export function MatchCard({
 				>
 					{stageLabel}
 				</span>
+				{match.venue && (
+					<span
+						className="text-xs truncate max-w-[200px] text-center"
+						style={{ color: "var(--b-text-4)" }}
+					>
+						{match.venue}
+					</span>
+				)}
 				<div className="flex flex-col items-end gap-0.5">
 					<span
 						className="font-medium text-xs"

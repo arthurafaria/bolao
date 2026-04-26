@@ -320,13 +320,15 @@ export const getRanking = query({
 					ctx.db
 						.query("predictions")
 						.withIndex("by_user", (q) => q.eq("userId", member.userId))
-						.filter((q) => q.neq(q.field("calculatedAt"), undefined))
 						.take(200),
 				]);
 
+				const calculatedPreds = recentPreds.filter(
+					(p) => p.calculatedAt !== undefined,
+				);
 				const lastPoints =
-					recentPreds.length > 0
-						? recentPreds.sort(
+					calculatedPreds.length > 0
+						? calculatedPreds.sort(
 								(a, b) => (b.calculatedAt ?? 0) - (a.calculatedAt ?? 0),
 							)[0]?.points
 						: undefined;

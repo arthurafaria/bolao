@@ -32,6 +32,7 @@ export default defineSchema({
 		stage: v.string(),
 		group: v.optional(v.string()),
 		matchday: v.optional(v.number()),
+		venue: v.optional(v.string()),
 		apiId: v.number(),
 		tournament: v.string(),
 	})
