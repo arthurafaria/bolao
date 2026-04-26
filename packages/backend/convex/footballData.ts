@@ -194,7 +194,17 @@ async function fetchApiFootballFixtures(
 		return [];
 	}
 
-	const data = (await res.json()) as { response?: ApiFootballFixture[] };
+	const data = (await res.json()) as {
+		errors?: Record<string, string>;
+		response?: ApiFootballFixture[];
+	};
+	if (data.errors && Object.keys(data.errors).length > 0) {
+		console.warn(
+			`API-FOOTBALL venue enrichment skipped: ${JSON.stringify(data.errors)}`,
+		);
+		return [];
+	}
+
 	return data.response ?? [];
 }
 
