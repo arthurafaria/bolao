@@ -207,49 +207,68 @@ export const getMemberLockedPredictions = query({
 		const callerId = await auth.getUserId(ctx);
 		if (!callerId) return null;
 
-		const callerMembership = await ctx.db
-			.query("leagueMembers")
-			.withIndex("by_league_user", (q) =>
-				q.eq("leagueId", args.leagueId).eq("userId", callerId),
-			)
-			.unique();
-		if (!callerMembership || callerMembership.status !== "ACTIVE") return null;
+		const [callerMembership, targetMembership, predictions] = await Promise.all([
+			ctx.db
+				.query("leagueMembers")
+				.withIndex("by_league_user", (q) =>
+					q.eq("leagueId", args.leagueId).eq("userId", callerId),
+				)
+				.unique(),
+			ctx.db
+				.query("leagueMembers")
+				.withIndex("by_league_user", (q) =>
+					q.eq("leagueId", args.leagueId).eq("userId", args.memberUserId),
+				)
+				.unique(),
+			ctx.db
+				.query("predictions")
+				.withIndex("by_user", (q) => q.eq("userId", args.memberUserId))
+				.take(200),
+		]);
 
-		const targetMembership = await ctx.db
-			.query("leagueMembers")
-			.withIndex("by_league_user", (q) =>
-				q.eq("leagueId", args.leagueId).eq("userId", args.memberUserId),
-			)
-			.unique();
+		if (!callerMembership || callerMembership.status !== "ACTIVE") return null;
 		if (!targetMembership || targetMembership.status !== "ACTIVE") return null;
 
-		const predictions = await ctx.db
-			.query("predictions")
-			.withIndex("by_user", (q) => q.eq("userId", args.memberUserId))
-			.take(200);
-
 		const now = Date.now();
-		const results = [];
 
-		for (const pred of predictions) {
-			const match = await ctx.db.get(pred.matchId);
+		// Fetch all matches in parallel to avoid sequential DB reads
+		const matches = await Promise.all(predictions.map((p) => ctx.db.get(p.matchId)));
+
+		type MatchDoc = NonNullable<(typeof matches)[number]>;
+		const pairs: Array<{ match: MatchDoc; prediction: (typeof predictions)[number] }> = [];
+		for (let i = 0; i < predictions.length; i++) {
+			const match = matches[i];
 			if (!match) continue;
 			if (match.tournament !== args.tournament) continue;
-			const matchTime = new Date(match.utcDate).getTime();
-			if (now < matchTime - LOCK_WINDOW_MS) continue;
-
-			const [homeTeam, awayTeam] = await Promise.all([
-				ctx.db.get(match.homeTeamId),
-				ctx.db.get(match.awayTeamId),
-			]);
-			results.push({ match: { ...match, homeTeam, awayTeam }, prediction: pred });
+			if (now < new Date(match.utcDate).getTime() - LOCK_WINDOW_MS) continue;
+			pairs.push({ match, prediction: predictions[i] });
 		}
 
-		return results.sort(
-			(a, b) =>
-				new Date(b.match.utcDate).getTime() -
-				new Date(a.match.utcDate).getTime(),
+		// Deduplicate team IDs and fetch all teams in parallel
+		const teamIdSet = new Set<string>();
+		for (const { match } of pairs) {
+			teamIdSet.add(match.homeTeamId as string);
+			teamIdSet.add(match.awayTeamId as string);
+		}
+		const teamIdList = [...teamIdSet];
+		const teamDocs = await Promise.all(
+			teamIdList.map((id) => ctx.db.get(id as MatchDoc["homeTeamId"])),
 		);
+		const teamMap = new Map(teamIdList.map((id, i) => [id, teamDocs[i]]));
+
+		return pairs
+			.map(({ match, prediction }) => ({
+				match: {
+					...match,
+					homeTeam: teamMap.get(match.homeTeamId as string) ?? null,
+					awayTeam: teamMap.get(match.awayTeamId as string) ?? null,
+				},
+				prediction,
+			}))
+			.sort(
+				(a, b) =>
+					new Date(b.match.utcDate).getTime() - new Date(a.match.utcDate).getTime(),
+			);
 	},
 });
 

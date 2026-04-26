@@ -175,11 +175,11 @@ export const syncTodayBSA = internalAction({
 	args: {},
 	handler: async (ctx) => {
 		const today = new Date();
-		const yesterday = new Date(today);
-		yesterday.setDate(today.getDate() - 1);
+		const past = new Date(today);
+		past.setDate(today.getDate() - 7);
 		const tomorrow = new Date(today);
 		tomorrow.setDate(today.getDate() + 1);
 		const fmt = (d: Date) => d.toISOString().slice(0, 10);
-		await doSync(ctx, "BSA", "BSA2026", fmt(yesterday), fmt(tomorrow));
+		await doSync(ctx, "BSA", "BSA2026", fmt(past), fmt(tomorrow));
 	},
 });

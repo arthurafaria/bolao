@@ -163,6 +163,10 @@ export const upsertMatch = internalMutation({
 				(existing.homeScore == null || existing.awayScore == null) &&
 				args.homeScore != null &&
 				args.awayScore != null;
+			// Always recompute for already-FINISHED matches: computeForMatch is
+			// idempotent (skips predictions already having calculatedAt set).
+			const alreadyFinishedWithScore =
+				wasFinished && args.homeScore != null && args.awayScore != null;
 			await ctx.db.patch(existing._id, {
 				status: args.status,
 				homeScore: args.homeScore,
@@ -171,7 +175,7 @@ export const upsertMatch = internalMutation({
 			});
 			return {
 				id: existing._id,
-				shouldComputePoints: newlyFinished || scoreNowVisible,
+				shouldComputePoints: newlyFinished || scoreNowVisible || alreadyFinishedWithScore,
 			};
 		}
 
@@ -187,8 +191,6 @@ export const getFinishedWithScore = internalQuery({
 			.query("matches")
 			.withIndex("by_status", (q) => q.eq("status", "FINISHED"))
 			.take(500);
-		return matches.filter(
-			(m) => m.homeScore != null && m.awayScore != null,
-		);
+		return matches.filter((m) => m.homeScore != null && m.awayScore != null);
 	},
 });
