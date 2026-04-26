@@ -18,7 +18,8 @@ Plano de implementação para hospedar o Bolão no Vercel, subir o backend no Co
    - `CONVEX_SITE_URL` (ex.: `https://<name>.convex.site`) → vai em `NEXT_PUBLIC_CONVEX_SITE_URL`
 3. Configurar as variáveis de ambiente necessárias no dashboard do Convex (prod):
    - Secrets do `@convex-dev/auth` (ex.: `JWT_PRIVATE_KEY`, `JWKS`, `SITE_URL`)
-   - `FOOTBALL_DATA_API_TOKEN` (se houver uso)
+   - `FOOTBALL_DATA_API_KEY`
+   - `API_FOOTBALL_KEY` (opcional, para preencher estádios quando a football-data.org não informa)
    - Qualquer outra env lida por actions/HTTP actions
 4. Testar o backend prod de forma isolada: `bunx convex run <query>` apontando para o deployment prod, para confirmar que schema, auth e functions subiram corretamente.
 
@@ -122,6 +123,7 @@ Revisar cada página nos breakpoints **375px**, **768px** e **1024px**.
 | `JWKS` | gerado via Node (RS256) | par público do `JWT_PRIVATE_KEY` |
 | `SITE_URL` | Manual | URL do Vercel (`https://<projeto>.vercel.app`) |
 | `FOOTBALL_DATA_API_KEY` | Manual | token da football-data.org |
+| `API_FOOTBALL_KEY` | Manual | opcional; token da API-FOOTBALL/API-Sports para enriquecer estádios do Brasileirão |
 
 > **Atenção — chaves RSA obrigatórias:** o `@convex-dev/auth` com provider `Password` exige RSA (RS256).
 > Chaves EC (ES256) são aceitas pelo `convex env set` mas causam erro `PrivateKeyInfo algorithm is not rsaEncryption` em runtime.

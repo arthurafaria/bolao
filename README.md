@@ -102,6 +102,7 @@ Acessível apenas para o e-mail owner. Botões:
 - [Bun](https://bun.sh) >= 1.3
 - Conta no [Convex](https://convex.dev)
 - Chave de API do [football-data.org](https://www.football-data.org) (gratuita, 10 req/min)
+- Chave da [API-FOOTBALL](https://www.api-football.com/) (opcional, usada para enriquecer estádios quando a football-data.org não informa)
 
 ## Setup
 
@@ -122,6 +123,7 @@ Copie as variáveis de ambiente:
 CONVEX_DEPLOYMENT=...            # gerado pelo dev:setup
 CONVEX_SITE_URL=...              # URL do Convex HTTP local
 FOOTBALL_DATA_API_KEY=...        # football-data.org
+API_FOOTBALL_KEY=...             # opcional, API-FOOTBALL/API-Sports para estádios
 
 # apps/web/.env.local
 NEXT_PUBLIC_CONVEX_URL=...       # copiado de packages/backend
@@ -204,6 +206,7 @@ Variáveis de ambiente do Convex Cloud (produção):
 | `JWKS` | Chave pública RS256 em formato JSON |
 | `SITE_URL` | URL do Vercel (`https://<projeto>.vercel.app`) |
 | `FOOTBALL_DATA_API_KEY` | Token da football-data.org |
+| `API_FOOTBALL_KEY` | Opcional; token da API-FOOTBALL/API-Sports para completar estádios do Brasileirão |
 
 ## Deploy (Vercel + Convex Cloud)
 
