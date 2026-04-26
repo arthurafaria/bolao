@@ -1,8 +1,9 @@
-import { v } from "convex/values";
+import { ConvexError, v } from "convex/values";
 
 import { internal } from "./_generated/api";
 import type { ActionCtx } from "./_generated/server";
-import { internalAction } from "./_generated/server";
+import { action, internalAction } from "./_generated/server";
+import { auth } from "./auth";
 
 const API_BASE = "https://api.football-data.org/v4";
 
@@ -50,7 +51,7 @@ async function doSync(
 	tournament: string,
 	dateFrom?: string,
 	dateTo?: string,
-) {
+): Promise<{ synced: number; pointsComputed: number; promoted: number }> {
 	const apiKey = process.env.FOOTBALL_DATA_API_KEY;
 	if (!apiKey) throw new Error("FOOTBALL_DATA_API_KEY not set");
 
@@ -134,10 +135,20 @@ async function doSync(
 		}
 	}
 
-	console.log(
-		`[${tournament}] Synced ${synced} matches, computed points for ${pointsComputed}`,
+	// Promote any IN_PLAY/PAUSED matches that started >4h ago and have a score.
+	// Handles football-data.org not emitting a clean FINISHED status transition.
+	const { promoted } = await ctx.runMutation(
+		internal.matches.forceFinishStaleLive,
+		{},
 	);
-	return { synced, pointsComputed };
+	if (promoted > 0) {
+		await ctx.runAction(internal.predictions.recomputeAll, {});
+	}
+
+	console.log(
+		`[${tournament}] Synced ${synced} matches, computed points for ${pointsComputed}, promoted ${promoted} stale matches`,
+	);
+	return { synced, pointsComputed, promoted };
 }
 
 // ─── World Cup 2026 ───────────────────────────────────────────────────────────
@@ -181,5 +192,51 @@ export const syncTodayBSA = internalAction({
 		tomorrow.setDate(today.getDate() + 1);
 		const fmt = (d: Date) => d.toISOString().slice(0, 10);
 		await doSync(ctx, "BSA", "BSA2026", fmt(past), fmt(tomorrow));
+	},
+});
+
+// ─── Admin public wrappers (guarded by email) ─────────────────────────────────
+// Inline the sync logic to avoid circular type-inference with internal refs.
+
+async function checkAdmin(ctx: ActionCtx, userId: string): Promise<boolean> {
+	const result = await ctx.runQuery(internal.predictions.getAdminUser, {
+		userId,
+	});
+	return result?.isAdmin === true;
+}
+
+export const adminSyncBSA = action({
+	args: {},
+	handler: async (
+		ctx,
+	): Promise<{ synced: number; pointsComputed: number; promoted: number }> => {
+		const userId = await auth.getUserId(ctx);
+		if (!userId || !(await checkAdmin(ctx, userId)))
+			throw new ConvexError("Unauthorized");
+		const today = new Date();
+		const past = new Date(today);
+		past.setDate(today.getDate() - 7);
+		const tomorrow = new Date(today);
+		tomorrow.setDate(today.getDate() + 1);
+		const fmt = (d: Date) => d.toISOString().slice(0, 10);
+		return doSync(ctx, "BSA", "BSA2026", fmt(past), fmt(tomorrow));
+	},
+});
+
+export const adminSyncWC = action({
+	args: {},
+	handler: async (
+		ctx,
+	): Promise<{ synced: number; pointsComputed: number; promoted: number }> => {
+		const userId = await auth.getUserId(ctx);
+		if (!userId || !(await checkAdmin(ctx, userId)))
+			throw new ConvexError("Unauthorized");
+		const today = new Date();
+		const yesterday = new Date(today);
+		yesterday.setDate(today.getDate() - 1);
+		const future = new Date(today);
+		future.setDate(today.getDate() + 60);
+		const fmt = (d: Date) => d.toISOString().slice(0, 10);
+		return doSync(ctx, "WC", "WC2026", fmt(yesterday), fmt(future));
 	},
 });

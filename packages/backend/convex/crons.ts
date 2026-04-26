@@ -8,7 +8,7 @@ crons.cron("sync WC today", "0 * * * *", internal.footballData.syncToday, {});
 
 crons.cron(
 	"sync BSA today",
-	"*/30 * * * *",
+	"*/10 * * * *",
 	internal.footballData.syncTodayBSA,
 	{},
 );

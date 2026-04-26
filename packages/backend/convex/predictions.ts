@@ -1,6 +1,13 @@
 import { ConvexError, v } from "convex/values";
 import { internal } from "./_generated/api";
-import { action, internalMutation, mutation, query } from "./_generated/server";
+import {
+	action,
+	internalAction,
+	internalMutation,
+	internalQuery,
+	mutation,
+	query,
+} from "./_generated/server";
 import { auth, requireUserId } from "./auth";
 
 const LOCK_WINDOW_MS = 60 * 60 * 1000; // 1 hour before match
@@ -162,11 +169,13 @@ export const computeForMatch = internalMutation({
 		if (!match || match.status !== "FINISHED") return;
 		if (match.homeScore == null || match.awayScore == null) return;
 
-		const predictions = await ctx.db
+		const allPredictions = await ctx.db
 			.query("predictions")
 			.withIndex("by_match", (q) => q.eq("matchId", args.matchId))
-			.filter((q) => q.eq(q.field("calculatedAt"), undefined))
 			.take(200);
+		const predictions = allPredictions.filter(
+			(p) => p.calculatedAt === undefined,
+		);
 
 		const now = Date.now();
 
@@ -280,7 +289,7 @@ export const getMemberLockedPredictions = query({
 	},
 });
 
-export const recomputeAll = action({
+export const recomputeAll = internalAction({
 	args: {},
 	handler: async (ctx) => {
 		const matches = await ctx.runQuery(internal.matches.getFinishedWithScore);
@@ -293,6 +302,44 @@ export const recomputeAll = action({
 		}
 		console.log(`[recomputeAll] Recomputed points for ${computed} matches`);
 		return { computed };
+	},
+});
+
+// Public wrapper for admin use — guards by email, inlines recomputeAll logic
+// to avoid circular type-inference from self-referencing internal.predictions.
+export const adminRecomputeAll = action({
+	args: {},
+	handler: async (ctx): Promise<{ computed: number }> => {
+		const userId = await auth.getUserId(ctx);
+		if (!userId) throw new ConvexError("Unauthorized");
+		const adminCheck = await ctx.runQuery(internal.predictions.getAdminUser, {
+			userId,
+		});
+		if (!adminCheck?.isAdmin) throw new ConvexError("Unauthorized");
+		const matches = await ctx.runQuery(internal.matches.getFinishedWithScore);
+		let computed = 0;
+		for (const match of matches) {
+			await ctx.runMutation(internal.predictions.computeForMatch, {
+				matchId: match._id,
+			});
+			computed++;
+		}
+		console.log(
+			`[adminRecomputeAll] Recomputed points for ${computed} matches`,
+		);
+		return { computed };
+	},
+});
+
+export const getAdminUser = internalQuery({
+	args: { userId: v.string() },
+	handler: async (ctx, args) => {
+		const user = await ctx.db
+			.query("users")
+			.filter((q) => q.eq(q.field("_id"), args.userId))
+			.unique();
+		const ADMIN_EMAIL = "arthurdearaujofaria@gmail.com";
+		return user ? { isAdmin: user.email === ADMIN_EMAIL } : null;
 	},
 });
 

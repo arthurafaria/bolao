@@ -36,7 +36,12 @@ export default function MemberProfilePage({
 		: 0;
 	const isCurrentUser = currentUser?._id === userId;
 
-	if (lockedPredictions === undefined || ranking === undefined) {
+	const isLoading =
+		lockedPredictions === undefined ||
+		ranking === undefined ||
+		currentUser === undefined;
+
+	if (isLoading) {
 		return (
 			<div className="space-y-4">
 				<Skeleton className="h-8 w-48" />
@@ -47,7 +52,7 @@ export default function MemberProfilePage({
 		);
 	}
 
-	if (lockedPredictions === null || !member) {
+	if (lockedPredictions === null) {
 		return (
 			<div className="space-y-4">
 				<Link
@@ -66,17 +71,45 @@ export default function MemberProfilePage({
 					}}
 				>
 					<p style={{ color: "var(--b-text-3)" }}>
-						Membro não encontrado ou sem acesso
+						Você precisa ser membro ativo desta liga para ver os palpites.
 					</p>
 				</div>
 			</div>
 		);
 	}
 
-	const grouped = groupByRound(lockedPredictions.map((lp) => lp.match)).sort(
-		([, , a], [, , b]) =>
-			new Date(b[0].utcDate).getTime() - new Date(a[0].utcDate).getTime(),
-	);
+	if (!member) {
+		return (
+			<div className="space-y-4">
+				<Link
+					href={`/leagues/${id}`}
+					className="inline-flex items-center gap-1.5 text-sm"
+					style={{ color: "var(--b-text-3)" }}
+				>
+					<ArrowLeft className="h-4 w-4" />
+					Voltar para a liga
+				</Link>
+				<div
+					className="rounded-2xl p-12 text-center"
+					style={{
+						background: "var(--b-card)",
+						border: "1px solid var(--b-border)",
+					}}
+				>
+					<p style={{ color: "var(--b-text-3)" }}>
+						Membro não encontrado nesta liga.
+					</p>
+				</div>
+			</div>
+		);
+	}
+
+	const grouped = groupByRound(lockedPredictions.map((lp) => lp.match))
+		.filter(([, , matches]) => matches.length > 0)
+		.sort(
+			([, , a], [, , b]) =>
+				new Date(b[0].utcDate).getTime() - new Date(a[0].utcDate).getTime(),
+		);
 
 	const predMap = new Map(
 		lockedPredictions.map((lp) => [lp.match._id as string, lp.prediction]),

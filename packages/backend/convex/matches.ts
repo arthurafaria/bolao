@@ -195,3 +195,46 @@ export const getFinishedWithScore = internalQuery({
 		return matches.filter((m) => m.homeScore != null && m.awayScore != null);
 	},
 });
+
+// Promotes LIVE/IN_PLAY/PAUSED matches that started >STALE_MS ago and already
+// have a score to FINISHED. Handles the case where football-data.org never
+// emits a clean FINISHED transition (common with free-tier data latency).
+export const forceFinishStaleLive = internalMutation({
+	args: {},
+	handler: async (ctx) => {
+		const now = Date.now();
+		const STALE_MS = 4 * 60 * 60 * 1000; // 4h covers 90min + extra time + penalties
+		const staleStatuses = ["LIVE", "IN_PLAY", "PAUSED"] as const;
+
+		let promoted = 0;
+		const promotedIds: string[] = [];
+
+		for (const status of staleStatuses) {
+			const matches = await ctx.db
+				.query("matches")
+				.withIndex("by_status", (q) => q.eq("status", status))
+				.take(100);
+			for (const m of matches) {
+				const start = new Date(m.utcDate).getTime();
+				const isStale = now - start > STALE_MS;
+				const hasScore = m.homeScore != null && m.awayScore != null;
+				if (isStale && hasScore) {
+					await ctx.db.patch(m._id, { status: "FINISHED" });
+					promotedIds.push(m._id);
+					promoted++;
+				} else if (isStale && !hasScore) {
+					console.warn(
+						`[forceFinishStaleLive] Stale ${status} match without score: ${m._id} (${m.utcDate})`,
+					);
+				}
+			}
+		}
+
+		if (promoted > 0) {
+			console.log(
+				`[forceFinishStaleLive] Promoted ${promoted} matches to FINISHED`,
+			);
+		}
+		return { promoted, promotedIds };
+	},
+});
