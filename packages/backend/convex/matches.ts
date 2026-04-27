@@ -159,6 +159,10 @@ export const upsertMatch = internalMutation({
 
 		if (existing) {
 			const wasFinished = existing.status === "FINISHED";
+			// Never downgrade a FINISHED match — football-data.org sometimes
+			// returns stale IN_PLAY status for matches already promoted to FINISHED
+			// via forceFinishStaleLive, which would cause computeForMatch to skip.
+			const statusToSet = wasFinished ? "FINISHED" : args.status;
 			const newlyFinished = !wasFinished && args.status === "FINISHED";
 			const scoreNowVisible =
 				args.status === "FINISHED" &&
@@ -170,7 +174,7 @@ export const upsertMatch = internalMutation({
 			const alreadyFinishedWithScore =
 				wasFinished && args.homeScore != null && args.awayScore != null;
 			await ctx.db.patch(existing._id, {
-				status: args.status,
+				status: statusToSet,
 				homeScore: args.homeScore,
 				awayScore: args.awayScore,
 				utcDate: args.utcDate,
