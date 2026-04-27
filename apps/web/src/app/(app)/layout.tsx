@@ -35,7 +35,7 @@ import {
 } from "@/contexts/tournament-context";
 
 const navItems: {
-	href: "/dashboard" | "/predictions" | "/leagues" | "/regras" | "/profile";
+	href: "/dashboard" | "/predictions" | "/leagues" | "/regras";
 	label: string;
 	icon: React.ComponentType<{ className?: string }>;
 }[] = [
@@ -43,15 +43,32 @@ const navItems: {
 	{ href: "/predictions", label: "Palpites", icon: Shield },
 	{ href: "/leagues", label: "Ligas", icon: Trophy },
 	{ href: "/regras", label: "Regras", icon: BookOpen },
-	{ href: "/profile", label: "Perfil", icon: User },
 ];
 
 const ADMIN_EMAIL = "arthurdearaujofaria@gmail.com";
 
 function AppNav() {
 	const pathname = usePathname();
+	const router = useRouter();
+	const { signOut } = useAuthActions();
 	const currentUser = useQuery(api.auth.getCurrentUser);
 	const isAdmin = currentUser?.email === ADMIN_EMAIL;
+	const [isSigningOut, setIsSigningOut] = useState(false);
+
+	async function handleSignOut() {
+		setIsSigningOut(true);
+		await signOut();
+		router.push("/");
+	}
+
+	const navLinkStyle = (active: boolean) => ({
+		background: active
+			? "linear-gradient(135deg, var(--b-brand-12), color-mix(in oklch, var(--b-brand) 18%, transparent))"
+			: "transparent",
+		color: active ? "var(--b-brand-hi)" : "var(--b-text-3)",
+		boxShadow: active ? "var(--b-shadow-soft)" : "none",
+	});
+
 	return (
 		<>
 			{/* Desktop sidebar */}
@@ -100,13 +117,7 @@ function AppNav() {
 									<Link
 										href={href as Route}
 										className="flex min-h-11 items-center gap-3 rounded-[20px] px-4 py-3 font-medium text-sm transition-[background-color,color,transform] active:scale-[0.96]"
-										style={{
-											background: active
-												? "linear-gradient(135deg, var(--b-brand-12), color-mix(in oklch, var(--b-brand) 18%, transparent))"
-												: "transparent",
-											color: active ? "var(--b-brand-hi)" : "var(--b-text-3)",
-											boxShadow: active ? "var(--b-shadow-soft)" : "none",
-										}}
+										style={navLinkStyle(active)}
 									>
 										<Icon className="h-4.5 w-4.5 shrink-0" />
 										{label}
@@ -120,23 +131,78 @@ function AppNav() {
 								</li>
 							);
 						})}
+
+						{/* Profile card — replaces the generic Perfil nav item */}
+						<li
+							className="mt-2 pt-2"
+							style={{ borderTop: "1px solid var(--b-border)" }}
+						>
+							{currentUser === undefined ? (
+								<div className="flex items-center gap-3 rounded-[20px] px-4 py-3">
+									<Skeleton className="h-8 w-8 shrink-0 rounded-full" />
+									<div className="min-w-0 flex-1 space-y-1.5">
+										<Skeleton className="h-3 w-24 rounded-md" />
+										<Skeleton className="h-3 w-32 rounded-md" />
+									</div>
+								</div>
+							) : (
+								<div className="flex items-center gap-1">
+									<Link
+										href="/profile"
+										className="flex min-h-11 flex-1 items-center gap-3 rounded-[20px] px-4 py-2.5 transition-[background-color,transform] active:scale-[0.97]"
+										style={navLinkStyle(pathname === "/profile")}
+									>
+										<div
+											className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full font-bold text-xs"
+											style={{
+												background: "var(--b-brand-15)",
+												color: "var(--b-brand)",
+											}}
+										>
+											{(currentUser?.name ?? currentUser?.email)?.[0]?.toUpperCase() ??
+												"?"}
+										</div>
+										<div className="min-w-0 flex-1">
+											<p
+												className="truncate font-medium text-sm"
+												style={{ color: "var(--b-text)" }}
+											>
+												{currentUser?.name ??
+													currentUser?.email?.split("@")[0] ??
+													"Perfil"}
+											</p>
+											<p
+												className="truncate text-xs"
+												style={{ color: "var(--b-text-3)" }}
+											>
+												{currentUser?.email ?? ""}
+											</p>
+										</div>
+									</Link>
+									<button
+										type="button"
+										onClick={() => void handleSignOut()}
+										disabled={isSigningOut}
+										className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl transition-[background-color,opacity] hover:bg-black/5 active:scale-[0.96] disabled:opacity-60 dark:hover:bg-white/5"
+										style={{ color: "var(--b-text-3)" }}
+										title="Sair"
+									>
+										{isSigningOut ? (
+											<Loader2 className="h-4 w-4 animate-spin" />
+										) : (
+											<LogOut className="h-4 w-4" />
+										)}
+									</button>
+								</div>
+							)}
+						</li>
+
 						{isAdmin && (
 							<li>
 								<Link
 									href="/admin"
 									className="flex min-h-11 items-center gap-3 rounded-[20px] px-4 py-3 font-medium text-sm transition-[background-color,color,transform] active:scale-[0.96]"
-									style={{
-										background:
-											pathname === "/admin"
-												? "linear-gradient(135deg, var(--b-brand-12), color-mix(in oklch, var(--b-brand) 18%, transparent))"
-												: "transparent",
-										color:
-											pathname === "/admin"
-												? "var(--b-brand-hi)"
-												: "var(--b-text-3)",
-										boxShadow:
-											pathname === "/admin" ? "var(--b-shadow-soft)" : "none",
-									}}
+									style={navLinkStyle(pathname === "/admin")}
 								>
 									<Settings2 className="h-4.5 w-4.5 shrink-0" />
 									Admin
@@ -151,9 +217,6 @@ function AppNav() {
 						)}
 					</ul>
 				</nav>
-
-				{/* User section */}
-				<UserSidebarBottom />
 			</aside>
 
 			{/* Mobile bottom bar */}
@@ -183,6 +246,21 @@ function AppNav() {
 							</li>
 						);
 					})}
+					<li>
+						<Link
+							href="/profile"
+							className="flex flex-col items-center gap-1 rounded-xl px-5 py-1.5 font-medium text-xs transition-colors"
+							style={{
+								color:
+									pathname === "/profile"
+										? "var(--b-brand-hi)"
+										: "var(--b-text-3)",
+							}}
+						>
+							<User className="h-5 w-5" />
+							Perfil
+						</Link>
+					</li>
 					{isAdmin && (
 						<li>
 							<Link
@@ -206,74 +284,6 @@ function AppNav() {
 				</ul>
 			</nav>
 		</>
-	);
-}
-
-function UserSidebarBottom() {
-	const user = useQuery(api.auth.getCurrentUser);
-	const router = useRouter();
-	const { signOut } = useAuthActions();
-	const [isSigningOut, setIsSigningOut] = useState(false);
-
-	async function handleSignOut() {
-		setIsSigningOut(true);
-		await signOut();
-		router.push("/");
-	}
-
-	return (
-		<div
-			className="px-3 py-4"
-			style={{ borderTop: "1px solid var(--b-border)" }}
-		>
-			{user === undefined ? (
-				<div className="flex items-center gap-3 rounded-xl px-3 py-2.5">
-					<Skeleton className="h-8 w-8 shrink-0 rounded-full" />
-					<div className="min-w-0 flex-1 space-y-2">
-						<Skeleton className="h-3 w-28 rounded-md" />
-						<Skeleton className="h-3 w-36 rounded-md" />
-					</div>
-					<Skeleton className="h-8 w-8 rounded-lg" />
-				</div>
-			) : (
-				<div className="flex items-center gap-3 rounded-xl px-3 py-2.5">
-					<div
-						className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full font-bold text-xs"
-						style={{ background: "var(--b-brand-15)", color: "var(--b-brand)" }}
-					>
-						{(user?.name ?? user?.email)?.[0]?.toUpperCase() ?? "?"}
-					</div>
-					<div className="min-w-0 flex-1">
-						<p
-							className="truncate font-medium text-sm"
-							style={{ color: "var(--b-text)" }}
-						>
-							{user?.name ?? user?.email?.split("@")[0] ?? "Usuário"}
-						</p>
-						<p
-							className="truncate text-xs"
-							style={{ color: "var(--b-text-3)" }}
-						>
-							{user?.email ?? ""}
-						</p>
-					</div>
-					<button
-						type="button"
-						onClick={() => void handleSignOut()}
-						disabled={isSigningOut}
-						className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg transition-[background-color,opacity,transform] hover:bg-black/5 active:scale-[0.96] disabled:opacity-60 dark:hover:bg-white/5"
-						style={{ color: "var(--b-text-3)" }}
-						title="Sair"
-					>
-						{isSigningOut ? (
-							<Loader2 className="h-4 w-4 animate-spin" />
-						) : (
-							<LogOut className="h-4 w-4" />
-						)}
-					</button>
-				</div>
-			)}
-		</div>
 	);
 }
 
