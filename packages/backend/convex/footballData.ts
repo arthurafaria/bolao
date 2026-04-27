@@ -413,10 +413,7 @@ export const adminPatchMatchScore = action({
 		homeScore: v.number(),
 		awayScore: v.number(),
 	},
-	handler: async (
-		ctx,
-		args,
-	): Promise<{ matchId: string; patched: string }> => {
+	handler: async (ctx, args): Promise<{ matchId: string; patched: string }> => {
 		const userId = await auth.getUserId(ctx);
 		if (!userId || !(await checkAdmin(ctx, userId)))
 			throw new ConvexError("Unauthorized");

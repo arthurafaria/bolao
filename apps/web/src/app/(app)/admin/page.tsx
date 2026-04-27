@@ -136,7 +136,10 @@ function PatchScoreForm() {
 					className="h-5 w-5 shrink-0"
 					style={{ color: "var(--b-text-3)" }}
 				/>
-				<span className="font-semibold text-sm" style={{ color: "var(--b-text)" }}>
+				<span
+					className="font-semibold text-sm"
+					style={{ color: "var(--b-text)" }}
+				>
 					Corrigir placar de jogo
 				</span>
 			</div>

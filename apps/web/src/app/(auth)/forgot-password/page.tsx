@@ -61,8 +61,7 @@ export default function ForgotPasswordPage() {
 		},
 	});
 
-	const inputCls =
-		"h-11 rounded-[14px] border-0 px-4 text-base shadow-none";
+	const inputCls = "h-11 rounded-[14px] border-0 px-4 text-base shadow-none";
 	const inputStyle = {
 		background: "var(--b-input-bg)",
 		color: "var(--b-text)",
@@ -116,7 +115,10 @@ export default function ForgotPasswordPage() {
 									autoFocus
 								/>
 								{field.state.meta.errors[0] && (
-									<p className="text-xs" style={{ color: "oklch(0.67 0.22 22)" }}>
+									<p
+										className="text-xs"
+										style={{ color: "oklch(0.67 0.22 22)" }}
+									>
 										{field.state.meta.errors[0]?.message}
 									</p>
 								)}
@@ -144,7 +146,10 @@ export default function ForgotPasswordPage() {
 									style={inputStyle}
 								/>
 								{field.state.meta.errors[0] && (
-									<p className="text-xs" style={{ color: "oklch(0.67 0.22 22)" }}>
+									<p
+										className="text-xs"
+										style={{ color: "oklch(0.67 0.22 22)" }}
+									>
 										{field.state.meta.errors[0]?.message}
 									</p>
 								)}
@@ -153,7 +158,10 @@ export default function ForgotPasswordPage() {
 					</verifyForm.Field>
 
 					<verifyForm.Subscribe
-						selector={(s) => ({ canSubmit: s.canSubmit, isSubmitting: s.isSubmitting })}
+						selector={(s) => ({
+							canSubmit: s.canSubmit,
+							isSubmitting: s.isSubmitting,
+						})}
 					>
 						{({ canSubmit, isSubmitting }) => (
 							<Button
@@ -239,7 +247,10 @@ export default function ForgotPasswordPage() {
 				</emailForm.Field>
 
 				<emailForm.Subscribe
-					selector={(s) => ({ canSubmit: s.canSubmit, isSubmitting: s.isSubmitting })}
+					selector={(s) => ({
+						canSubmit: s.canSubmit,
+						isSubmitting: s.isSubmitting,
+					})}
 				>
 					{({ canSubmit, isSubmitting }) => (
 						<Button
