@@ -138,6 +138,16 @@ export default function SignInPage() {
 					)}
 				</form.Field>
 
+				<div className="flex justify-end">
+					<Link
+						href="/forgot-password"
+						className="text-xs transition-colors"
+						style={{ color: "var(--b-text-4)" }}
+					>
+						Esqueci minha senha
+					</Link>
+				</div>
+
 				<form.Subscribe
 					selector={(s) => ({
 						canSubmit: s.canSubmit,

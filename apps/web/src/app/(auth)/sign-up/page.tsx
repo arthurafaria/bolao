@@ -257,6 +257,16 @@ export default function SignUpPage() {
 					Entrar agora
 				</Link>
 			</p>
+
+			<p className="text-center text-xs" style={{ color: "var(--b-text-4)" }}>
+				<Link
+					href="/forgot-password"
+					className="transition-colors hover:underline"
+					style={{ color: "var(--b-text-4)" }}
+				>
+					Esqueci minha senha
+				</Link>
+			</p>
 		</div>
 	);
 }
