@@ -335,7 +335,7 @@ export function MatchCard({
 					)}
 
 					{/* Score display */}
-					{readOnly && prediction?.predictedHome != null ? (
+					{(readOnly || isFinished) && prediction?.predictedHome != null ? (
 						<div className="flex flex-col items-center gap-1">
 							<div className="flex items-center gap-3">
 								<span
@@ -447,14 +447,6 @@ export function MatchCard({
 								</span>
 							)}
 
-						{isFinished && prediction?.predictedHome != null && !readOnly && (
-							<span
-								className="font-bold text-xs"
-								style={{ color: "var(--b-text-3)" }}
-							>
-								Palpite: {prediction.predictedHome} × {prediction.predictedAway}
-							</span>
-						)}
 					</div>
 				</div>
 

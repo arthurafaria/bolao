@@ -159,8 +159,8 @@ function AppNav() {
 												color: "var(--b-brand)",
 											}}
 										>
-											{(currentUser?.name ?? currentUser?.email)?.[0]?.toUpperCase() ??
-												"?"}
+											{(currentUser?.name ??
+												currentUser?.email)?.[0]?.toUpperCase() ?? "?"}
 										</div>
 										<div className="min-w-0 flex-1">
 											<p
