@@ -406,6 +406,47 @@ export const adminSyncBSA = action({
 	},
 });
 
+export const adminPatchMatchScore = action({
+	args: {
+		homeTeamShortName: v.string(),
+		awayTeamShortName: v.string(),
+		homeScore: v.number(),
+		awayScore: v.number(),
+	},
+	handler: async (
+		ctx,
+		args,
+	): Promise<{ matchId: string; patched: string }> => {
+		const userId = await auth.getUserId(ctx);
+		if (!userId || !(await checkAdmin(ctx, userId)))
+			throw new ConvexError("Unauthorized");
+
+		const match = await ctx.runQuery(internal.matches.getMatchByTeamNames, {
+			homeShortName: args.homeTeamShortName,
+			awayShortName: args.awayTeamShortName,
+		});
+		if (!match)
+			throw new ConvexError(
+				`Jogo não encontrado: ${args.homeTeamShortName} vs ${args.awayTeamShortName}`,
+			);
+
+		await ctx.runMutation(internal.matches.patchMatchScore, {
+			matchId: match._id,
+			homeScore: args.homeScore,
+			awayScore: args.awayScore,
+		});
+
+		await ctx.runMutation(internal.predictions.computeForMatch, {
+			matchId: match._id,
+		});
+
+		return {
+			matchId: match._id,
+			patched: `${match.homeTeam.shortName} ${args.homeScore} × ${args.awayScore} ${match.awayTeam.shortName}`,
+		};
+	},
+});
+
 export const adminSyncWC = action({
 	args: {},
 	handler: async (

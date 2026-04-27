@@ -17,6 +17,7 @@ import {
 	LayoutDashboard,
 	Loader2,
 	LogOut,
+	Settings2,
 	Shield,
 	Trophy,
 	User,
@@ -45,8 +46,12 @@ const navItems: {
 	{ href: "/profile", label: "Perfil", icon: User },
 ];
 
+const ADMIN_EMAIL = "arthurdearaujofaria@gmail.com";
+
 function AppNav() {
 	const pathname = usePathname();
+	const currentUser = useQuery(api.auth.getCurrentUser);
+	const isAdmin = currentUser?.email === ADMIN_EMAIL;
 	return (
 		<>
 			{/* Desktop sidebar */}
@@ -115,6 +120,35 @@ function AppNav() {
 								</li>
 							);
 						})}
+						{isAdmin && (
+							<li>
+								<Link
+									href="/admin"
+									className="flex min-h-11 items-center gap-3 rounded-[20px] px-4 py-3 font-medium text-sm transition-[background-color,color,transform] active:scale-[0.96]"
+									style={{
+										background:
+											pathname === "/admin"
+												? "linear-gradient(135deg, var(--b-brand-12), color-mix(in oklch, var(--b-brand) 18%, transparent))"
+												: "transparent",
+										color:
+											pathname === "/admin"
+												? "var(--b-brand-hi)"
+												: "var(--b-text-3)",
+										boxShadow:
+											pathname === "/admin" ? "var(--b-shadow-soft)" : "none",
+									}}
+								>
+									<Settings2 className="h-4.5 w-4.5 shrink-0" />
+									Admin
+									{pathname === "/admin" && (
+										<span
+											className="ml-auto h-1.5 w-1.5 rounded-full"
+											style={{ background: "var(--b-brand)" }}
+										/>
+									)}
+								</Link>
+							</li>
+						)}
 					</ul>
 				</nav>
 
@@ -149,6 +183,23 @@ function AppNav() {
 							</li>
 						);
 					})}
+					{isAdmin && (
+						<li>
+							<Link
+								href="/admin"
+								className="flex flex-col items-center gap-1 rounded-xl px-5 py-1.5 font-medium text-xs transition-colors"
+								style={{
+									color:
+										pathname === "/admin"
+											? "var(--b-brand-hi)"
+											: "var(--b-text-3)",
+								}}
+							>
+								<Settings2 className="h-5 w-5" />
+								Admin
+							</Link>
+						</li>
+					)}
 					<li>
 						<MobileSignOut />
 					</li>

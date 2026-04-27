@@ -4,7 +4,7 @@ import { api } from "@bolao/backend/convex/_generated/api";
 import { Skeleton } from "@bolao/ui/components/skeleton";
 import { useQuery } from "convex/react";
 import type { FunctionReturnType } from "convex/server";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 
 import { MatchCard } from "@/components/match-card";
 import { useTournament } from "@/contexts/tournament-context";
@@ -94,11 +94,11 @@ export default function PredictionsPage() {
 	const { tournament } = useTournament();
 	const matches = useQuery(api.matches.getAllByDate, { tournament });
 	const allPredictions = useQuery(api.predictions.getUserPredictions);
+	const [tab, setTab] = useState<"upcoming" | "history">("upcoming");
 
 	const predMap = useMemo(() => {
 		if (!allPredictions) return undefined;
-		const m = new Map(allPredictions.map((p) => [p.matchId as string, p]));
-		return m;
+		return new Map(allPredictions.map((p) => [p.matchId as string, p]));
 	}, [allPredictions]);
 
 	const grouped =
@@ -121,9 +121,35 @@ export default function PredictionsPage() {
 						return aFinished ? timeB - timeA : timeA - timeB;
 					});
 
+	const pastGrouped = useMemo(() => {
+		if (matches === undefined || predMap === undefined) return null;
+		const finishedWithPrediction = matches
+			.filter((m): m is NonNullable<Match> => m !== null)
+			.filter((m) => m.status === "FINISHED" && predMap.has(m._id));
+		return groupByRound(finishedWithPrediction).sort(
+			([, , a], [, , b]) =>
+				new Date(b[0].utcDate).getTime() - new Date(a[0].utcDate).getTime(),
+		);
+	}, [matches, predMap]);
+
+	const tabStyle = (active: boolean): React.CSSProperties => ({
+		flex: 1,
+		borderRadius: "14px",
+		padding: "8px 16px",
+		fontWeight: 700,
+		fontSize: "11px",
+		textTransform: "uppercase",
+		letterSpacing: "0.1em",
+		transition: "color 0.15s, background 0.15s",
+		background: active ? "var(--b-card)" : "transparent",
+		color: active ? "var(--b-brand)" : "var(--b-text-4)",
+		border: "none",
+		cursor: "pointer",
+	});
+
 	return (
 		<div className="space-y-2">
-			<div className="mb-6">
+			<div className="mb-4">
 				<h1
 					className="font-black font-display text-3xl uppercase leading-tight tracking-tight"
 					style={{ color: "var(--b-text)" }}
@@ -135,66 +161,160 @@ export default function PredictionsPage() {
 				</p>
 			</div>
 
-			{tournament === "DEMO" && <DemoTutorial />}
-
-			{grouped === null ? (
-				<div className="space-y-6">
-					{[1, 2, 3].map((i) => (
-						<div key={i} className="space-y-3">
-							<Skeleton className="h-5 w-40 rounded-md" />
-							<Skeleton className="h-36 rounded-2xl" />
-							<Skeleton className="h-36 rounded-2xl" />
-						</div>
-					))}
-				</div>
-			) : grouped.length === 0 ? (
-				<div
-					className="rounded-2xl p-12 text-center"
-					style={{
-						background: "var(--b-card)",
-						border: "1px solid var(--b-border)",
-					}}
+			<div
+				className="mb-4 flex gap-1 rounded-2xl p-1"
+				style={{ background: "var(--b-inner)" }}
+			>
+				<button
+					type="button"
+					style={tabStyle(tab === "upcoming")}
+					onClick={() => setTab("upcoming")}
 				>
-					<p style={{ color: "var(--b-text-3)" }}>Nenhum jogo agendado ainda</p>
-				</div>
-			) : (
-				<div className="space-y-8">
-					{grouped.map(([key, label, roundMatches]) => (
-						<div key={key}>
-							<div className="mb-3 flex items-center gap-3">
-								<h2
-									className="font-bold font-display text-sm uppercase tracking-widest"
-									style={{ color: "var(--b-brand)" }}
-								>
-									{label}
-								</h2>
-								<div
-									className="h-px flex-1"
-									style={{ background: "var(--b-border)" }}
-								/>
-								<span
-									className="font-medium text-xs"
-									style={{ color: "var(--b-text-4)" }}
-								>
-									{roundMatches.length}{" "}
-									{roundMatches.length === 1 ? "jogo" : "jogos"}
-								</span>
-							</div>
+					Palpites
+				</button>
+				<button
+					type="button"
+					style={tabStyle(tab === "history")}
+					onClick={() => setTab("history")}
+				>
+					Meus Palpites
+				</button>
+			</div>
 
-							<div className="space-y-3">
-								{roundMatches.map((m) => (
-									<MatchCard
-										key={m._id}
-										match={m}
-										prediction={
-											predMap ? (predMap.get(m._id) ?? null) : undefined
-										}
-									/>
-								))}
-							</div>
+			{tab === "upcoming" && (
+				<>
+					{tournament === "DEMO" && <DemoTutorial />}
+
+					{grouped === null ? (
+						<div className="space-y-6">
+							{[1, 2, 3].map((i) => (
+								<div key={i} className="space-y-3">
+									<Skeleton className="h-5 w-40 rounded-md" />
+									<Skeleton className="h-36 rounded-2xl" />
+									<Skeleton className="h-36 rounded-2xl" />
+								</div>
+							))}
 						</div>
-					))}
-				</div>
+					) : grouped.length === 0 ? (
+						<div
+							className="rounded-2xl p-12 text-center"
+							style={{
+								background: "var(--b-card)",
+								border: "1px solid var(--b-border)",
+							}}
+						>
+							<p style={{ color: "var(--b-text-3)" }}>
+								Nenhum jogo agendado ainda
+							</p>
+						</div>
+					) : (
+						<div className="space-y-8">
+							{grouped.map(([key, label, roundMatches]) => (
+								<div key={key}>
+									<div className="mb-3 flex items-center gap-3">
+										<h2
+											className="font-bold font-display text-sm uppercase tracking-widest"
+											style={{ color: "var(--b-brand)" }}
+										>
+											{label}
+										</h2>
+										<div
+											className="h-px flex-1"
+											style={{ background: "var(--b-border)" }}
+										/>
+										<span
+											className="font-medium text-xs"
+											style={{ color: "var(--b-text-4)" }}
+										>
+											{roundMatches.length}{" "}
+											{roundMatches.length === 1 ? "jogo" : "jogos"}
+										</span>
+									</div>
+									<div className="space-y-3">
+										{roundMatches.map((m) => (
+											<MatchCard
+												key={m._id}
+												match={m}
+												prediction={
+													predMap ? (predMap.get(m._id) ?? null) : undefined
+												}
+											/>
+										))}
+									</div>
+								</div>
+							))}
+						</div>
+					)}
+				</>
+			)}
+
+			{tab === "history" && (
+				<>
+					{pastGrouped === null ? (
+						<div className="space-y-6">
+							{[1, 2].map((i) => (
+								<div key={i} className="space-y-3">
+									<Skeleton className="h-5 w-40 rounded-md" />
+									<Skeleton className="h-36 rounded-2xl" />
+									<Skeleton className="h-36 rounded-2xl" />
+								</div>
+							))}
+						</div>
+					) : pastGrouped.length === 0 ? (
+						<div
+							className="rounded-2xl p-12 text-center"
+							style={{
+								background: "var(--b-card)",
+								border: "1px solid var(--b-border)",
+							}}
+						>
+							<p
+								className="font-semibold text-sm"
+								style={{ color: "var(--b-text-3)" }}
+							>
+								Nenhum palpite registrado ainda
+							</p>
+							<p className="mt-1 text-xs" style={{ color: "var(--b-text-4)" }}>
+								Seus palpites de jogos encerrados aparecerão aqui.
+							</p>
+						</div>
+					) : (
+						<div className="space-y-8">
+							{pastGrouped.map(([key, label, roundMatches]) => (
+								<div key={key}>
+									<div className="mb-3 flex items-center gap-3">
+										<h2
+											className="font-bold font-display text-sm uppercase tracking-widest"
+											style={{ color: "var(--b-brand)" }}
+										>
+											{label}
+										</h2>
+										<div
+											className="h-px flex-1"
+											style={{ background: "var(--b-border)" }}
+										/>
+										<span
+											className="font-medium text-xs"
+											style={{ color: "var(--b-text-4)" }}
+										>
+											{roundMatches.length}{" "}
+											{roundMatches.length === 1 ? "palpite" : "palpites"}
+										</span>
+									</div>
+									<div className="space-y-3">
+										{roundMatches.map((m) => (
+											<MatchCard
+												key={m._id}
+												match={m}
+												prediction={predMap?.get(m._id) ?? null}
+											/>
+										))}
+									</div>
+								</div>
+							))}
+						</div>
+					)}
+				</>
 			)}
 		</div>
 	);

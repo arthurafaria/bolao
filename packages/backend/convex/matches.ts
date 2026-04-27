@@ -199,6 +199,56 @@ export const getFinishedWithScore = internalQuery({
 	},
 });
 
+export const getMatchByTeamNames = internalQuery({
+	args: { homeShortName: v.string(), awayShortName: v.string() },
+	handler: async (ctx, args) => {
+		const allTeams = await ctx.db.query("teams").collect();
+		const homeLower = args.homeShortName.toLowerCase();
+		const awayLower = args.awayShortName.toLowerCase();
+
+		const homeTeam = allTeams.find(
+			(t) =>
+				t.shortName.toLowerCase().includes(homeLower) ||
+				t.name.toLowerCase().includes(homeLower),
+		);
+		const awayTeam = allTeams.find(
+			(t) =>
+				t.shortName.toLowerCase().includes(awayLower) ||
+				t.name.toLowerCase().includes(awayLower),
+		);
+
+		if (!homeTeam || !awayTeam) return null;
+
+		const match = await ctx.db
+			.query("matches")
+			.filter((q) =>
+				q.and(
+					q.eq(q.field("homeTeamId"), homeTeam._id),
+					q.eq(q.field("awayTeamId"), awayTeam._id),
+				),
+			)
+			.order("desc")
+			.first();
+
+		return match ? { ...match, homeTeam, awayTeam } : null;
+	},
+});
+
+export const patchMatchScore = internalMutation({
+	args: {
+		matchId: v.id("matches"),
+		homeScore: v.number(),
+		awayScore: v.number(),
+	},
+	handler: async (ctx, args) => {
+		await ctx.db.patch(args.matchId, {
+			homeScore: args.homeScore,
+			awayScore: args.awayScore,
+			status: "FINISHED",
+		});
+	},
+});
+
 // Promotes LIVE/IN_PLAY/PAUSED matches that started >STALE_MS ago and already
 // have a score to FINISHED. Handles the case where football-data.org never
 // emits a clean FINISHED transition (common with free-tier data latency).

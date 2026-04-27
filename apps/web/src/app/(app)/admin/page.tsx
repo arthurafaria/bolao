@@ -2,10 +2,21 @@
 
 import { api } from "@bolao/backend/convex/_generated/api";
 import { useAction, useQuery } from "convex/react";
-import { RefreshCw, Zap } from "lucide-react";
-import { useState } from "react";
+import { Pencil, RefreshCw, Zap } from "lucide-react";
+import { type FormEvent, useState } from "react";
 
 const ADMIN_EMAIL = "arthurdearaujofaria@gmail.com";
+
+const inputStyle: React.CSSProperties = {
+	background: "var(--b-inner)",
+	border: "1px solid var(--b-border-md)",
+	color: "var(--b-text)",
+	borderRadius: "10px",
+	padding: "8px 12px",
+	fontSize: "13px",
+	width: "100%",
+	outline: "none",
+};
 
 function AdminButton({
 	label,
@@ -81,6 +92,110 @@ function AdminButton({
 	);
 }
 
+function PatchScoreForm() {
+	const patchScore = useAction(api.footballData.adminPatchMatchScore);
+	const [homeTeam, setHomeTeam] = useState("");
+	const [awayTeam, setAwayTeam] = useState("");
+	const [homeScore, setHomeScore] = useState("0");
+	const [awayScore, setAwayScore] = useState("0");
+	const [state, setState] = useState<"idle" | "running" | "done" | "error">(
+		"idle",
+	);
+	const [result, setResult] = useState<string | null>(null);
+
+	async function handleSubmit(e: FormEvent) {
+		e.preventDefault();
+		if (!homeTeam.trim() || !awayTeam.trim()) return;
+		setState("running");
+		setResult(null);
+		try {
+			const res = await patchScore({
+				homeTeamShortName: homeTeam.trim(),
+				awayTeamShortName: awayTeam.trim(),
+				homeScore: Math.max(0, Number.parseInt(homeScore, 10) || 0),
+				awayScore: Math.max(0, Number.parseInt(awayScore, 10) || 0),
+			});
+			setResult(JSON.stringify(res, null, 2));
+			setState("done");
+		} catch (e) {
+			setResult((e as Error).message ?? String(e));
+			setState("error");
+		}
+	}
+
+	return (
+		<div
+			className="rounded-2xl p-5"
+			style={{
+				background: "var(--b-card)",
+				border: "1px solid var(--b-border)",
+			}}
+		>
+			<div className="mb-4 flex items-center gap-3">
+				<Pencil
+					className="h-5 w-5 shrink-0"
+					style={{ color: "var(--b-text-3)" }}
+				/>
+				<span className="font-semibold text-sm" style={{ color: "var(--b-text)" }}>
+					Corrigir placar de jogo
+				</span>
+			</div>
+			<form onSubmit={handleSubmit} className="space-y-3">
+				<div className="grid grid-cols-[1fr_72px] gap-2">
+					<input
+						style={inputStyle}
+						placeholder="Time da casa (ex: Fluminense)"
+						value={homeTeam}
+						onChange={(e) => setHomeTeam(e.target.value)}
+					/>
+					<input
+						style={{ ...inputStyle, textAlign: "center", fontWeight: 700 }}
+						placeholder="0"
+						type="number"
+						min={0}
+						value={homeScore}
+						onChange={(e) => setHomeScore(e.target.value)}
+					/>
+					<input
+						style={inputStyle}
+						placeholder="Time visitante (ex: Chapecoense)"
+						value={awayTeam}
+						onChange={(e) => setAwayTeam(e.target.value)}
+					/>
+					<input
+						style={{ ...inputStyle, textAlign: "center", fontWeight: 700 }}
+						placeholder="0"
+						type="number"
+						min={0}
+						value={awayScore}
+						onChange={(e) => setAwayScore(e.target.value)}
+					/>
+				</div>
+				<button
+					type="submit"
+					disabled={state === "running" || !homeTeam.trim() || !awayTeam.trim()}
+					className="w-full rounded-xl px-4 py-2 font-bold text-sm uppercase tracking-wide transition-[opacity,transform] active:scale-[0.96] disabled:opacity-50"
+					style={{ background: "var(--b-brand)", color: "var(--b-brand-fg)" }}
+				>
+					{state === "running" ? "Corrigindo…" : "Corrigir placar"}
+				</button>
+			</form>
+			{result && (
+				<pre
+					className="mt-3 overflow-x-auto rounded-xl p-3 font-mono text-xs"
+					style={{
+						background: "var(--b-inner)",
+						color:
+							state === "error" ? "oklch(0.67 0.22 22)" : "var(--b-text-3)",
+					}}
+				>
+					{result}
+				</pre>
+			)}
+		</div>
+	);
+}
+
 export default function AdminPage() {
 	const currentUser = useQuery(api.auth.getCurrentUser);
 	const syncBSA = useAction(api.footballData.adminSyncBSA);
@@ -128,6 +243,7 @@ export default function AdminPage() {
 					icon={Zap}
 					onRun={recompute}
 				/>
+				<PatchScoreForm />
 			</div>
 		</div>
 	);
