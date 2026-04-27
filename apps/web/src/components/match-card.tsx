@@ -3,7 +3,7 @@
 import { api } from "@bolao/backend/convex/_generated/api";
 import type { Id } from "@bolao/backend/convex/_generated/dataModel";
 import { useMutation } from "convex/react";
-import { Lock, MapPin } from "lucide-react";
+import { Lock } from "lucide-react";
 import Image from "next/image";
 import { type ChangeEvent, useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -245,8 +245,6 @@ export function MatchCard({
 		: match.matchday
 			? `RODADA ${match.matchday}`
 			: match.stage.replace(/_/g, " ");
-	const venue = match.venue?.trim();
-
 	const showPointsBadgeAbove = isFinished && prediction?.predictedHome != null;
 
 	return (
@@ -271,13 +269,6 @@ export function MatchCard({
 						style={{ color: "var(--b-text-3)" }}
 					>
 						{stageLabel}
-					</span>
-					<span
-						className="mt-0.5 flex max-w-[230px] items-center gap-1 truncate text-xs"
-						style={{ color: "var(--b-text-4)" }}
-					>
-						<MapPin className="h-3 w-3 shrink-0" />
-						<span className="truncate">{venue ?? "Estádio a confirmar"}</span>
 					</span>
 				</div>
 				<div className="flex flex-col items-end gap-0.5">

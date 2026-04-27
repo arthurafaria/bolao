@@ -106,7 +106,9 @@ export default function PredictionsPage() {
 			? null
 			: groupByRound(
 					matches.filter((m): m is NonNullable<Match> => m !== null),
-				).sort(([, , a], [, , b]) => {
+				)
+				.filter(([, , roundMatches]) => !roundMatches.every((m) => m.status === "FINISHED"))
+				.sort(([, , a], [, , b]) => {
 					const aFinished = a.every((m) => m.status === "FINISHED");
 					const bFinished = b.every((m) => m.status === "FINISHED");
 					if (aFinished !== bFinished) return aFinished ? 1 : -1;

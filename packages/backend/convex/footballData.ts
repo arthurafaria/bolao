@@ -366,10 +366,10 @@ export const syncTodayBSA = internalAction({
 		const today = new Date();
 		const past = new Date(today);
 		past.setDate(today.getDate() - 7);
-		const tomorrow = new Date(today);
-		tomorrow.setDate(today.getDate() + 1);
+		const future = new Date(today);
+		future.setDate(today.getDate() + 30);
 		const fmt = (d: Date) => d.toISOString().slice(0, 10);
-		await doSync(ctx, "BSA", "BSA2026", fmt(past), fmt(tomorrow));
+		await doSync(ctx, "BSA", "BSA2026", fmt(past), fmt(future));
 	},
 });
 
@@ -399,10 +399,10 @@ export const adminSyncBSA = action({
 		const today = new Date();
 		const past = new Date(today);
 		past.setDate(today.getDate() - 7);
-		const tomorrow = new Date(today);
-		tomorrow.setDate(today.getDate() + 1);
+		const future = new Date(today);
+		future.setDate(today.getDate() + 30);
 		const fmt = (d: Date) => d.toISOString().slice(0, 10);
-		return doSync(ctx, "BSA", "BSA2026", fmt(past), fmt(tomorrow));
+		return doSync(ctx, "BSA", "BSA2026", fmt(past), fmt(future));
 	},
 });
 
