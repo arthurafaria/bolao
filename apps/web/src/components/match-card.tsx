@@ -424,13 +424,13 @@ export function MatchCard({
 								type="button"
 								onClick={handleSave}
 								disabled={saving}
-								className="rounded-xl px-5 py-1.5 font-bold text-sm uppercase tracking-wide transition-[opacity,transform,background-color] active:scale-[0.96] disabled:opacity-50"
+								className="overflow-hidden rounded-xl px-5 py-1.5 font-bold text-sm uppercase tracking-wide transition-[opacity,transform,background-color,box-shadow] duration-[var(--motion-fast)] hover:scale-[1.04] hover:shadow-[var(--b-shadow-brand-sm)] active:scale-[0.96] disabled:opacity-50"
 								style={{
 									background: "var(--b-brand)",
 									color: "var(--b-brand-fg)",
 								}}
 							>
-								{saving ? "Salvando..." : "Salvar"}
+								{saving ? "Salvando…" : "Salvar"}
 							</button>
 						)}
 
@@ -439,8 +439,8 @@ export function MatchCard({
 							prediction?.predictedHome != null &&
 							!isFinished && (
 								<span
-									className="font-semibold text-xs"
-									style={{ color: "var(--b-brand)" }}
+									className="flex items-center gap-1 font-semibold text-xs animate-slide-up"
+									style={{ color: "var(--b-success)" }}
 								>
 									✓ Salvo — {prediction.predictedHome} ×{" "}
 									{prediction.predictedAway}

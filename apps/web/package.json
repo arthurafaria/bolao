@@ -9,16 +9,17 @@
 		"start": "next start"
 	},
 	"dependencies": {
+		"@auth/core": "catalog:",
 		"@bolao/backend": "workspace:*",
 		"@bolao/env": "workspace:*",
 		"@bolao/ui": "workspace:*",
-		"@auth/core": "catalog:",
 		"@convex-dev/auth": "catalog:",
 		"@tanstack/react-form": "^1.28.0",
 		"babel-plugin-react-compiler": "^1.0.0",
 		"convex": "catalog:",
 		"dotenv": "catalog:",
 		"lucide-react": "^1.8.0",
+		"motion": "^12.38.0",
 		"next": "^16.2.0",
 		"next-themes": "catalog:",
 		"react": "catalog:",

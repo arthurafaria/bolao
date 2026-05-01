@@ -2,6 +2,7 @@
 
 import { api } from "@bolao/backend/convex/_generated/api";
 import { Skeleton } from "@bolao/ui/components/skeleton";
+import { Spinner } from "@bolao/ui/components/spinner";
 import { ThemeSwitch } from "@bolao/ui/components/theme-switch-button";
 import { useAuthActions } from "@convex-dev/auth/react";
 import {
@@ -15,7 +16,6 @@ import {
 	BookOpen,
 	ChevronDown,
 	LayoutDashboard,
-	Loader2,
 	LogOut,
 	Settings2,
 	Shield,
@@ -61,86 +61,98 @@ function AppNav() {
 		router.push("/");
 	}
 
-	const navLinkStyle = (active: boolean) => ({
-		background: active
-			? "linear-gradient(135deg, var(--b-brand-12), color-mix(in oklch, var(--b-brand) 18%, transparent))"
-			: "transparent",
-		color: active ? "var(--b-brand-hi)" : "var(--b-text-3)",
-		boxShadow: active ? "var(--b-shadow-soft)" : "none",
-	});
+	const isActive = (href: string) => pathname === href || pathname.startsWith(`${href}/`);
 
 	return (
 		<>
-			{/* Desktop sidebar */}
+			{/* ── Desktop sidebar ────────────────────────────────────── */}
 			<aside
 				className="hidden md:flex md:min-h-screen md:w-64 md:shrink-0 md:flex-col"
 				style={{
-					background:
-						"linear-gradient(180deg, color-mix(in oklch, var(--b-surface) 92%, var(--b-card)), var(--b-surface))",
+					background: "linear-gradient(180deg, color-mix(in oklch, var(--b-surface) 92%, var(--b-card)), var(--b-surface))",
 					borderRight: "1px solid var(--b-border)",
 				}}
 			>
 				{/* Logo */}
 				<div
-					className="flex items-center gap-3 px-6 py-6"
+					className="flex items-center gap-3 px-5 py-5"
 					style={{ borderBottom: "1px solid var(--b-border)" }}
 				>
 					<div
-						className="flex h-10 w-10 items-center justify-center rounded-2xl"
+						className="flex h-9 w-9 items-center justify-center rounded-xl"
 						style={{
-							background:
-								"linear-gradient(135deg, var(--b-brand), oklch(0.72 0.22 155))",
-							boxShadow: "var(--b-shadow-soft)",
+							background: "var(--g-brand-diag)",
+							boxShadow: "var(--b-shadow-brand-sm)",
 						}}
 					>
-						<Trophy
-							className="h-4.5 w-4.5"
-							style={{ color: "var(--b-brand-fg)" }}
-						/>
+						<Trophy className="h-4 w-4" style={{ color: "var(--b-brand-fg)" }} />
 					</div>
-					<span
-						className="font-bold font-display text-lg uppercase tracking-wide"
-						style={{ color: "var(--b-text)" }}
-					>
+					<span className="text-display-sm text-base" style={{ color: "var(--b-text)" }}>
 						Bolão 2026
 					</span>
 				</div>
 
-				{/* Nav items */}
-				<nav className="flex-1 px-4 py-5">
-					<ul className="space-y-1">
+				{/* Nav */}
+				<nav className="flex-1 px-3 py-4">
+					<ul className="space-y-0.5">
 						{navItems.map(({ href, label, icon: Icon }) => {
-							const active =
-								pathname === href || pathname.startsWith(`${href}/`);
+							const active = isActive(href);
 							return (
 								<li key={href}>
 									<Link
 										href={href as Route}
-										className="flex min-h-11 items-center gap-3 rounded-[20px] px-4 py-3 font-medium text-sm transition-[background-color,color,transform] active:scale-[0.96]"
-										style={navLinkStyle(active)}
+										className="group relative flex min-h-10 items-center gap-3 rounded-xl px-3 py-2.5 font-medium text-sm transition-[background-color,color] duration-[var(--motion-fast)] ease-[var(--ease-out-quart)] active:scale-[0.97]"
+										style={{
+											background: active
+												? "linear-gradient(135deg, var(--b-brand-12), color-mix(in oklch, var(--b-brand) 16%, transparent))"
+												: "transparent",
+											color: active ? "var(--b-brand-hi)" : "var(--b-text-3)",
+											boxShadow: active ? "var(--b-shadow-brand-sm)" : "none",
+										}}
 									>
-										<Icon className="h-4.5 w-4.5 shrink-0" />
+										{/* Barra indicadora esquerda */}
+										<span
+											className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] rounded-r-full transition-all duration-[var(--motion-medium)] ease-[var(--ease-out-back)]"
+											style={{
+												background: "var(--b-brand)",
+												height: active ? "60%" : "0%",
+												opacity: active ? 1 : 0,
+											}}
+										/>
+										<Icon
+											className={`h-4 w-4 shrink-0 transition-transform duration-[var(--motion-fast)] ${active ? "scale-105" : ""}`}
+										/>
 										{label}
-										{active && (
-											<span
-												className="ml-auto h-1.5 w-1.5 rounded-full"
-												style={{ background: "var(--b-brand)" }}
-											/>
-										)}
 									</Link>
 								</li>
 							);
 						})}
 
-						{/* Profile card — replaces the generic Perfil nav item */}
-						<li
-							className="mt-2 pt-2"
-							style={{ borderTop: "1px solid var(--b-border)" }}
-						>
+						{/* Admin */}
+						{isAdmin && (
+							<li>
+								<Link
+									href="/admin"
+									className="flex min-h-10 items-center gap-3 rounded-xl px-3 py-2.5 font-medium text-sm transition-[background-color,color] duration-[var(--motion-fast)]"
+									style={{
+										background: isActive("/admin")
+											? "linear-gradient(135deg, var(--b-brand-12), color-mix(in oklch, var(--b-brand) 16%, transparent))"
+											: "transparent",
+										color: isActive("/admin") ? "var(--b-brand-hi)" : "var(--b-text-3)",
+									}}
+								>
+									<Settings2 className="h-4 w-4 shrink-0" />
+									Admin
+								</Link>
+							</li>
+						)}
+
+						{/* Divisor */}
+						<li className="pt-2" style={{ borderTop: "1px solid var(--b-border)" }}>
 							{currentUser === undefined ? (
-								<div className="flex items-center gap-3 rounded-[20px] px-4 py-3">
+								<div className="flex items-center gap-3 px-3 py-2.5">
 									<Skeleton className="h-8 w-8 shrink-0 rounded-full" />
-									<div className="min-w-0 flex-1 space-y-1.5">
+									<div className="flex-1 space-y-1.5">
 										<Skeleton className="h-3 w-24 rounded-md" />
 										<Skeleton className="h-3 w-32 rounded-md" />
 									</div>
@@ -149,32 +161,22 @@ function AppNav() {
 								<div className="flex items-center gap-1">
 									<Link
 										href="/profile"
-										className="flex min-h-11 flex-1 items-center gap-3 rounded-[20px] px-4 py-2.5 transition-[background-color,transform] active:scale-[0.97]"
-										style={navLinkStyle(pathname === "/profile")}
+										className="flex min-h-10 flex-1 items-center gap-3 rounded-xl px-3 py-2 transition-[background-color] duration-[var(--motion-fast)]"
+										style={{
+											background: isActive("/profile") ? "var(--b-brand-10)" : "transparent",
+										}}
 									>
 										<div
 											className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full font-bold text-xs"
-											style={{
-												background: "var(--b-brand-15)",
-												color: "var(--b-brand)",
-											}}
+											style={{ background: "var(--b-brand-15)", color: "var(--b-brand)" }}
 										>
-											{(currentUser?.name ??
-												currentUser?.email)?.[0]?.toUpperCase() ?? "?"}
+											{(currentUser?.name ?? currentUser?.email)?.[0]?.toUpperCase() ?? "?"}
 										</div>
 										<div className="min-w-0 flex-1">
-											<p
-												className="truncate font-medium text-sm"
-												style={{ color: "var(--b-text)" }}
-											>
-												{currentUser?.name ??
-													currentUser?.email?.split("@")[0] ??
-													"Perfil"}
+											<p className="truncate font-medium text-sm" style={{ color: "var(--b-text)" }}>
+												{currentUser?.name ?? currentUser?.email?.split("@")[0] ?? "Perfil"}
 											</p>
-											<p
-												className="truncate text-xs"
-												style={{ color: "var(--b-text-3)" }}
-											>
+											<p className="truncate text-xs" style={{ color: "var(--b-text-3)" }}>
 												{currentUser?.email ?? ""}
 											</p>
 										</div>
@@ -183,12 +185,12 @@ function AppNav() {
 										type="button"
 										onClick={() => void handleSignOut()}
 										disabled={isSigningOut}
-										className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl transition-[background-color,opacity] hover:bg-black/5 active:scale-[0.96] disabled:opacity-60 dark:hover:bg-white/5"
+										className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl transition-[background-color,color] duration-[var(--motion-fast)] hover:bg-[var(--b-danger-bg)] hover:text-[var(--b-danger)] active:scale-[0.95] disabled:opacity-60"
 										style={{ color: "var(--b-text-3)" }}
 										title="Sair"
 									>
 										{isSigningOut ? (
-											<Loader2 className="h-4 w-4 animate-spin" />
+											<Spinner size="xs" />
 										) : (
 											<LogOut className="h-4 w-4" />
 										)}
@@ -196,52 +198,44 @@ function AppNav() {
 								</div>
 							)}
 						</li>
-
-						{isAdmin && (
-							<li>
-								<Link
-									href="/admin"
-									className="flex min-h-11 items-center gap-3 rounded-[20px] px-4 py-3 font-medium text-sm transition-[background-color,color,transform] active:scale-[0.96]"
-									style={navLinkStyle(pathname === "/admin")}
-								>
-									<Settings2 className="h-4.5 w-4.5 shrink-0" />
-									Admin
-									{pathname === "/admin" && (
-										<span
-											className="ml-auto h-1.5 w-1.5 rounded-full"
-											style={{ background: "var(--b-brand)" }}
-										/>
-									)}
-								</Link>
-							</li>
-						)}
 					</ul>
 				</nav>
 			</aside>
 
-			{/* Mobile bottom bar */}
+			{/* ── Mobile bottom nav ──────────────────────────────────── */}
 			<nav
 				className="fixed right-0 bottom-0 left-0 z-50 md:hidden"
 				style={{
 					background: "color-mix(in oklch, var(--b-surface) 97%, transparent)",
 					borderTop: "1px solid var(--b-border-md)",
-					backdropFilter: "blur(12px)",
+					backdropFilter: "blur(16px)",
+					WebkitBackdropFilter: "blur(16px)",
+					paddingBottom: "env(safe-area-inset-bottom, 0px)",
 				}}
 			>
-				<ul className="flex justify-around px-2 py-2">
+				<ul className="flex justify-around px-1 pt-2 pb-2">
 					{navItems.map(({ href, label, icon: Icon }) => {
-						const active = pathname === href || pathname.startsWith(`${href}/`);
+						const active = isActive(href);
 						return (
 							<li key={href}>
 								<Link
 									href={href as Route}
-									className="flex flex-col items-center gap-1 rounded-xl px-5 py-1.5 font-medium text-xs transition-colors"
-									style={{
-										color: active ? "var(--b-brand-hi)" : "var(--b-text-3)",
-									}}
+									className="relative flex flex-col items-center gap-1 rounded-xl px-4 py-1.5 font-medium text-xs transition-[color,transform] duration-[var(--motion-fast)] active:scale-[0.93]"
+									style={{ color: active ? "var(--b-brand-hi)" : "var(--b-text-3)" }}
 								>
-									<Icon className="h-5 w-5" />
-									{label}
+									{active && (
+										<span
+											className="absolute inset-0 rounded-xl"
+											style={{
+												background: "var(--b-brand-10)",
+												animation: "scale-in var(--motion-fast) var(--ease-out-back)",
+											}}
+										/>
+									)}
+									<Icon
+										className={`relative h-5 w-5 transition-transform duration-[var(--motion-fast)] ${active ? "scale-[1.08]" : ""}`}
+									/>
+									<span className="relative">{label}</span>
 								</Link>
 							</li>
 						);
@@ -249,29 +243,25 @@ function AppNav() {
 					<li>
 						<Link
 							href="/profile"
-							className="flex flex-col items-center gap-1 rounded-xl px-5 py-1.5 font-medium text-xs transition-colors"
-							style={{
-								color:
-									pathname === "/profile"
-										? "var(--b-brand-hi)"
-										: "var(--b-text-3)",
-							}}
+							className="relative flex flex-col items-center gap-1 rounded-xl px-4 py-1.5 font-medium text-xs transition-[color,transform] duration-[var(--motion-fast)] active:scale-[0.93]"
+							style={{ color: isActive("/profile") ? "var(--b-brand-hi)" : "var(--b-text-3)" }}
 						>
-							<User className="h-5 w-5" />
-							Perfil
+							{isActive("/profile") && (
+								<span
+									className="absolute inset-0 rounded-xl"
+									style={{ background: "var(--b-brand-10)" }}
+								/>
+							)}
+							<User className="relative h-5 w-5" />
+							<span className="relative">Perfil</span>
 						</Link>
 					</li>
 					{isAdmin && (
 						<li>
 							<Link
 								href="/admin"
-								className="flex flex-col items-center gap-1 rounded-xl px-5 py-1.5 font-medium text-xs transition-colors"
-								style={{
-									color:
-										pathname === "/admin"
-											? "var(--b-brand-hi)"
-											: "var(--b-text-3)",
-								}}
+								className="flex flex-col items-center gap-1 rounded-xl px-4 py-1.5 font-medium text-xs transition-colors"
+								style={{ color: isActive("/admin") ? "var(--b-brand-hi)" : "var(--b-text-3)" }}
 							>
 								<Settings2 className="h-5 w-5" />
 								Admin
@@ -303,11 +293,11 @@ function MobileSignOut() {
 			type="button"
 			onClick={() => void handleSignOut()}
 			disabled={isSigningOut}
-			className="flex flex-col items-center gap-1 rounded-xl px-5 py-1.5 font-medium text-xs transition-[opacity,transform] active:scale-[0.96] disabled:opacity-60"
+			className="flex flex-col items-center gap-1 rounded-xl px-4 py-1.5 font-medium text-xs transition-[color,transform] active:scale-[0.93] disabled:opacity-60"
 			style={{ color: "var(--b-text-3)" }}
 		>
 			{isSigningOut ? (
-				<Loader2 className="h-5 w-5 animate-spin" />
+				<Spinner size="xs" />
 			) : (
 				<LogOut className="h-5 w-5" />
 			)}
@@ -318,9 +308,7 @@ function MobileSignOut() {
 
 function RedirectToSignIn() {
 	const router = useRouter();
-	useEffect(() => {
-		router.push("/sign-in");
-	}, [router]);
+	useEffect(() => { router.push("/sign-in"); }, [router]);
 	return null;
 }
 
@@ -333,9 +321,7 @@ function CompetitionSwitcher() {
 	useEffect(() => {
 		if (!open) return;
 		function onMouseDown(e: MouseEvent) {
-			if (ref.current && !ref.current.contains(e.target as Node)) {
-				setOpen(false);
-			}
+			if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
 		}
 		document.addEventListener("mousedown", onMouseDown);
 		return () => document.removeEventListener("mousedown", onMouseDown);
@@ -354,39 +340,35 @@ function CompetitionSwitcher() {
 			<button
 				type="button"
 				onClick={() => setOpen((v) => !v)}
-				className="flex cursor-pointer items-center gap-1.5 rounded-full px-3 py-1 font-medium text-xs transition-opacity hover:opacity-80"
+				className="flex cursor-pointer items-center gap-1.5 rounded-full px-3 py-1.5 font-medium text-xs transition-[opacity,background] duration-[var(--motion-fast)] hover:opacity-90"
 				style={{ background: "var(--b-brand-10)", color: "var(--b-brand)" }}
 			>
 				<span>{current.flag}</span>
 				<span className="hidden sm:inline">{current.label}</span>
 				<span className="sm:hidden">{current.sublabel}</span>
 				<ChevronDown
-					className="h-3 w-3 transition-transform"
+					className="h-3 w-3 transition-transform duration-[var(--motion-base)]"
 					style={{ transform: open ? "rotate(180deg)" : "rotate(0deg)" }}
 				/>
 			</button>
 
 			{open && (
 				<div
-					className="absolute top-full right-0 z-50 mt-2 w-52 overflow-hidden rounded-xl"
+					className="absolute top-full right-0 z-50 mt-2 w-52 overflow-hidden rounded-2xl animate-scale-in"
 					style={{
-						background: "var(--b-inner)",
+						background: "var(--b-card)",
 						border: "1px solid var(--b-border-md)",
-						boxShadow: "0 8px 24px rgb(0 0 0 / 0.12)",
+						boxShadow: "var(--b-shadow-float)",
 					}}
 				>
-					{(
-						Object.values(
-							COMPETITIONS,
-						) as (typeof COMPETITIONS)[TournamentCode][]
-					).map((comp) => {
+					{(Object.values(COMPETITIONS) as (typeof COMPETITIONS)[TournamentCode][]).map((comp) => {
 						const active = tournament === comp.code;
 						return (
 							<button
 								key={comp.code}
 								type="button"
 								onClick={() => handleSelect(comp.code as TournamentCode)}
-								className="flex w-full items-center gap-3 px-4 py-3 text-sm transition-[background]"
+								className="flex w-full items-center gap-3 px-4 py-3 text-sm transition-[background] duration-[var(--motion-fast)]"
 								style={{
 									background: active ? "var(--b-brand-10)" : "transparent",
 									color: active ? "var(--b-brand)" : "var(--b-text)",
@@ -395,18 +377,12 @@ function CompetitionSwitcher() {
 								<span className="text-base leading-none">{comp.flag}</span>
 								<div className="flex-1 text-left">
 									<p className="font-medium leading-tight">{comp.label}</p>
-									<p
-										className="text-xs leading-tight"
-										style={{ color: "var(--b-text-3)" }}
-									>
+									<p className="text-xs leading-tight" style={{ color: "var(--b-text-3)" }}>
 										{comp.sublabel}
 									</p>
 								</div>
 								{active && (
-									<span
-										className="h-1.5 w-1.5 shrink-0 rounded-full"
-										style={{ background: "var(--b-brand)" }}
-									/>
+									<span className="h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: "var(--b-brand)" }} />
 								)}
 							</button>
 						);
@@ -421,43 +397,31 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 	return (
 		<TournamentProvider>
 			<Authenticated>
-				<div
-					className="flex min-h-screen"
-					style={{ background: "var(--b-bg)" }}
-				>
+				<div className="flex min-h-screen" style={{ background: "var(--b-bg)" }}>
 					<AppNav />
 					<div className="flex min-w-0 flex-1 flex-col">
 						{/* Top header */}
 						<header
-							className="sticky top-0 z-40 flex items-center justify-between px-4 py-3 md:px-6 md:py-4"
+							className="sticky top-0 z-40 flex items-center justify-between px-4 py-3 md:px-6"
 							style={{
 								background: "color-mix(in oklch, var(--b-bg) 92%, transparent)",
 								borderBottom: "1px solid var(--b-border)",
-								backdropFilter: "blur(18px)",
+								backdropFilter: "blur(20px)",
+								WebkitBackdropFilter: "blur(20px)",
 							}}
 						>
 							{/* Mobile logo */}
-							<Link
-								href="/dashboard"
-								className="flex items-center gap-2 md:hidden"
-							>
+							<Link href="/dashboard" className="flex items-center gap-2 md:hidden">
 								<div
 									className="flex h-8 w-8 items-center justify-center rounded-xl"
 									style={{
-										background:
-											"linear-gradient(135deg, var(--b-brand), oklch(0.72 0.22 155))",
-										boxShadow: "var(--b-shadow-soft)",
+										background: "var(--g-brand-diag)",
+										boxShadow: "var(--b-shadow-brand-sm)",
 									}}
 								>
-									<Trophy
-										className="h-3.5 w-3.5"
-										style={{ color: "var(--b-brand-fg)" }}
-									/>
+									<Trophy className="h-3.5 w-3.5" style={{ color: "var(--b-brand-fg)" }} />
 								</div>
-								<span
-									className="font-bold font-display text-base uppercase tracking-wide"
-									style={{ color: "var(--b-text)" }}
-								>
+								<span className="text-display-sm text-sm" style={{ color: "var(--b-text)" }}>
 									Bolão 2026
 								</span>
 							</Link>
@@ -477,16 +441,21 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
 			<AuthLoading>
 				<div
-					className="flex min-h-screen items-center justify-center"
+					className="flex min-h-screen flex-col items-center justify-center gap-4"
 					style={{ background: "var(--b-bg)" }}
 				>
 					<div
-						className="h-9 w-9 animate-spin rounded-full border-2"
+						className="flex h-14 w-14 items-center justify-center rounded-2xl animate-pulse-glow"
 						style={{
-							borderColor: "var(--b-brand)",
-							borderTopColor: "transparent",
+							background: "var(--g-brand-diag)",
+							boxShadow: "var(--b-glow-brand)",
 						}}
-					/>
+					>
+						<Trophy className="h-6 w-6" style={{ color: "var(--b-brand-fg)" }} />
+					</div>
+					<p className="text-eyebrow text-xs" style={{ color: "var(--b-text-4)" }}>
+						Preparando o gramado…
+					</p>
 				</div>
 			</AuthLoading>
 

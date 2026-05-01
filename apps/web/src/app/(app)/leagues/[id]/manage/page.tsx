@@ -118,7 +118,7 @@ export default function ManageLeaguePage({
 									</Button>
 									<Button
 										size="sm"
-										variant="destructive"
+										variant="danger-solid"
 										onClick={() => handleReject(req._id)}
 										className="h-7 px-2"
 									>
@@ -156,7 +156,7 @@ export default function ManageLeaguePage({
 							{member.userId !== currentUser._id && (
 								<Button
 									size="sm"
-									variant="destructive"
+									variant="danger-solid"
 									onClick={() => handleRemove(member.userId)}
 									className="h-7 px-2 text-xs"
 								>

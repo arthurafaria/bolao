@@ -1,11 +1,10 @@
 "use client";
 
 import { Button } from "@bolao/ui/components/button";
-import { Input } from "@bolao/ui/components/input";
-import { Label } from "@bolao/ui/components/label";
+import { FloatingInput } from "@bolao/ui/components/input";
 import { useAuthActions } from "@convex-dev/auth/react";
 import { useForm } from "@tanstack/react-form";
-import { Loader2 } from "lucide-react";
+import { Lock, Mail } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -13,15 +12,9 @@ import { z } from "zod";
 
 function getAuthErrorMessage(error: unknown) {
 	const message = error instanceof Error ? error.message.toLowerCase() : "";
-	if (message.includes("invalid") || message.includes("credentials")) {
-		return "Email ou senha inválidos.";
-	}
-	if (message.includes("verification") || message.includes("token")) {
-		return "Esse link expirou. Solicite um novo acesso por email.";
-	}
-	if (message.includes("rate") || message.includes("too many")) {
-		return "Muitas tentativas em pouco tempo. Tente novamente em alguns minutos.";
-	}
+	if (message.includes("invalid") || message.includes("credentials")) return "Email ou senha inválidos.";
+	if (message.includes("verification") || message.includes("token")) return "Esse link expirou. Solicite um novo acesso.";
+	if (message.includes("rate") || message.includes("too many")) return "Muitas tentativas. Tente em alguns minutos.";
 	return "Não foi possível concluir o acesso agora.";
 }
 
@@ -53,16 +46,17 @@ export default function SignInPage() {
 
 	return (
 		<div>
+			{/* Header */}
 			<div className="mb-8">
 				<h1
-					className="mb-1 text-balance font-black font-display text-4xl uppercase leading-tight tracking-tight"
+					className="text-display-hero text-balance text-4xl leading-tight"
 					style={{ color: "var(--b-text)" }}
 				>
 					Bem-vindo
 					<br />
-					de volta
+					<span style={{ color: "var(--b-brand)" }}>de volta</span>
 				</h1>
-				<p style={{ color: "var(--b-text-3)" }}>
+				<p className="mt-2 text-sm" style={{ color: "var(--b-text-3)" }}>
 					Entre na sua conta e continue jogando
 				</p>
 			</div>
@@ -76,111 +70,61 @@ export default function SignInPage() {
 			>
 				<form.Field name="email">
 					{(field) => (
-						<div className="space-y-1.5">
-							<Label
-								htmlFor="email"
-								className="font-semibold text-sm uppercase tracking-wider"
-								style={{ color: "var(--b-text-3)" }}
-							>
-								Email
-							</Label>
-							<Input
-								id="email"
-								type="email"
-								placeholder="seu@email.com"
-								value={field.state.value}
-								onChange={(e) => field.handleChange(e.target.value)}
-								className="h-11"
-								style={{
-									background: "var(--b-input-bg)",
-									borderColor: "var(--b-border-md)",
-									color: "var(--b-text)",
-								}}
-							/>
-							{field.state.meta.errors[0] && (
-								<p className="text-xs" style={{ color: "oklch(0.67 0.22 22)" }}>
-									{field.state.meta.errors[0]?.message}
-								</p>
-							)}
-						</div>
+						<FloatingInput
+							label="Email"
+							type="email"
+							icon={<Mail className="h-4 w-4" />}
+							value={field.state.value}
+							onChange={(e) => field.handleChange(e.target.value)}
+							error={field.state.meta.errors[0]?.message}
+						/>
 					)}
 				</form.Field>
 
 				<form.Field name="password">
 					{(field) => (
-						<div className="space-y-1.5">
-							<Label
-								htmlFor="password"
-								className="font-semibold text-sm uppercase tracking-wider"
-								style={{ color: "var(--b-text-3)" }}
-							>
-								Senha
-							</Label>
-							<Input
-								id="password"
-								type="password"
-								placeholder="••••••••"
-								value={field.state.value}
-								onChange={(e) => field.handleChange(e.target.value)}
-								className="h-11"
-								style={{
-									background: "var(--b-input-bg)",
-									borderColor: "var(--b-border-md)",
-									color: "var(--b-text)",
-								}}
-							/>
-							{field.state.meta.errors[0] && (
-								<p className="text-xs" style={{ color: "oklch(0.67 0.22 22)" }}>
-									{field.state.meta.errors[0]?.message}
-								</p>
-							)}
-						</div>
+						<FloatingInput
+							label="Senha"
+							type="password"
+							icon={<Lock className="h-4 w-4" />}
+							value={field.state.value}
+							onChange={(e) => field.handleChange(e.target.value)}
+							error={field.state.meta.errors[0]?.message}
+						/>
 					)}
 				</form.Field>
 
 				<div className="flex justify-end">
 					<Link
 						href="/forgot-password"
-						className="text-xs transition-colors"
+						className="text-xs transition-colors hover:text-[var(--b-brand)]"
 						style={{ color: "var(--b-text-4)" }}
 					>
 						Esqueci minha senha
 					</Link>
 				</div>
 
-				<form.Subscribe
-					selector={(s) => ({
-						canSubmit: s.canSubmit,
-						isSubmitting: s.isSubmitting,
-					})}
-				>
+				<form.Subscribe selector={(s) => ({ canSubmit: s.canSubmit, isSubmitting: s.isSubmitting })}>
 					{({ canSubmit, isSubmitting }) => (
 						<Button
 							type="submit"
-							className="mt-2 h-11 w-full font-bold font-display text-base uppercase tracking-wide"
-							disabled={!canSubmit || isSubmitting}
+							variant="brand"
+							size="lg"
+							className="mt-2 w-full text-sm uppercase tracking-[0.16em]"
+							disabled={!canSubmit}
+							loading={isSubmitting}
 						>
-							{isSubmitting ? (
-								<>
-									<Loader2 className="h-4 w-4 animate-spin" />
-									Entrando...
-								</>
-							) : (
-								"Entrar"
-							)}
+							Entrar
 						</Button>
 					)}
 				</form.Subscribe>
 			</form>
 
-			<p
-				className="mt-6 text-center text-sm"
-				style={{ color: "var(--b-text-3)" }}
-			>
+			<p className="mt-6 text-center text-sm" style={{ color: "var(--b-text-3)" }}>
 				Não tem conta?{" "}
 				<Link
 					href="/sign-up"
-					className="font-semibold transition-colors"
+					className="font-semibold transition-colors hover:text-[var(--b-brand-hi)]"
 					style={{ color: "var(--b-brand)" }}
 				>
 					Criar conta

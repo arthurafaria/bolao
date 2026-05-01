@@ -18,26 +18,48 @@ export function ThemeSwitch({ className = "" }: ThemeSwitchProps) {
 
 	const isDark = resolvedTheme === "dark";
 
+	function toggle() {
+		const next = isDark ? "light" : "dark";
+
+		// View Transitions API — progressivo, com fallback gracioso
+		if (!document.startViewTransition) {
+			setTheme(next);
+			return;
+		}
+		document.startViewTransition(() => {
+			setTheme(next);
+		});
+	}
+
 	return (
 		<button
 			type="button"
-			onClick={() => setTheme(isDark ? "light" : "dark")}
-			className={`relative flex h-8 w-8 items-center justify-center overflow-hidden rounded-full transition-opacity hover:opacity-80 ${className}`}
+			onClick={toggle}
+			className={[
+				"relative flex h-8 w-8 items-center justify-center overflow-hidden rounded-full",
+				"transition-[opacity,background-color] duration-[var(--motion-fast)] ease-[var(--ease-out-quart)]",
+				"hover:bg-[var(--b-tint-md)] hover:opacity-100 opacity-80",
+				className,
+			].join(" ")}
 			aria-label={isDark ? "Ativar modo claro" : "Ativar modo escuro"}
 		>
 			<Sun
-				className={`absolute h-5 w-5 transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${
+				className={[
+					"absolute h-4.5 w-4.5 transition-all duration-[var(--motion-medium)]",
+					"ease-[var(--ease-out-back)]",
 					!isDark
 						? "translate-y-0 scale-100 opacity-100"
-						: "translate-y-5 scale-50 opacity-0"
-				}`}
+						: "translate-y-5 scale-50 opacity-0",
+				].join(" ")}
 			/>
 			<Moon
-				className={`absolute h-5 w-5 transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${
+				className={[
+					"absolute h-4.5 w-4.5 transition-all duration-[var(--motion-medium)]",
+					"ease-[var(--ease-out-back)]",
 					isDark
 						? "translate-y-0 scale-100 opacity-100"
-						: "translate-y-5 scale-50 opacity-0"
-				}`}
+						: "translate-y-5 scale-50 opacity-0",
+				].join(" ")}
 			/>
 		</button>
 	);

@@ -1,49 +1,85 @@
 "use client";
+
 import { Button } from "@bolao/ui/components/button";
-import { Input } from "@bolao/ui/components/input";
-import { Label } from "@bolao/ui/components/label";
+import { FloatingInput } from "@bolao/ui/components/input";
 import { useAuthActions } from "@convex-dev/auth/react";
 import { useForm } from "@tanstack/react-form";
-import { Check, Loader2, Sparkles, Trophy } from "lucide-react";
+import { Check, Lock, Mail, Sparkles, User } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { toast } from "sonner";
 import { z } from "zod";
 
 function getSignUpErrorMessage(error: unknown) {
-	if (process.env.NODE_ENV !== "production") {
-		console.error("[sign-up error]", error);
-	}
+	if (process.env.NODE_ENV !== "production") console.error("[sign-up error]", error);
 	const message = error instanceof Error ? error.message.toLowerCase() : "";
-	if (message.includes("already") || message.includes("exist")) {
-		return "Esse email já tem conta. Tente entrar em vez de criar uma nova.";
-	}
-	if (message.includes("invalidaccountid")) {
-		return "Sessão de cadastro antiga detectada. Recarregue a página e tente novamente.";
-	}
-	if (
-		message.includes("jwt_private_key") ||
-		message.includes("jwks") ||
-		message.includes("privatekeyinfo") ||
-		message.includes("rsaencryption")
-	) {
-		return "Configuração de autenticação ausente. As chaves RSA do Convex Auth precisam estar setadas no deployment de produção.";
-	}
-	if (message.includes("password")) {
-		return "A senha não foi aceita. Use pelo menos 8 caracteres.";
-	}
+	if (message.includes("already") || message.includes("exist")) return "Esse email já tem conta. Tente entrar.";
+	if (message.includes("invalidaccountid")) return "Sessão antiga detectada. Recarregue a página.";
+	if (message.includes("jwt_private_key") || message.includes("jwks")) return "Configuração de autenticação ausente.";
+	if (message.includes("password")) return "Senha não aceita. Use pelo menos 8 caracteres.";
 	return "Erro ao criar conta. Tente novamente.";
 }
 
+function PasswordStrength({ password }: { password: string }) {
+	const checks = [
+		{ label: "8+ caracteres", ok: password.length >= 8 },
+		{ label: "Letra maiúscula", ok: /[A-Z]/.test(password) },
+		{ label: "Número", ok: /[0-9]/.test(password) },
+	];
+	const score = checks.filter((c) => c.ok).length;
+	const colors = ["var(--b-danger)", "var(--b-warning)", "var(--b-success)"];
+	const labels = ["Fraca", "Média", "Forte"];
+
+	if (!password) return null;
+
+	return (
+		<div className="animate-slide-up space-y-2">
+			<div className="flex gap-1.5">
+				{[0, 1, 2].map((i) => (
+					<div
+						key={i}
+						className="h-1 flex-1 rounded-full transition-all duration-[var(--motion-medium)]"
+						style={{
+							background: i < score ? colors[score - 1] : "var(--b-border-md)",
+						}}
+					/>
+				))}
+			</div>
+			<div className="flex items-center justify-between">
+				<div className="flex gap-3">
+					{checks.map(({ label, ok }) => (
+						<span
+							key={label}
+							className="flex items-center gap-1 text-[10px]"
+							style={{ color: ok ? "var(--b-success)" : "var(--b-text-4)" }}
+						>
+							<Check className="h-3 w-3" />
+							{label}
+						</span>
+					))}
+				</div>
+				<span
+					className="text-[10px] font-semibold"
+					style={{ color: score > 0 ? colors[score - 1] : "var(--b-text-4)" }}
+				>
+					{score > 0 ? labels[score - 1] : ""}
+				</span>
+			</div>
+		</div>
+	);
+}
+
 const benefits = [
-	"Cadastre-se em menos de 1 minuto",
+	"Cadastro em menos de 1 minuto",
 	"Crie ou entre em ligas privadas",
-	"Acompanhe ranking, pontos e próximos jogos",
+	"Ranking, pontos e próximos jogos em tempo real",
 ];
 
 export default function SignUpPage() {
 	const router = useRouter();
 	const { signIn } = useAuthActions();
+	const [password, setPassword] = useState("");
 
 	const form = useForm({
 		defaultValues: { name: "", email: "", password: "" },
@@ -70,82 +106,55 @@ export default function SignUpPage() {
 	});
 
 	return (
-		<div className="space-y-8">
-			<div className="space-y-5">
+		<div className="space-y-7">
+			{/* Header */}
+			<div>
 				<div
-					className="inline-flex items-center gap-2 rounded-full px-4 py-1.5 font-semibold text-xs uppercase tracking-[0.22em]"
+					className="mb-4 inline-flex items-center gap-2 rounded-full px-3 py-1"
 					style={{ background: "var(--b-brand-10)", color: "var(--b-brand)" }}
 				>
-					<Sparkles className="h-4 w-4" />
-					Crie sua conta
+					<Sparkles className="h-3.5 w-3.5" />
+					<span className="text-eyebrow text-[10px]">Crie sua conta</span>
 				</div>
-
-				<div className="space-y-3">
-					<h1
-						className="text-balance font-black font-display text-5xl uppercase leading-none tracking-tight"
-						style={{ color: "var(--b-text)" }}
-					>
-						Entre no jogo
-						<br />
-						com estilo
-					</h1>
-					<p
-						className="max-w-sm text-pretty leading-relaxed"
-						style={{ color: "var(--b-text-2)" }}
-					>
-						Abra sua conta grátis e comece a disputar ranking, ligas e moral no
-						grupo com uma experiência mais organizada.
-					</p>
-				</div>
+				<h1
+					className="text-display-hero text-balance text-4xl leading-tight"
+					style={{ color: "var(--b-text)" }}
+				>
+					Entre no jogo
+					<br />
+					<span style={{ color: "var(--b-brand)" }}>com estilo</span>
+				</h1>
+				<p className="mt-2 text-sm leading-relaxed" style={{ color: "var(--b-text-3)" }}>
+					Gratuito. Sem cartão. Pronto em menos de 1 minuto.
+				</p>
 			</div>
 
+			{/* Benefits */}
 			<div
-				className="rounded-[30px] p-5"
+				className="rounded-[22px] p-4"
 				style={{
-					background:
-						"linear-gradient(180deg, color-mix(in oklch, var(--b-brand) 10%, var(--b-card)), color-mix(in oklch, var(--b-card) 92%, transparent))",
-					boxShadow: "var(--b-shadow-card)",
+					background: "var(--b-brand-5)",
+					outline: "1px solid var(--b-brand-15)",
 				}}
 			>
-				<div className="flex items-start gap-4">
-					<div
-						className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl"
-						style={{ background: "var(--b-brand)", color: "var(--b-brand-fg)" }}
-					>
-						<Trophy className="h-5 w-5" />
-					</div>
-					<div>
-						<p
-							className="font-display text-2xl uppercase leading-none"
-							style={{ color: "var(--b-text)", fontWeight: 800 }}
-						>
-							Resumo do kickoff
-						</p>
-						<div className="mt-4 space-y-3">
-							{benefits.map((benefit) => (
-								<div key={benefit} className="flex items-center gap-3">
-									<div
-										className="flex h-7 w-7 items-center justify-center rounded-full"
-										style={{
-											background: "var(--b-card)",
-											color: "var(--b-brand)",
-										}}
-									>
-										<Check className="h-4 w-4" />
-									</div>
-									<span
-										className="text-sm leading-relaxed"
-										style={{ color: "var(--b-text)" }}
-									>
-										{benefit}
-									</span>
-								</div>
-							))}
+				<div className="space-y-2">
+					{benefits.map((benefit) => (
+						<div key={benefit} className="flex items-center gap-2.5">
+							<div
+								className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full"
+								style={{ background: "var(--b-brand-15)", color: "var(--b-brand)" }}
+							>
+								<Check className="h-3 w-3" />
+							</div>
+							<span className="text-sm" style={{ color: "var(--b-text-2)" }}>
+								{benefit}
+							</span>
 						</div>
-					</div>
+					))}
 				</div>
 			</div>
 
+			{/* Formulário */}
 			<form
 				onSubmit={(e) => {
 					e.preventDefault();
@@ -153,118 +162,75 @@ export default function SignUpPage() {
 				}}
 				className="space-y-4"
 			>
-				{[
-					{
-						name: "name" as const,
-						label: "Nome",
-						type: "text",
-						placeholder: "Como a galera vai te ver no ranking",
-					},
-					{
-						name: "email" as const,
-						label: "Email",
-						type: "email",
-						placeholder: "voce@bolao.com",
-					},
-					{
-						name: "password" as const,
-						label: "Senha",
-						type: "password",
-						placeholder: "Crie uma senha com 8 caracteres ou mais",
-					},
-				].map(({ name, label, type, placeholder }) => (
-					<form.Field key={name} name={name}>
-						{(field) => (
-							<div className="space-y-2">
-								<Label
-									htmlFor={name}
-									className="font-semibold text-xs uppercase tracking-[0.22em]"
-									style={{ color: "var(--b-text-3)" }}
-								>
-									{label}
-								</Label>
-								<Input
-									id={name}
-									type={type}
-									placeholder={placeholder}
-									value={field.state.value}
-									onChange={(e) => field.handleChange(e.target.value)}
-									className="h-13 rounded-[22px] border-0 px-4 text-base shadow-none"
-									style={{
-										background: "var(--b-input-bg)",
-										color: "var(--b-text)",
-										boxShadow:
-											"inset 0 0 0 1px var(--b-border-md), 0 1px 0 rgb(255 255 255 / 0.35)",
-									}}
-								/>
-								{field.state.meta.errors[0] && (
-									<p
-										className="text-xs"
-										style={{ color: "oklch(0.67 0.22 22)" }}
-									>
-										{field.state.meta.errors[0]?.message}
-									</p>
-								)}
-							</div>
-						)}
-					</form.Field>
-				))}
+				<form.Field name="name">
+					{(field) => (
+						<FloatingInput
+							label="Nome"
+							type="text"
+							icon={<User className="h-4 w-4" />}
+							value={field.state.value}
+							onChange={(e) => field.handleChange(e.target.value)}
+							error={field.state.meta.errors[0]?.message}
+						/>
+					)}
+				</form.Field>
 
-				<div
-					className="rounded-[26px] px-4 py-3 text-sm leading-relaxed"
-					style={{ background: "var(--b-tint)", color: "var(--b-text-3)" }}
-				>
-					Sem cartão, sem complicação. Entrou, escolheu o torneio e já pode
-					começar a palpitar.
-				</div>
+				<form.Field name="email">
+					{(field) => (
+						<FloatingInput
+							label="Email"
+							type="email"
+							icon={<Mail className="h-4 w-4" />}
+							value={field.state.value}
+							onChange={(e) => field.handleChange(e.target.value)}
+							error={field.state.meta.errors[0]?.message}
+						/>
+					)}
+				</form.Field>
 
-				<form.Subscribe
-					selector={(s) => ({
-						canSubmit: s.canSubmit,
-						isSubmitting: s.isSubmitting,
-					})}
-				>
+				<form.Field name="password">
+					{(field) => (
+						<div className="space-y-2">
+							<FloatingInput
+								label="Senha"
+								type="password"
+								icon={<Lock className="h-4 w-4" />}
+								value={field.state.value}
+								onChange={(e) => {
+									field.handleChange(e.target.value);
+									setPassword(e.target.value);
+								}}
+								error={field.state.meta.errors[0]?.message}
+							/>
+							<PasswordStrength password={password} />
+						</div>
+					)}
+				</form.Field>
+
+				<form.Subscribe selector={(s) => ({ canSubmit: s.canSubmit, isSubmitting: s.isSubmitting })}>
 					{({ canSubmit, isSubmitting }) => (
 						<Button
 							type="submit"
-							className="mt-2 h-13 w-full rounded-[22px] font-bold font-display text-sm uppercase tracking-[0.18em]"
-							disabled={!canSubmit || isSubmitting}
-							style={{ boxShadow: "var(--b-shadow-soft)" }}
+							variant="brand"
+							size="lg"
+							className="mt-2 w-full text-sm uppercase tracking-[0.16em]"
+							disabled={!canSubmit}
+							loading={isSubmitting}
 						>
-							{isSubmitting ? (
-								<>
-									<Loader2 className="h-4 w-4 animate-spin" />
-									Criando conta
-								</>
-							) : (
-								"Criar conta grátis"
-							)}
+							Criar conta grátis
 						</Button>
 					)}
 				</form.Subscribe>
 			</form>
 
-			<p
-				className="text-center text-sm leading-relaxed"
-				style={{ color: "var(--b-text-3)" }}
-			>
+			<p className="text-center text-sm" style={{ color: "var(--b-text-3)" }}>
 				Já tem conta?{" "}
 				<Link
 					href="/sign-in"
-					className="font-semibold transition-colors"
+					className="font-semibold transition-colors hover:text-[var(--b-brand-hi)]"
 					style={{ color: "var(--b-brand)" }}
 				>
 					Entrar agora
-				</Link>
-			</p>
-
-			<p className="text-center text-xs" style={{ color: "var(--b-text-4)" }}>
-				<Link
-					href="/forgot-password"
-					className="transition-colors hover:underline"
-					style={{ color: "var(--b-text-4)" }}
-				>
-					Esqueci minha senha
 				</Link>
 			</p>
 		</div>

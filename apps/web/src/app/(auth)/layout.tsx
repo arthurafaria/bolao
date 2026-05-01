@@ -8,17 +8,11 @@ import { useEffect } from "react";
 
 function RedirectToDashboard() {
 	const router = useRouter();
-	useEffect(() => {
-		router.push("/dashboard");
-	}, [router]);
+	useEffect(() => { router.push("/dashboard"); }, [router]);
 	return null;
 }
 
-export default function AuthLayout({
-	children,
-}: {
-	children: React.ReactNode;
-}) {
+export default function AuthLayout({ children }: { children: React.ReactNode }) {
 	return (
 		<>
 			<Authenticated>
@@ -29,16 +23,18 @@ export default function AuthLayout({
 				className="relative flex min-h-screen overflow-hidden"
 				style={{ background: "var(--b-bg)" }}
 			>
+				{/* Ambient gradients */}
 				<div
 					className="pointer-events-none absolute inset-0"
 					style={{
 						background:
-							"radial-gradient(circle at 12% 18%, color-mix(in oklch, var(--b-brand) 12%, transparent), transparent 24%), radial-gradient(circle at 88% 12%, oklch(0.82 0.18 90 / 0.08), transparent 22%)",
+							"radial-gradient(circle at 12% 18%, color-mix(in oklch, var(--b-brand) 14%, transparent), transparent 26%), radial-gradient(circle at 88% 12%, color-mix(in oklch, var(--b-accent) 8%, transparent), transparent 24%)",
 					}}
 				/>
-				{/* Left panel — branding (hidden on mobile) */}
+
+				{/* Painel esquerdo — branding (desktop only) */}
 				<div
-					className="relative hidden flex-col justify-between overflow-hidden border-r p-12 lg:flex lg:w-[48%] xl:p-14"
+					className="relative hidden flex-col justify-between overflow-hidden border-r p-12 animate-fade-in lg:flex lg:w-[48%] xl:p-14"
 					style={{
 						background: "var(--b-auth-panel-bg)",
 						borderColor: "var(--b-border)",
@@ -46,11 +42,20 @@ export default function AuthLayout({
 				>
 					{/* Grid texture */}
 					<div
-						className="pointer-events-none absolute inset-0 opacity-[0.035]"
+						className="pointer-events-none absolute inset-0 opacity-[0.04]"
 						style={{
 							backgroundImage:
 								"linear-gradient(var(--b-brand) 1px, transparent 1px), linear-gradient(90deg, var(--b-brand) 1px, transparent 1px)",
 							backgroundSize: "64px 64px",
+						}}
+					/>
+
+					{/* Dot pattern decoration */}
+					<div
+						className="pointer-events-none absolute bottom-0 right-0 h-64 w-64 opacity-[0.04]"
+						style={{
+							backgroundImage: "radial-gradient(circle, var(--b-brand) 1px, transparent 1px)",
+							backgroundSize: "20px 20px",
 						}}
 					/>
 
@@ -59,50 +64,45 @@ export default function AuthLayout({
 						<div
 							className="flex h-11 w-11 items-center justify-center rounded-2xl"
 							style={{
-								background:
-									"linear-gradient(135deg, var(--b-brand), oklch(0.72 0.22 155))",
-								boxShadow: "var(--b-shadow-soft)",
+								background: "var(--g-brand-diag)",
+								boxShadow: "var(--b-shadow-brand-md)",
 							}}
 						>
-							<Trophy
-								className="h-5 w-5"
-								style={{ color: "var(--b-brand-fg)" }}
-							/>
+							<Trophy className="h-5 w-5" style={{ color: "var(--b-brand-fg)" }} />
 						</div>
 						<span
-							className="font-bold font-display text-2xl uppercase tracking-wide"
+							className="text-display-sm text-xl"
 							style={{ color: "var(--b-text)" }}
 						>
 							Bolão 2026
 						</span>
 					</div>
 
-					{/* Center hero text */}
-					<div className="relative max-w-xl">
+					{/* Hero text */}
+					<div className="relative max-w-xl animate-slide-up">
 						<div
-							className="mb-5 inline-flex items-center gap-2 rounded-full px-4 py-1.5 font-semibold text-xs uppercase tracking-[0.22em]"
+							className="mb-5 inline-flex items-center gap-2 rounded-full px-4 py-1.5"
 							style={{
-								background:
-									"color-mix(in oklch, var(--b-card) 78%, transparent)",
-								color: "var(--b-brand)",
+								background: "color-mix(in oklch, var(--b-card) 78%, transparent)",
 								boxShadow: "var(--b-shadow-soft)",
 							}}
 						>
-							<span className="h-2 w-2 rounded-full bg-[var(--b-brand)]" />
-							Seu bolão com cara de final
+							<span className="h-2 w-2 rounded-full bg-[var(--b-brand)] animate-pulse-glow" />
+							<span className="text-eyebrow text-[10px]" style={{ color: "var(--b-brand)" }}>
+								Seu bolão com cara de final
+							</span>
 						</div>
-						<div
-							className="mb-5 text-balance font-display uppercase leading-none"
+						<h2
+							className="text-display-hero mb-5 text-balance"
 							style={{
-								fontSize: "clamp(3.4rem, 5vw, 5rem)",
-								fontWeight: 900,
+								fontSize: "clamp(3rem, 4.5vw, 4.8rem)",
 								color: "var(--b-text)",
 							}}
 						>
 							Palpites da
 							<br />
-							arquibancada
-						</div>
+							<span style={{ color: "var(--b-brand)" }}>arquibancada</span>
+						</h2>
 						<p
 							className="max-w-md text-pretty text-lg leading-relaxed"
 							style={{ color: "var(--b-text-2)" }}
@@ -111,7 +111,7 @@ export default function AuthLayout({
 							uma disputa bonita, rápida e organizada com a galera.
 						</p>
 
-						<div className="mt-10 grid max-w-lg gap-4">
+						<div className="mt-10 grid max-w-lg gap-3">
 							{[
 								"Palpites rápidos com atualização em tempo real",
 								"Ligas privadas para valendo entre amigos",
@@ -119,18 +119,14 @@ export default function AuthLayout({
 							].map((item) => (
 								<div
 									key={item}
-									className="rounded-[26px] px-5 py-4"
+									className="rounded-[22px] px-5 py-4"
 									style={{
-										background:
-											"color-mix(in oklch, var(--b-card) 72%, transparent)",
+										background: "color-mix(in oklch, var(--b-card) 72%, transparent)",
 										boxShadow: "var(--b-shadow-soft)",
 										outline: "1px solid var(--b-border-xs)",
 									}}
 								>
-									<p
-										className="font-medium text-sm leading-relaxed"
-										style={{ color: "var(--b-text)" }}
-									>
+									<p className="font-medium text-sm leading-relaxed" style={{ color: "var(--b-text)" }}>
 										{item}
 									</p>
 								</div>
@@ -139,7 +135,7 @@ export default function AuthLayout({
 					</div>
 
 					{/* Stats */}
-					<div className="relative grid grid-cols-3 gap-4">
+					<div className="relative grid grid-cols-3 gap-3">
 						{[
 							{ n: "+400", l: "Jogos" },
 							{ n: "50", l: "Membros" },
@@ -147,22 +143,21 @@ export default function AuthLayout({
 						].map(({ n, l }) => (
 							<div
 								key={l}
-								className="rounded-[26px] px-4 py-4"
+								className="rounded-[22px] px-4 py-4"
 								style={{
-									background:
-										"color-mix(in oklch, var(--b-card) 72%, transparent)",
+									background: "color-mix(in oklch, var(--b-card) 72%, transparent)",
 									boxShadow: "var(--b-shadow-soft)",
 									outline: "1px solid var(--b-border-xs)",
 								}}
 							>
 								<div
-									className="font-black font-display text-3xl tabular-nums leading-none"
+									className="text-numeric text-display-xl text-3xl leading-none"
 									style={{ color: "var(--b-text)" }}
 								>
 									{n}
 								</div>
 								<div
-									className="mt-0.5 font-semibold text-xs uppercase tracking-widest"
+									className="text-eyebrow mt-1 text-[10px]"
 									style={{ color: "var(--b-text-3)" }}
 								>
 									{l}
@@ -172,40 +167,34 @@ export default function AuthLayout({
 					</div>
 				</div>
 
-				{/* Right panel — form */}
-				<div className="relative flex flex-1 flex-col items-center justify-center px-6 py-10 lg:px-10">
-					{/* Mobile logo */}
-					<div className="mb-10 flex items-center gap-2.5 lg:hidden">
+				{/* Painel direito — formulário */}
+				<div className="relative flex flex-1 flex-col items-center justify-center px-5 py-10 lg:px-10">
+					{/* Logo mobile */}
+					<div className="mb-8 flex items-center gap-2.5 lg:hidden">
 						<div
 							className="flex h-9 w-9 items-center justify-center rounded-xl"
 							style={{
-								background:
-									"linear-gradient(135deg, var(--b-brand), oklch(0.72 0.22 155))",
-								boxShadow: "var(--b-shadow-soft)",
+								background: "var(--g-brand-diag)",
+								boxShadow: "var(--b-shadow-brand-sm)",
 							}}
 						>
-							<Trophy
-								className="h-4 w-4"
-								style={{ color: "var(--b-brand-fg)" }}
-							/>
+							<Trophy className="h-4 w-4" style={{ color: "var(--b-brand-fg)" }} />
 						</div>
-						<span
-							className="font-bold font-display text-xl uppercase tracking-wide"
-							style={{ color: "var(--b-text)" }}
-						>
+						<span className="text-display-sm text-xl" style={{ color: "var(--b-text)" }}>
 							Bolão 2026
 						</span>
 					</div>
 
+					{/* Card do formulário */}
 					<div
-						className="w-full max-w-md rounded-[32px] p-6 sm:p-8"
+						className="w-full max-w-md rounded-[32px] p-6 sm:p-8 animate-scale-in"
 						style={{
-							background: "color-mix(in oklch, var(--b-card) 84%, transparent)",
+							background: "color-mix(in oklch, var(--b-card) 88%, transparent)",
 							boxShadow: "var(--b-shadow-float)",
 							outline: "1px solid var(--b-border-sm)",
 						}}
 					>
-						<div className="mb-6 flex justify-end">
+						<div className="mb-5 flex justify-end">
 							<ThemeSwitch className="text-[var(--b-text-3)]" />
 						</div>
 						{children}

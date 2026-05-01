@@ -1,5 +1,7 @@
 import { buttonVariants } from "@bolao/ui/components/button";
+import { Tag } from "@bolao/ui/components/tag";
 import { ThemeSwitch } from "@bolao/ui/components/theme-switch-button";
+import { LogoMarquee } from "@/components/landing/logo-marquee";
 import {
 	ArrowRight,
 	Shield,
@@ -8,6 +10,7 @@ import {
 	Timer,
 	Trophy,
 	Users,
+	Zap,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -16,8 +19,9 @@ const featureCards = [
 		icon: Shield,
 		title: "Palpite inteligente",
 		description:
-			"Interface rápida para travar seu placar antes da bola rolar, sem perder contexto do jogo.",
-		highlight: "10 pontos no placar exato",
+			"Interface rápida pra travar seu placar antes da bola rolar, sem perder o contexto do jogo.",
+		highlight: "10 pts no placar exato",
+		color: "var(--b-brand)",
 	},
 	{
 		icon: Users,
@@ -25,113 +29,123 @@ const featureCards = [
 		description:
 			"Monte grupos com amigos, família ou trabalho e acompanhe a classificação rodada a rodada.",
 		highlight: "Convite por código simples",
+		color: "var(--b-accent)",
 	},
 	{
 		icon: Timer,
 		title: "Pontuação ao vivo",
 		description:
-			"Resultados entram e o ranking se atualiza sozinho, sem planilha manual nem confusão.",
+			"Resultados entram e o ranking se atualiza sozinho — sem planilha manual nem confusão.",
 		highlight: "Tudo em tempo real",
+		color: "var(--b-brand)",
 	},
 ];
 
+const pointsTiers = [
+	{ label: "Placar exato", pts: "10 pts", color: "var(--b-brand)", bg: "var(--b-brand-10)" },
+	{ label: "Resultado certo", pts: "5 pts", color: "var(--b-success)", bg: "var(--b-success-bg)" },
+	{ label: "Palpite parcial", pts: "3 pts", color: "var(--b-warning)", bg: "var(--b-warning-bg)" },
+	{ label: "Errou", pts: "0 pts", color: "var(--b-text-4)", bg: "var(--b-tint-md)" },
+];
+
 const storySteps = [
-	"Escolha o torneio e faça seus palpites em poucos toques.",
-	"Entre em ligas privadas e acompanhe quem está cravando mais.",
-	"Veja o ranking virar a cada rodada com um dashboard claro.",
+	{ n: "01", text: "Escolha o torneio e faça seus palpites em poucos toques." },
+	{ n: "02", text: "Entre em ligas privadas e acompanhe quem está cravando mais." },
+	{ n: "03", text: "Veja o ranking virar a cada rodada com um dashboard claro." },
 ];
 
 export default function LandingPage() {
 	return (
 		<div
-			className="min-h-screen overflow-hidden"
+			className="min-h-screen overflow-x-hidden"
 			style={{ background: "var(--b-bg)", color: "var(--b-text)" }}
 		>
+			{/* ── Ambient gradients ──────────────────────────────────────── */}
 			<div
-				className="absolute inset-x-0 top-0 h-[540px]"
+				className="pointer-events-none fixed inset-x-0 top-0 h-[600px]"
 				style={{
 					background:
-						"radial-gradient(circle at 12% 18%, color-mix(in oklch, var(--b-brand) 18%, transparent), transparent 24%), radial-gradient(circle at 82% 16%, oklch(0.83 0.2 90 / 0.12), transparent 22%), radial-gradient(circle at 50% 0%, color-mix(in oklch, var(--b-card) 38%, transparent), transparent 60%)",
+						"radial-gradient(circle at 12% 18%, color-mix(in oklch, var(--b-brand) 16%, transparent), transparent 26%), radial-gradient(circle at 82% 14%, color-mix(in oklch, var(--b-accent) 10%, transparent), transparent 24%), radial-gradient(circle at 50% 0%, color-mix(in oklch, var(--b-card) 45%, transparent), transparent 55%)",
 				}}
 			/>
 
-			<header className="relative z-20 mx-auto flex max-w-7xl items-center justify-between px-6 py-5 md:px-10">
-				<div className="flex items-center gap-3">
-					<div
-						className="flex h-11 w-11 items-center justify-center rounded-2xl"
-						style={{
-							background:
-								"linear-gradient(135deg, var(--b-brand), oklch(0.72 0.22 155))",
-							boxShadow: "var(--b-shadow-soft)",
-						}}
-					>
-						<Trophy
-							className="h-5 w-5"
-							style={{ color: "var(--b-brand-fg)" }}
-						/>
-					</div>
-					<div>
-						<p
-							className="font-display text-2xl uppercase tracking-wide"
-							style={{ color: "var(--b-text)" }}
+			{/* ── Header ────────────────────────────────────────────────── */}
+			<header
+				className="sticky top-0 z-50 border-b"
+				style={{
+					background: "color-mix(in oklch, var(--b-bg) 88%, transparent)",
+					borderColor: "var(--b-border-sm)",
+					backdropFilter: "blur(20px)",
+					WebkitBackdropFilter: "blur(20px)",
+				}}
+			>
+				<div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-3.5 md:px-10">
+					<div className="flex items-center gap-3">
+						<div
+							className="flex h-9 w-9 items-center justify-center rounded-xl"
+							style={{
+								background: "var(--g-brand-diag)",
+								boxShadow: "var(--b-shadow-brand-sm)",
+							}}
 						>
-							Bolão 2026
-						</p>
-						<p
-							className="text-xs uppercase tracking-[0.24em]"
+							<Trophy className="h-4 w-4" style={{ color: "var(--b-brand-fg)" }} />
+						</div>
+						<div>
+							<p
+								className="text-display-sm text-base leading-none"
+								style={{ color: "var(--b-text)" }}
+							>
+								Bolão 2026
+							</p>
+							<p className="text-eyebrow mt-0.5 text-[10px]" style={{ color: "var(--b-text-4)" }}>
+								Copa e Brasileirão
+							</p>
+						</div>
+					</div>
+
+					<div className="flex items-center gap-1.5">
+						<ThemeSwitch className="text-[var(--b-text-3)]" />
+						<Link
+							href="/sign-in"
+							className={buttonVariants({ variant: "ghost", size: "sm" })}
 							style={{ color: "var(--b-text-3)" }}
 						>
-							Copa e Brasileirão
-						</p>
+							Entrar
+						</Link>
+						<Link
+							href="/sign-up"
+							className={buttonVariants({ variant: "brand", size: "sm" })}
+						>
+							Criar conta
+						</Link>
 					</div>
-				</div>
-
-				<div className="flex items-center gap-2">
-					<ThemeSwitch className="text-[var(--b-text-3)]" />
-					<Link
-						href="/sign-in"
-						className={buttonVariants({ variant: "ghost", size: "sm" })}
-						style={{ color: "var(--b-text-3)" }}
-					>
-						Entrar
-					</Link>
-					<Link href="/sign-up" className={buttonVariants({ size: "sm" })}>
-						Criar conta
-					</Link>
 				</div>
 			</header>
 
 			<main className="relative z-10">
-				<section className="mx-auto grid max-w-7xl gap-10 px-6 pt-8 pb-20 md:px-10 lg:grid-cols-[1.15fr_0.85fr] lg:items-center lg:pt-12">
+
+				{/* ── Hero ──────────────────────────────────────────────── */}
+				<section className="mx-auto grid max-w-7xl gap-12 px-5 pt-10 pb-16 md:px-10 lg:grid-cols-[1.2fr_0.8fr] lg:items-center lg:pt-16">
 					<div className="max-w-3xl">
+						{/* Tags */}
 						<div className="mb-6 flex flex-wrap gap-2">
 							{["Copa 2026", "Brasileirão", "Ligas privadas"].map((tag) => (
-								<span
-									key={tag}
-									className="rounded-full px-4 py-1.5 font-semibold text-xs uppercase tracking-[0.22em]"
-									style={{
-										background:
-											"color-mix(in oklch, var(--b-card) 76%, transparent)",
-										color: "var(--b-brand)",
-										boxShadow: "var(--b-shadow-soft)",
-									}}
-								>
-									{tag}
-								</span>
+								<Tag key={tag} variant="brand">{tag}</Tag>
 							))}
 						</div>
 
+						{/* Headline */}
 						<h1
-							className="text-balance font-display uppercase leading-[0.9] tracking-tight"
+							className="text-display-hero text-balance"
 							style={{
-								fontSize: "clamp(4rem, 10vw, 8.5rem)",
-								fontWeight: 900,
+								fontSize: "clamp(3.8rem, 9.5vw, 8rem)",
 								color: "var(--b-text)",
 							}}
 						>
-							Bolão bonito
+							Bolão{" "}
+							<span style={{ color: "var(--b-brand)" }}>bonito</span>
 							<br />
-							para quem
+							pra quem
 							<br />
 							leva futebol
 							<br />a sério
@@ -142,33 +156,28 @@ export default function LandingPage() {
 							style={{ color: "var(--b-text-2)" }}
 						>
 							Faça palpites, acompanhe ligas e veja a tabela mudar em tempo real
-							com uma experiência mais elegante do que qualquer planilha no
-							grupo.
+							com uma experiência mais elegante do que qualquer planilha no grupo.
 						</p>
 
+						{/* CTAs */}
 						<div className="mt-8 flex flex-col gap-3 sm:flex-row">
 							<Link
 								href="/sign-up"
-								className={`${buttonVariants({ size: "lg" })} min-h-12 gap-2 px-7 text-sm uppercase tracking-[0.18em]`}
+								className={`${buttonVariants({ variant: "brand", size: "lg" })} gap-2 px-7 text-sm uppercase tracking-[0.16em]`}
 							>
 								Começar grátis
 								<ArrowRight className="h-4 w-4" />
 							</Link>
 							<Link
 								href="/sign-in"
-								className={`${buttonVariants({ variant: "outline", size: "lg" })} min-h-12 px-7 text-sm uppercase tracking-[0.18em]`}
-								style={{
-									background:
-										"color-mix(in oklch, var(--b-card) 84%, transparent)",
-									borderColor: "var(--b-border-md)",
-									boxShadow: "var(--b-shadow-soft)",
-								}}
+								className={`${buttonVariants({ variant: "outline", size: "lg" })} px-7 text-sm uppercase tracking-[0.16em]`}
 							>
 								Já tenho conta
 							</Link>
 						</div>
 
-						<div className="mt-10 grid max-w-2xl gap-4 sm:grid-cols-3">
+						{/* Stats */}
+						<div className="mt-10 grid max-w-2xl gap-3 sm:grid-cols-3">
 							{[
 								{ value: "484", label: "Jogos cobertos" },
 								{ value: "20+", label: "Clubes e seleções" },
@@ -176,24 +185,20 @@ export default function LandingPage() {
 							].map((item) => (
 								<div
 									key={item.label}
-									className="rounded-[28px] px-5 py-5"
+									className="rounded-[24px] px-5 py-4 transition-[transform,box-shadow] duration-[var(--motion-base)] ease-[var(--ease-out-quart)] hover:-translate-y-0.5 hover:shadow-[var(--b-shadow-brand-sm)]"
 									style={{
-										background:
-											"color-mix(in oklch, var(--b-card) 84%, transparent)",
+										background: "color-mix(in oklch, var(--b-card) 86%, transparent)",
 										boxShadow: "var(--b-shadow-card)",
 										outline: "1px solid var(--b-border-sm)",
 									}}
 								>
 									<p
-										className="font-display text-4xl tabular-nums leading-none"
-										style={{ color: "var(--b-brand)", fontWeight: 900 }}
+										className="text-numeric text-display-xl text-4xl leading-none"
+										style={{ color: "var(--b-brand)" }}
 									>
 										{item.value}
 									</p>
-									<p
-										className="mt-2 text-sm leading-relaxed"
-										style={{ color: "var(--b-text-3)" }}
-									>
+									<p className="mt-2 text-sm leading-relaxed" style={{ color: "var(--b-text-3)" }}>
 										{item.label}
 									</p>
 								</div>
@@ -201,111 +206,75 @@ export default function LandingPage() {
 						</div>
 					</div>
 
+					{/* Dashboard mockup */}
 					<div className="relative">
 						<div
-							className="absolute -top-6 -right-4 hidden h-24 w-24 rounded-full blur-3xl lg:block"
-							style={{
-								background:
-									"color-mix(in oklch, var(--b-brand) 36%, transparent)",
-							}}
+							className="pointer-events-none absolute -top-8 -right-6 hidden h-32 w-32 rounded-full blur-3xl lg:block"
+							style={{ background: "color-mix(in oklch, var(--b-brand) 30%, transparent)" }}
 						/>
 						<div
-							className="relative overflow-hidden rounded-[40px] p-5 sm:p-6"
+							className="animate-float relative overflow-hidden rounded-[40px] p-5 sm:p-6"
 							style={{
-								background:
-									"linear-gradient(180deg, color-mix(in oklch, var(--b-card) 94%, transparent), color-mix(in oklch, var(--b-inner) 92%, transparent))",
+								background: "linear-gradient(180deg, color-mix(in oklch, var(--b-card) 94%, transparent), color-mix(in oklch, var(--b-inner) 92%, transparent))",
 								boxShadow: "var(--b-shadow-float)",
 								outline: "1px solid var(--b-border-sm)",
 							}}
 						>
+							{/* Grid texture */}
 							<div
-								className="absolute inset-0 opacity-[0.08]"
+								className="pointer-events-none absolute inset-0 opacity-[0.06]"
 								style={{
-									backgroundImage:
-										"linear-gradient(var(--b-brand) 1px, transparent 1px), linear-gradient(90deg, var(--b-brand) 1px, transparent 1px)",
+									backgroundImage: "linear-gradient(var(--b-brand) 1px, transparent 1px), linear-gradient(90deg, var(--b-brand) 1px, transparent 1px)",
 									backgroundSize: "74px 74px",
 								}}
 							/>
 
+							{/* Header do card */}
 							<div
-								className="relative flex items-center justify-between rounded-[28px] px-4 py-4"
+								className="relative flex items-center justify-between rounded-[24px] px-4 py-3.5"
 								style={{ background: "var(--b-tint)" }}
 							>
 								<div>
-									<p
-										className="text-xs uppercase tracking-[0.24em]"
-										style={{ color: "var(--b-text-3)" }}
-									>
+									<p className="text-eyebrow text-[10px]" style={{ color: "var(--b-text-3)" }}>
 										Dashboard do bolão
 									</p>
-									<p
-										className="mt-1 font-display text-3xl uppercase"
-										style={{ color: "var(--b-text)", fontWeight: 800 }}
-									>
+									<p className="text-display-lg mt-1 text-2xl" style={{ color: "var(--b-text)" }}>
 										Modo decisão
 									</p>
 								</div>
-								<div
-									className="rounded-full px-3 py-1 font-semibold text-xs uppercase tracking-[0.18em]"
-									style={{
-										background: "var(--b-brand-10)",
-										color: "var(--b-brand)",
-									}}
-								>
-									Ao vivo
-								</div>
+								<Tag variant="brand" dot>Ao vivo</Tag>
 							</div>
 
-							<div className="relative mt-5 grid gap-4 sm:grid-cols-[1.05fr_0.95fr]">
+							{/* Conteúdo */}
+							<div className="relative mt-4 grid gap-3 sm:grid-cols-[1.05fr_0.95fr]">
+								{/* Pontuação */}
 								<div
-									className="rounded-[30px] p-5"
-									style={{
-										background: "var(--b-card)",
-										boxShadow: "var(--b-shadow-card)",
-									}}
+									className="rounded-[28px] p-5"
+									style={{ background: "var(--b-card)", boxShadow: "var(--b-shadow-card)" }}
 								>
 									<div className="flex items-center justify-between">
 										<div>
-											<p
-												className="text-xs uppercase tracking-[0.24em]"
-												style={{ color: "var(--b-text-3)" }}
-											>
+											<p className="text-eyebrow text-[10px]" style={{ color: "var(--b-text-3)" }}>
 												Sua rodada
 											</p>
 											<p
-												className="mt-2 font-display text-5xl tabular-nums leading-none"
-												style={{ color: "var(--b-text)", fontWeight: 900 }}
+												className="text-numeric mt-2 text-5xl leading-none font-black"
+												style={{ color: "var(--b-text)" }}
 											>
 												78
 											</p>
 										</div>
-										<div
-											className="rounded-2xl px-3 py-2 font-semibold text-sm"
-											style={{
-												background: "var(--b-brand-10)",
-												color: "var(--b-brand)",
-											}}
-										>
-											+12 hoje
-										</div>
+										<Tag variant="success">+12 hoje</Tag>
 									</div>
-									<div className="mt-5 space-y-3">
+									<div className="mt-4 space-y-2.5">
 										{[
 											["Placar exato", "3"],
 											["Resultados certos", "7"],
 											["Posição na liga", "2º"],
 										].map(([label, value]) => (
-											<div
-												key={label}
-												className="flex items-center justify-between text-sm"
-											>
-												<span style={{ color: "var(--b-text-3)" }}>
-													{label}
-												</span>
-												<span
-													className="font-semibold tabular-nums"
-													style={{ color: "var(--b-text)" }}
-												>
+											<div key={label} className="flex items-center justify-between text-sm">
+												<span style={{ color: "var(--b-text-3)" }}>{label}</span>
+												<span className="font-semibold text-numeric" style={{ color: "var(--b-text)" }}>
 													{value}
 												</span>
 											</div>
@@ -313,82 +282,50 @@ export default function LandingPage() {
 									</div>
 								</div>
 
-								<div className="space-y-4">
+								<div className="space-y-3">
+									{/* Insight */}
 									<div
-										className="rounded-[30px] p-5"
+										className="rounded-[28px] p-4"
 										style={{
-											background:
-												"linear-gradient(180deg, var(--b-brand-12), color-mix(in oklch, var(--b-card) 90%, transparent))",
+											background: "linear-gradient(180deg, var(--b-brand-12), color-mix(in oklch, var(--b-card) 90%, transparent))",
 											boxShadow: "var(--b-shadow-card)",
 										}}
 									>
-										<div
-											className="flex items-center gap-2 font-semibold text-sm uppercase tracking-[0.18em]"
-											style={{ color: "var(--b-brand)" }}
-										>
-											<Sparkles className="h-4 w-4" />
+										<div className="flex items-center gap-1.5 font-semibold text-xs uppercase tracking-[0.16em]" style={{ color: "var(--b-brand)" }}>
+											<Sparkles className="h-3.5 w-3.5" />
 											Visão rápida
 										</div>
-										<p
-											className="mt-4 text-pretty text-sm leading-relaxed"
-											style={{ color: "var(--b-text)" }}
-										>
-											Seu próximo palpite fecha às 17:00. Ainda dá tempo de
-											cravar o placar e tomar a ponta da liga.
+										<p className="mt-3 text-pretty text-xs leading-relaxed" style={{ color: "var(--b-text)" }}>
+											Seu próximo palpite fecha às 17h. Ainda dá pra cravar e tomar a ponta.
 										</p>
 									</div>
 
+									{/* Ranking */}
 									<div
-										className="rounded-[30px] p-5"
-										style={{
-											background: "var(--b-card)",
-											boxShadow: "var(--b-shadow-card)",
-										}}
+										className="rounded-[28px] p-4"
+										style={{ background: "var(--b-card)", boxShadow: "var(--b-shadow-card)" }}
 									>
-										<p
-											className="text-xs uppercase tracking-[0.24em]"
-											style={{ color: "var(--b-text-3)" }}
-										>
+										<p className="text-eyebrow text-[10px]" style={{ color: "var(--b-text-3)" }}>
 											Top da semana
 										</p>
-										<div className="mt-4 space-y-3">
-											{[
-												["Arthur", "94 pts"],
-												["Carol", "88 pts"],
-												["Você", "78 pts"],
-											].map(([name, points], index) => (
+										<div className="mt-3 space-y-2">
+											{(
+												[
+													{ name: "Arthur", pts: "94 pts", isYou: false },
+													{ name: "Carol",  pts: "88 pts", isYou: false },
+													{ name: "Você",   pts: "78 pts", isYou: true },
+												] as { name: string; pts: string; isYou: boolean }[]
+											).map(({ name, pts, isYou }) => (
 												<div
 													key={name}
-													className="flex items-center justify-between rounded-[22px] px-4 py-3"
-													style={{
-														background:
-															index === 2
-																? "var(--b-brand-10)"
-																: "var(--b-tint)",
-													}}
+													className="flex items-center justify-between rounded-[18px] px-3 py-2"
+													style={{ background: isYou ? "var(--b-brand-10)" : "var(--b-tint)" }}
 												>
-													<div className="flex items-center gap-3">
-														<div
-															className="flex h-9 w-9 items-center justify-center rounded-full font-bold text-xs"
-															style={{
-																background: "var(--b-card)",
-																color: "var(--b-text)",
-															}}
-														>
-															{index + 1}
-														</div>
-														<span
-															className="font-medium"
-															style={{ color: "var(--b-text)" }}
-														>
-															{name}
-														</span>
-													</div>
-													<span
-														className="font-display text-xl tabular-nums"
-														style={{ color: "var(--b-brand)", fontWeight: 800 }}
-													>
-														{points}
+													<span className="font-medium text-sm" style={{ color: "var(--b-text)" }}>
+														{name}
+													</span>
+													<span className="text-numeric font-bold text-sm" style={{ color: "var(--b-brand)" }}>
+														{pts}
 													</span>
 												</div>
 											))}
@@ -400,106 +337,101 @@ export default function LandingPage() {
 					</div>
 				</section>
 
-				<section className="mx-auto max-w-7xl px-6 pb-20 md:px-10">
-					<div className="grid gap-5 lg:grid-cols-3">
-						{featureCards.map(
-							({ icon: Icon, title, description, highlight }) => (
+				{/* ── Marquee de times ──────────────────────────────────── */}
+				<div className="mx-auto max-w-7xl px-5 pb-6 md:px-10">
+					<LogoMarquee />
+				</div>
+
+				{/* ── Features ──────────────────────────────────────────── */}
+				<section className="mx-auto max-w-7xl px-5 pb-20 md:px-10">
+					<div className="mb-10 text-center">
+						<Tag variant="brand" className="mb-4">Como funciona</Tag>
+						<h2
+							className="text-display-xl text-4xl md:text-5xl"
+							style={{ color: "var(--b-text)" }}
+						>
+							Tudo que seu bolão precisa
+						</h2>
+					</div>
+					<div className="grid gap-5 md:grid-cols-3">
+						{featureCards.map(({ icon: Icon, title, description, highlight, color }) => (
+							<div
+								key={title}
+								className="group rounded-[32px] p-7 transition-[transform,box-shadow] duration-[var(--motion-medium)] ease-[var(--ease-out-quart)] hover:-translate-y-1 hover:shadow-[var(--b-shadow-brand-md)]"
+								style={{
+									background: "color-mix(in oklch, var(--b-card) 90%, transparent)",
+									boxShadow: "var(--b-shadow-card)",
+									outline: "1px solid var(--b-border-sm)",
+								}}
+							>
 								<div
-									key={title}
-									className="rounded-[34px] p-7"
-									style={{
-										background:
-											"color-mix(in oklch, var(--b-card) 90%, transparent)",
-										boxShadow: "var(--b-shadow-card)",
-										outline: "1px solid var(--b-border-sm)",
-									}}
+									className="flex h-12 w-12 items-center justify-center rounded-2xl transition-transform duration-[var(--motion-fast)] group-hover:scale-110"
+									style={{ background: "var(--b-brand-10)", color }}
 								>
-									<div
-										className="flex h-12 w-12 items-center justify-center rounded-2xl"
-										style={{
-											background: "var(--b-brand-10)",
-											color: "var(--b-brand)",
-										}}
-									>
-										<Icon className="h-5 w-5" />
-									</div>
-									<h2
-										className="mt-5 font-display text-3xl uppercase leading-none"
-										style={{ color: "var(--b-text)", fontWeight: 800 }}
-									>
-										{title}
-									</h2>
-									<p
-										className="mt-4 text-pretty leading-relaxed"
-										style={{ color: "var(--b-text-2)" }}
-									>
-										{description}
-									</p>
-									<p
-										className="mt-5 font-semibold text-sm uppercase tracking-[0.18em]"
-										style={{ color: "var(--b-brand)" }}
-									>
-										{highlight}
-									</p>
+									<Icon className="h-5 w-5" />
 								</div>
-							),
-						)}
+								<h3
+									className="text-display-lg mt-5 text-2xl"
+									style={{ color: "var(--b-text)" }}
+								>
+									{title}
+								</h3>
+								<p className="mt-3 text-pretty text-sm leading-relaxed" style={{ color: "var(--b-text-2)" }}>
+									{description}
+								</p>
+								<p
+									className="text-eyebrow mt-5 text-xs"
+									style={{ color }}
+								>
+									{highlight}
+								</p>
+							</div>
+						))}
 					</div>
 				</section>
 
-				<section className="mx-auto max-w-7xl px-6 pb-24 md:px-10">
+				{/* ── Sistema de pontos ─────────────────────────────────── */}
+				<section className="mx-auto max-w-7xl px-5 pb-20 md:px-10">
 					<div
-						className="grid gap-8 overflow-hidden rounded-[42px] px-6 py-8 sm:px-8 sm:py-10 lg:grid-cols-[0.9fr_1.1fr]"
+						className="rounded-[40px] p-8 sm:p-10"
 						style={{
-							background:
-								"linear-gradient(135deg, color-mix(in oklch, var(--b-brand) 10%, var(--b-card)), color-mix(in oklch, oklch(0.83 0.2 90) 8%, var(--b-card)))",
+							background: "linear-gradient(135deg, color-mix(in oklch, var(--b-brand) 8%, var(--b-card)), color-mix(in oklch, var(--b-accent) 5%, var(--b-card)))",
 							boxShadow: "var(--b-shadow-float)",
 							outline: "1px solid var(--b-border-sm)",
 						}}
 					>
-						<div>
-							<p
-								className="font-semibold text-xs uppercase tracking-[0.24em]"
-								style={{ color: "var(--b-brand)" }}
-							>
-								Como funciona
+						<div className="mb-8 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+							<div>
+								<Tag variant="accent" className="mb-3">
+									<Zap className="h-3 w-3" />
+									Pontuação
+								</Tag>
+								<h2 className="text-display-xl text-4xl" style={{ color: "var(--b-text)" }}>
+									Simples e justo.
+								</h2>
+							</div>
+							<p className="max-w-xs text-sm leading-relaxed" style={{ color: "var(--b-text-3)" }}>
+								Cada palpite vale pontos diferentes dependendo do quão perto você chegou.
 							</p>
-							<h2
-								className="mt-4 text-balance font-display text-5xl uppercase leading-none"
-								style={{ color: "var(--b-text)", fontWeight: 900 }}
-							>
-								Menos fricção.
-								<br />
-								Mais disputa.
-							</h2>
 						</div>
-
-						<div className="grid gap-4">
-							{storySteps.map((step, index) => (
+						<div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+							{pointsTiers.map((tier) => (
 								<div
-									key={step}
-									className="flex gap-4 rounded-[28px] px-5 py-5"
+									key={tier.label}
+									className="rounded-[24px] px-5 py-5"
 									style={{
-										background:
-											"color-mix(in oklch, var(--b-card) 84%, transparent)",
-										boxShadow: "var(--b-shadow-soft)",
+										background: tier.bg,
+										outline: `1px solid color-mix(in oklch, ${tier.color} 20%, transparent)`,
 									}}
 								>
-									<div
-										className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl font-display text-xl"
-										style={{
-											background: "var(--b-brand-10)",
-											color: "var(--b-brand)",
-											fontWeight: 800,
-										}}
-									>
-										{index + 1}
-									</div>
 									<p
-										className="self-center text-pretty leading-relaxed"
-										style={{ color: "var(--b-text)" }}
+										className="text-numeric text-display-xl text-3xl leading-none"
+										style={{ color: tier.color }}
 									>
-										{step}
+										{tier.pts}
+									</p>
+									<p className="mt-2 font-medium text-sm" style={{ color: "var(--b-text-2)" }}>
+										{tier.label}
 									</p>
 								</div>
 							))}
@@ -507,44 +439,148 @@ export default function LandingPage() {
 					</div>
 				</section>
 
-				<section className="px-6 pb-24 md:px-10">
-					<div className="mx-auto max-w-5xl text-center">
-						<div
-							className="mb-5 inline-flex items-center gap-2 rounded-full px-4 py-1.5 font-semibold text-xs uppercase tracking-[0.22em]"
-							style={{
-								background: "var(--b-brand-10)",
-								color: "var(--b-brand)",
-							}}
-						>
-							<Star className="h-4 w-4" />
-							Bora subir esse ranking
+				{/* ── Como funciona (stepper) ───────────────────────────── */}
+				<section className="mx-auto max-w-7xl px-5 pb-20 md:px-10">
+					<div className="grid gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-start">
+						<div>
+							<Tag variant="muted" className="mb-4">Passo a passo</Tag>
+							<h2 className="text-display-xl text-4xl md:text-5xl" style={{ color: "var(--b-text)" }}>
+								Menos fricção.
+								<br />Mais disputa.
+							</h2>
+							<p className="mt-4 text-pretty leading-relaxed" style={{ color: "var(--b-text-3)" }}>
+								Do cadastro ao pódio em menos de 2 minutos.
+							</p>
 						</div>
-						<h2
-							className="text-balance font-display text-5xl uppercase leading-none md:text-7xl"
-							style={{ color: "var(--b-text)", fontWeight: 900 }}
-						>
-							Seu grupo merece
-							<br />
-							um bolão à altura
-						</h2>
-						<p
-							className="mx-auto mt-5 max-w-2xl text-pretty text-lg leading-relaxed"
-							style={{ color: "var(--b-text-2)" }}
-						>
-							Cadastre-se em segundos e transforme cada rodada em uma briga boa
-							por pontos, posição e moral.
-						</p>
-						<div className="mt-8 flex justify-center">
-							<Link
-								href="/sign-up"
-								className={`${buttonVariants({ size: "lg" })} min-h-12 gap-2 px-8 text-sm uppercase tracking-[0.18em]`}
-							>
-								Criar conta grátis
-								<ArrowRight className="h-4 w-4" />
-							</Link>
+						<div className="relative space-y-4 pl-4">
+							{/* Linha conectora */}
+							<div
+								className="absolute left-[28px] top-8 bottom-8 w-[2px]"
+								style={{
+									background: "linear-gradient(180deg, var(--b-brand-25), var(--b-brand-10), transparent)",
+								}}
+							/>
+							{storySteps.map(({ n, text }) => (
+								<div key={n} className="relative flex gap-5">
+									<div
+										className="text-display-lg relative z-10 flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl text-xl"
+										style={{
+											background: "var(--b-brand-10)",
+											color: "var(--b-brand)",
+											boxShadow: "var(--b-shadow-brand-sm)",
+										}}
+									>
+										{n}
+									</div>
+									<div
+										className="flex-1 self-center rounded-[24px] px-5 py-4"
+										style={{
+											background: "color-mix(in oklch, var(--b-card) 86%, transparent)",
+											boxShadow: "var(--b-shadow-soft)",
+											outline: "1px solid var(--b-border-xs)",
+										}}
+									>
+										<p className="text-pretty leading-relaxed" style={{ color: "var(--b-text)" }}>
+											{text}
+										</p>
+									</div>
+								</div>
+							))}
 						</div>
 					</div>
 				</section>
+
+				{/* ── CTA Final ─────────────────────────────────────────── */}
+				<section className="px-5 pb-24 md:px-10">
+					<div
+						className="mx-auto max-w-5xl overflow-hidden rounded-[48px] px-8 py-16 text-center sm:px-12 sm:py-20"
+						style={{
+							background: "var(--g-brand-diag)",
+							boxShadow: "var(--b-shadow-brand-xl)",
+							position: "relative",
+						}}
+					>
+						{/* Texture */}
+						<div
+							className="pointer-events-none absolute inset-0 opacity-[0.08]"
+							style={{
+								backgroundImage: "radial-gradient(circle, white 1px, transparent 1px)",
+								backgroundSize: "28px 28px",
+							}}
+						/>
+						<div className="relative">
+							<div
+								className="mb-5 inline-flex items-center gap-2 rounded-full px-4 py-1.5 font-semibold text-xs uppercase tracking-[0.22em]"
+								style={{
+									background: "oklch(1 0 0 / 18%)",
+									color: "oklch(1 0 0 / 95%)",
+								}}
+							>
+								<Star className="h-3.5 w-3.5" />
+								Bora subir esse ranking
+							</div>
+							<h2
+								className="text-display-hero text-balance"
+								style={{
+									fontSize: "clamp(2.8rem, 6vw, 5rem)",
+									color: "oklch(1 0 0)",
+								}}
+							>
+								Seu grupo merece
+								<br />um bolão à altura
+							</h2>
+							<p
+								className="mx-auto mt-5 max-w-xl text-pretty text-lg leading-relaxed"
+								style={{ color: "oklch(1 0 0 / 85%)" }}
+							>
+								Cadastre-se em segundos e transforme cada rodada em uma briga boa
+								por pontos, posição e moral.
+							</p>
+							<div className="mt-8 flex justify-center gap-3">
+								<Link
+									href="/sign-up"
+									className={`${buttonVariants({ size: "lg" })} gap-2 bg-white px-8 text-sm uppercase tracking-[0.16em]`}
+									style={{ color: "var(--b-brand-lo)" }}
+								>
+									Criar conta grátis
+									<ArrowRight className="h-4 w-4" />
+								</Link>
+							</div>
+						</div>
+					</div>
+				</section>
+
+				{/* ── Footer ────────────────────────────────────────────── */}
+				<footer
+					className="border-t px-5 py-10 md:px-10"
+					style={{ borderColor: "var(--b-border-sm)" }}
+				>
+					<div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-5 sm:flex-row">
+						<div className="flex items-center gap-2.5">
+							<div
+								className="flex h-7 w-7 items-center justify-center rounded-lg"
+								style={{ background: "var(--g-brand-diag)" }}
+							>
+								<Trophy className="h-3.5 w-3.5" style={{ color: "var(--b-brand-fg)" }} />
+							</div>
+							<span className="text-display-sm text-sm" style={{ color: "var(--b-text-3)" }}>
+								Bolão 2026
+							</span>
+						</div>
+						<div className="flex items-center gap-6">
+							<Link
+								href="/regras"
+								className="text-xs transition-colors hover:text-[var(--b-brand)]"
+								style={{ color: "var(--b-text-4)" }}
+							>
+								Regras
+							</Link>
+							<span className="text-xs" style={{ color: "var(--b-text-4)" }}>
+								© 2026 Bolão da Copa
+							</span>
+						</div>
+					</div>
+				</footer>
 			</main>
 		</div>
 	);
