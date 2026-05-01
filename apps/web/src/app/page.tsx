@@ -1,4 +1,4 @@
-import { buttonVariants } from "@bolao/ui/components/button";
+import { buttonVariants } from "@bolao/ui/lib/button-variants";
 import { Tag } from "@bolao/ui/components/tag";
 import { ThemeSwitch } from "@bolao/ui/components/theme-switch-button";
 import { LogoMarquee } from "@/components/landing/logo-marquee";
