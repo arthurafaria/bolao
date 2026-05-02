@@ -9,6 +9,8 @@
 		"ignoreUnknown": false,
 		"includes": [
 			"**",
+			"!**/.agents",
+			"!**/.claude",
 			"!**/.next",
 			"!**/dist",
 			"!**/.turbo",
@@ -81,6 +83,16 @@
 				"rules": {
 					"a11y": {
 						"noLabelWithoutControl": "off"
+					}
+				}
+			}
+		},
+		{
+			"includes": ["packages/ui/src/styles/motion.css"],
+			"linter": {
+				"rules": {
+					"complexity": {
+						"noImportantStyles": "off"
 					}
 				}
 			}
