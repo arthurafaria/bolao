@@ -11,10 +11,7 @@ import { toast } from "sonner";
 
 import { getCrest } from "@/lib/crest-overrides";
 import { getPointsTier } from "@/lib/points-palette";
-import {
-	abbreviateTeamName,
-	translateTeamName,
-} from "@/lib/team-translations";
+import { abbreviateTeamName, translateTeamName } from "@/lib/team-translations";
 import { LockCountdown } from "./lock-countdown";
 
 type Prediction = {
