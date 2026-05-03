@@ -66,19 +66,19 @@ export function HeroMatch({
 		<div
 			ref={ref}
 			className={cn(
-				"group/hero relative isolate overflow-hidden rounded-[32px] text-white",
+				"group/hero relative isolate overflow-hidden rounded-[32px] text-[var(--b-text)] dark:text-white",
+				"[background:linear-gradient(180deg,color-mix(in_oklch,var(--b-brand)_14%,var(--b-card)),var(--b-card))] dark:[background:var(--g-hero-match)]",
 				"animate-fade-in shadow-[var(--b-shadow-brand-lg)]",
 				className,
 			)}
 			style={{
-				background: "var(--g-hero-match)",
 				perspective: "1200px",
 			}}
 		>
 			{/* Glow respirando */}
 			<div
 				aria-hidden
-				className="pointer-events-none absolute inset-0 -z-10 animate-glow-breath"
+				className="pointer-events-none absolute inset-0 -z-10 hidden animate-glow-breath dark:block"
 				style={{
 					background:
 						"radial-gradient(ellipse 90% 60% at 50% 0%, color-mix(in oklch, var(--b-brand) 40%, transparent) 0%, transparent 70%)",
@@ -86,12 +86,14 @@ export function HeroMatch({
 			/>
 
 			{/* Top strip */}
-			<div className="flex flex-wrap items-center gap-3 border-white/10 border-b px-6 py-3 text-white/90">
+			<div className="flex flex-wrap items-center gap-3 border-[var(--b-brand-25)] border-b px-6 py-3 text-[var(--b-text-2)] dark:border-white/10 dark:text-white/90">
 				<span className="text-eyebrow">{stageLabel}</span>
-				<span className="text-eyebrow text-white/50">·</span>
+				<span className="text-[var(--b-text-4)] text-eyebrow dark:text-white/50">
+					·
+				</span>
 				<span className="text-eyebrow">Próximo jogo</span>
 				{match.venue && (
-					<span className="ml-auto inline-flex items-center gap-1.5 text-white/70 text-xs">
+					<span className="ml-auto inline-flex items-center gap-1.5 text-[var(--b-text-3)] text-xs dark:text-white/70">
 						<MapPin className="h-3.5 w-3.5" />
 						{match.venue}
 					</span>
@@ -123,13 +125,15 @@ export function HeroMatch({
 
 				{/* Center: countdown */}
 				<div className="flex flex-col items-center gap-3">
-					<span className="text-eyebrow text-white/60">Falta</span>
+					<span className="text-[var(--b-text-3)] text-eyebrow dark:text-white/60">
+						Falta
+					</span>
 					<LiveClock
 						target={match.utcDate}
 						size="xl"
-						className="font-black text-white"
+						className="font-black text-[var(--b-text)] dark:text-white"
 					/>
-					<span className="font-mono text-white/60 text-xs">
+					<span className="font-mono text-[var(--b-text-3)] text-xs dark:text-white/60">
 						{new Date(match.utcDate).toLocaleString("pt-BR", {
 							day: "2-digit",
 							month: "2-digit",
@@ -155,8 +159,8 @@ export function HeroMatch({
 			</div>
 
 			{/* CTA */}
-			<div className="flex flex-col items-center gap-3 border-white/10 border-t px-6 py-4 sm:flex-row sm:justify-between">
-				<span className="text-white/70 text-xs uppercase tracking-wider">
+			<div className="flex flex-col items-center gap-3 border-[var(--b-brand-25)] border-t px-6 py-4 sm:flex-row sm:justify-between dark:border-white/10">
+				<span className="text-[var(--b-text-3)] text-xs uppercase tracking-wider dark:text-white/70">
 					{hasPrediction
 						? "Você já palpitou — pode editar"
 						: "Sem palpite ainda"}

@@ -218,20 +218,25 @@ export default function DashboardPage() {
 								href={`/leagues/${topLeague._id}` as Route}
 								linkLabel="Abrir"
 							/>
-							<BentoTile variant="dark">
+							<BentoTile
+								variant="dark"
+								className="border-[var(--b-brand-25)] text-[var(--b-text)] [background:linear-gradient(180deg,color-mix(in_oklch,var(--b-brand)_14%,var(--b-card)),var(--b-card))] dark:border-white/10 dark:text-white dark:[background:var(--g-editorial-dark)]"
+							>
 								<BentoTileHeader>
-									<BentoTileEyebrow>Pontos na liga</BentoTileEyebrow>
-									<span className="flex h-8 w-8 items-center justify-center rounded-full bg-white/10">
-										<Trophy className="h-4 w-4 text-[var(--b-gold)]" />
+									<BentoTileEyebrow className="text-[var(--b-text-3)] dark:text-white/60">
+										Pontos na liga
+									</BentoTileEyebrow>
+									<span className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--b-brand-12)] dark:bg-white/10">
+										<Trophy className="h-4 w-4 text-[var(--b-brand)] dark:text-[var(--b-gold)]" />
 									</span>
 								</BentoTileHeader>
 								<BentoTileBody>
-									<span className="font-black font-display text-6xl text-white tabular-nums leading-none">
+									<span className="font-black font-display text-6xl text-[var(--b-brand-hi)] tabular-nums leading-none dark:text-white">
 										{topLeague.myPoints}
 									</span>
 								</BentoTileBody>
 								<BentoTileFooter>
-									<span className="inline-flex items-center gap-1.5 text-white/70">
+									<span className="inline-flex items-center gap-1.5 text-[var(--b-text-3)] dark:text-white/70">
 										<Users className="h-3.5 w-3.5" />
 										{topLeague.memberCount} membros
 									</span>
