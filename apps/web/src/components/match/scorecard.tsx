@@ -119,7 +119,7 @@ function ScoreInput({
 				type="button"
 				disabled={disabled || value <= 0}
 				onClick={() => onChange(Math.max(0, value - 1))}
-				className="flex h-9 w-9 items-center justify-center rounded-lg border border-[var(--b-border-md)] bg-[var(--b-tint-md)] font-bold text-[var(--b-brand)] text-lg transition-transform duration-[var(--motion-fast)] hover:bg-[var(--b-brand-12)] active:scale-[0.92] disabled:opacity-25"
+				className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[var(--b-border-md)] bg-[var(--b-tint-md)] font-bold text-[var(--b-brand)] text-lg leading-none transition-[transform,background-color] duration-[var(--motion-fast)] hover:bg-[var(--b-brand-12)] active:scale-[0.96] disabled:opacity-25"
 				aria-label="Diminuir placar"
 			>
 				−
@@ -144,7 +144,7 @@ function ScoreInput({
 				type="button"
 				disabled={disabled}
 				onClick={() => onChange(Math.min(20, value + 1))}
-				className="flex h-9 w-9 items-center justify-center rounded-lg border border-[var(--b-border-md)] bg-[var(--b-tint-md)] font-bold text-[var(--b-brand)] text-lg transition-transform duration-[var(--motion-fast)] hover:bg-[var(--b-brand-12)] active:scale-[0.92] disabled:opacity-25"
+				className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[var(--b-border-md)] bg-[var(--b-tint-md)] font-bold text-[var(--b-brand)] text-lg leading-none transition-[transform,background-color] duration-[var(--motion-fast)] hover:bg-[var(--b-brand-12)] active:scale-[0.96] disabled:opacity-25"
 				aria-label="Aumentar placar"
 			>
 				+
@@ -270,9 +270,9 @@ export function Scorecard({
 			</div>
 
 			{/* Body */}
-			<div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3 px-4 py-5 sm:px-6">
+			<div className="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-4 px-4 py-5 sm:gap-5 sm:px-6">
 				{/* Home team */}
-				<div className="flex flex-col items-center gap-2 sm:flex-row sm:gap-3">
+				<div className="flex min-w-0 flex-col items-center gap-2 sm:flex-row sm:gap-3">
 					<TeamCrest
 						crest={getCrest(
 							match.homeTeam?.shortName ?? "",
@@ -281,7 +281,7 @@ export function Scorecard({
 						name={homeName}
 					/>
 					<span
-						className="text-center font-bold font-display text-sm uppercase leading-tight tracking-wide sm:text-left sm:text-base"
+						className="min-w-0 truncate text-center font-bold font-display text-sm uppercase leading-tight tracking-wide sm:text-left sm:text-base"
 						style={{ color: "var(--b-text)" }}
 					>
 						{homeName}
@@ -289,7 +289,7 @@ export function Scorecard({
 				</div>
 
 				{/* Center: scores */}
-				<div className="flex flex-col items-center gap-2">
+				<div className="flex shrink-0 flex-col items-center justify-center gap-2">
 					{showPredictionScore && prediction ? (
 						<div className="flex items-center gap-3">
 							<span className="font-black font-display text-5xl tabular-nums leading-none">
@@ -337,7 +337,7 @@ export function Scorecard({
 				</div>
 
 				{/* Away team */}
-				<div className="flex flex-col items-center gap-2 sm:flex-row-reverse sm:gap-3">
+				<div className="flex min-w-0 flex-col items-center gap-2 sm:flex-row-reverse sm:gap-3">
 					<TeamCrest
 						crest={getCrest(
 							match.awayTeam?.shortName ?? "",
@@ -346,7 +346,7 @@ export function Scorecard({
 						name={awayName}
 					/>
 					<span
-						className="text-center font-bold font-display text-sm uppercase leading-tight tracking-wide sm:text-right sm:text-base"
+						className="min-w-0 truncate text-center font-bold font-display text-sm uppercase leading-tight tracking-wide sm:text-right sm:text-base"
 						style={{ color: "var(--b-text)" }}
 					>
 						{awayName}
