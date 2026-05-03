@@ -11,7 +11,10 @@ import { toast } from "sonner";
 
 import { getCrest } from "@/lib/crest-overrides";
 import { getPointsTier } from "@/lib/points-palette";
-import { abbreviateTeamName } from "@/lib/team-translations";
+import {
+	abbreviateTeamName,
+	translateTeamName,
+} from "@/lib/team-translations";
 import { LockCountdown } from "./lock-countdown";
 
 type Prediction = {
@@ -40,6 +43,7 @@ interface ScorecardProps {
 	match: Match;
 	prediction?: Prediction | null;
 	readOnly?: boolean;
+	compact?: boolean;
 	className?: string;
 }
 
@@ -157,6 +161,7 @@ export function Scorecard({
 	match,
 	prediction,
 	readOnly = false,
+	compact = false,
 	className,
 }: ScorecardProps) {
 	const upsert = useMutation(api.predictions.upsert);
@@ -226,8 +231,9 @@ export function Scorecard({
 			? `RODADA ${match.matchday}`
 			: match.stage.replace(/_/g, " ");
 
-	const homeName = abbreviateTeamName(match.homeTeam?.shortName ?? "");
-	const awayName = abbreviateTeamName(match.awayTeam?.shortName ?? "");
+	const formatName = compact ? abbreviateTeamName : translateTeamName;
+	const homeName = formatName(match.homeTeam?.shortName ?? "") || "TBD";
+	const awayName = formatName(match.awayTeam?.shortName ?? "") || "TBD";
 
 	const showPredictionScore =
 		(readOnly || isFinished) && prediction?.predictedHome != null;

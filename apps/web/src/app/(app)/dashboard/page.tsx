@@ -198,6 +198,7 @@ export default function DashboardPage() {
 											prediction={
 												predMap ? (predMap.get(m._id) ?? null) : undefined
 											}
+											compact
 										/>
 									</div>
 								) : null,
