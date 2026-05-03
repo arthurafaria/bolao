@@ -197,3 +197,77 @@ const translations: Record<string, string> = {
 export function translateTeamName(name: string): string {
 	return translations[name] ?? name;
 }
+
+const abbreviations: Record<string, string> = {
+	// Brasileirão Série A
+	"Atlético-MG": "CAM",
+	"Atlético Mineiro": "CAM",
+	Mineiro: "CAM",
+	"Athletico-PR": "CAP",
+	"Athletico Paranaense": "CAP",
+	Paranaense: "CAP",
+	Bahia: "BAH",
+	Botafogo: "BOT",
+	"Botafogo FR": "BOT",
+	Bragantino: "RBB",
+	"RB Bragantino": "RBB",
+	"Red Bull Bragantino": "RBB",
+	Ceará: "CEA",
+	Corinthians: "COR",
+	Cruzeiro: "CRU",
+	Flamengo: "FLA",
+	Fluminense: "FLU",
+	Fortaleza: "FOR",
+	Grêmio: "GRE",
+	Internacional: "INT",
+	Juventude: "JUV",
+	Mirassol: "MIR",
+	Palmeiras: "PAL",
+	Santos: "SAN",
+	"São Paulo": "SAO",
+	Sport: "SPT",
+	"Sport Recife": "SPT",
+	Vasco: "VAS",
+	"Vasco da Gama": "VAS",
+	Vitória: "VIT",
+
+	// Série B / outros recorrentes
+	Chapecoense: "CHA",
+	"América-MG": "AME",
+	"América Mineiro": "AME",
+	Coritiba: "CFC",
+	Cuiabá: "CUI",
+	Goiás: "GOI",
+	"Ponte Preta": "PON",
+	Avaí: "AVA",
+	Operário: "OPE",
+	"Operário-PR": "OPE",
+	"Athletic Club": "ATC",
+	"Volta Redonda": "VRE",
+	Novorizontino: "NOV",
+	"Botafogo-SP": "BSP",
+	Náutico: "NAU",
+	"Vila Nova": "VNO",
+	Guarani: "GUA",
+	Ituano: "ITU",
+	Paysandu: "PAY",
+	Remo: "REM",
+	"Clube do Remo": "REM",
+	Amazonas: "AMZ",
+	Criciúma: "CRI",
+	CRB: "CRB",
+};
+
+export function abbreviateTeamName(name: string): string {
+	if (!name) return "TBD";
+	const translated = translations[name] ?? name;
+	const direct = abbreviations[translated] ?? abbreviations[name];
+	if (direct) return direct;
+	const initials = translated
+		.split(/\s+/)
+		.filter(Boolean)
+		.map((w) => w[0])
+		.join("");
+	if (initials.length >= 3) return initials.slice(0, 3).toUpperCase();
+	return translated.slice(0, 3).toUpperCase();
+}

@@ -11,7 +11,7 @@ import { toast } from "sonner";
 
 import { getCrest } from "@/lib/crest-overrides";
 import { getPointsTier } from "@/lib/points-palette";
-import { translateTeamName } from "@/lib/team-translations";
+import { abbreviateTeamName } from "@/lib/team-translations";
 import { LockCountdown } from "./lock-countdown";
 
 type Prediction = {
@@ -226,8 +226,8 @@ export function Scorecard({
 			? `RODADA ${match.matchday}`
 			: match.stage.replace(/_/g, " ");
 
-	const homeName = translateTeamName(match.homeTeam?.shortName ?? "") || "TBD";
-	const awayName = translateTeamName(match.awayTeam?.shortName ?? "") || "TBD";
+	const homeName = abbreviateTeamName(match.homeTeam?.shortName ?? "");
+	const awayName = abbreviateTeamName(match.awayTeam?.shortName ?? "");
 
 	const showPredictionScore =
 		(readOnly || isFinished) && prediction?.predictedHome != null;
