@@ -1,7 +1,9 @@
 # Bolão da Copa — Plano de Implementação
 
-> Última atualização: 2026-04-24
-> Status geral: 🟢 MVP completo (Fases 0–9 implementadas, build limpo)
+> Última atualização: 2026-05-02
+> Status geral: 🟢 MVP completo (Fases 0–9) + Repaginação V1 (01/05) + Repaginação V2 (02/05)
+>
+> A repaginação visual segue em `PLANO_REPAGINACAO_FRONTEND.md` (V1) e `PLANO_REPAGINACAO_FRONTEND_V2.md` (V2). Esse plano técnico cobre só o backend/dados — telas internas estão num ciclo próprio de redesenho.
 
 ## Legenda
 - ✅ Implementado
