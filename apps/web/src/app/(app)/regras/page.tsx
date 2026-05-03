@@ -28,15 +28,15 @@ export default function RegrasPage() {
 		<div className="animate-fade-in">
 			{/* Header editorial */}
 			<header className="mb-8 flex flex-col gap-2">
-				<span className="text-eyebrow text-[var(--b-brand)]">
+				<span className="text-[var(--b-brand)] text-eyebrow">
 					Manual da casa
 				</span>
-				<h1 className="font-black font-display text-4xl uppercase leading-[0.9] tracking-tight text-[var(--b-text)] sm:text-6xl">
+				<h1 className="font-black font-display text-4xl text-[var(--b-text)] uppercase leading-[0.9] tracking-tight sm:text-6xl">
 					Regras do bolão
 				</h1>
 				<p className="max-w-2xl text-[var(--b-text-3)] text-sm leading-relaxed sm:text-base">
-					Tudo que você precisa saber pra somar pontos, fechar palpites no
-					prazo e dominar suas ligas.
+					Tudo que você precisa saber pra somar pontos, fechar palpites no prazo
+					e dominar suas ligas.
 				</p>
 			</header>
 
@@ -52,13 +52,13 @@ export default function RegrasPage() {
 					{/* Sistema de pontuação */}
 					<section
 						id="pontuacao"
-						className="scroll-mt-24 animate-slide-up space-y-5"
+						className="animate-slide-up scroll-mt-24 space-y-5"
 					>
 						<header>
-							<span className="text-eyebrow text-[var(--b-text-3)]">
+							<span className="text-[var(--b-text-3)] text-eyebrow">
 								Como você pontua
 							</span>
-							<h2 className="font-black font-display text-3xl uppercase tracking-tight text-[var(--b-text)]">
+							<h2 className="font-black font-display text-3xl text-[var(--b-text)] uppercase tracking-tight">
 								Sistema de pontuação
 							</h2>
 							<p className="mt-2 text-[var(--b-text-3)] text-sm leading-relaxed">
@@ -77,7 +77,7 @@ export default function RegrasPage() {
 
 						{/* Breakdown da fórmula */}
 						<div className="rounded-2xl border border-[var(--b-brand-25)] bg-[var(--b-brand-10)] p-5">
-							<p className="mb-3 text-eyebrow text-[var(--b-brand)]">
+							<p className="mb-3 text-[var(--b-brand)] text-eyebrow">
 								A fórmula
 							</p>
 							<ul className="space-y-2.5">
@@ -97,25 +97,28 @@ export default function RegrasPage() {
 					</section>
 
 					{/* Exemplos resultado certo */}
-					<section
-						id="exemplos-certo"
-						className="scroll-mt-24 space-y-5"
-					>
+					<section id="exemplos-certo" className="scroll-mt-24 space-y-5">
 						<header className="flex items-center gap-3">
 							<span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[var(--b-success-bg)] text-[var(--b-success)]">
 								<CheckCircle2 className="h-5 w-5" />
 							</span>
 							<div>
-								<span className="text-eyebrow text-[var(--b-text-3)]">
+								<span className="text-[var(--b-text-3)] text-eyebrow">
 									Caso 1
 								</span>
-								<h2 className="font-black font-display text-2xl uppercase tracking-tight text-[var(--b-text)] sm:text-3xl">
+								<h2 className="font-black font-display text-2xl text-[var(--b-text)] uppercase tracking-tight sm:text-3xl">
 									Acertou o resultado
 								</h2>
 							</div>
 						</header>
 
-						<RealMatchBox home="Brasil" away="Argentina" hs={2} as={1} winner="Brasil" />
+						<RealMatchBox
+							home="Brasil"
+							away="Argentina"
+							hs={2}
+							as={1}
+							winner="Brasil"
+						/>
 
 						<div className="space-y-2">
 							<ExampleRow
@@ -142,19 +145,16 @@ export default function RegrasPage() {
 					</section>
 
 					{/* Exemplos resultado errado */}
-					<section
-						id="exemplos-errado"
-						className="scroll-mt-24 space-y-5"
-					>
+					<section id="exemplos-errado" className="scroll-mt-24 space-y-5">
 						<header className="flex items-center gap-3">
 							<span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[var(--b-danger-bg)] text-[var(--b-danger)]">
 								<XCircle className="h-5 w-5" />
 							</span>
 							<div>
-								<span className="text-eyebrow text-[var(--b-text-3)]">
+								<span className="text-[var(--b-text-3)] text-eyebrow">
 									Caso 2
 								</span>
-								<h2 className="font-black font-display text-2xl uppercase tracking-tight text-[var(--b-text)] sm:text-3xl">
+								<h2 className="font-black font-display text-2xl text-[var(--b-text)] uppercase tracking-tight sm:text-3xl">
 									Errou o resultado
 								</h2>
 							</div>
@@ -165,7 +165,13 @@ export default function RegrasPage() {
 							cada time cujo número de gols você acertou.
 						</p>
 
-						<RealMatchBox home="Brasil" away="Argentina" hs={2} as={1} winner="Brasil" />
+						<RealMatchBox
+							home="Brasil"
+							away="Argentina"
+							hs={2}
+							as={1}
+							winner="Brasil"
+						/>
 
 						<div className="space-y-2">
 							<ExampleRow
@@ -193,10 +199,10 @@ export default function RegrasPage() {
 								<Clock className="h-5 w-5" />
 							</span>
 							<div>
-								<span className="text-eyebrow text-[var(--b-text-3)]">
+								<span className="text-[var(--b-text-3)] text-eyebrow">
 									Quando fecha
 								</span>
-								<h2 className="font-black font-display text-2xl uppercase tracking-tight text-[var(--b-text)] sm:text-3xl">
+								<h2 className="font-black font-display text-2xl text-[var(--b-text)] uppercase tracking-tight sm:text-3xl">
 									Prazo pra palpitar
 								</h2>
 							</div>
@@ -207,8 +213,8 @@ export default function RegrasPage() {
 								<strong className="text-[var(--b-text)]">
 									1 hora antes do início
 								</strong>{" "}
-								de cada jogo. Depois disso, o placar é bloqueado e não pode
-								mais ser alterado.
+								de cada jogo. Depois disso, o placar é bloqueado e não pode mais
+								ser alterado.
 							</p>
 							<p>
 								Os pontos são calculados automaticamente assim que o jogo
@@ -232,10 +238,10 @@ export default function RegrasPage() {
 								<Trophy className="h-5 w-5" />
 							</span>
 							<div>
-								<span className="text-eyebrow text-[var(--b-text-3)]">
+								<span className="text-[var(--b-text-3)] text-eyebrow">
 									Compita com amigos
 								</span>
-								<h2 className="font-black font-display text-2xl uppercase tracking-tight text-[var(--b-text)] sm:text-3xl">
+								<h2 className="font-black font-display text-2xl text-[var(--b-text)] uppercase tracking-tight sm:text-3xl">
 									Ligas privadas
 								</h2>
 							</div>
@@ -273,25 +279,23 @@ function RealMatchBox({
 }) {
 	return (
 		<div className="flex items-center justify-between gap-3 rounded-2xl border border-[var(--b-border-sm)] bg-[var(--b-inner)] p-4">
-			<span className="text-eyebrow text-[var(--b-text-3)]">Jogo real</span>
+			<span className="text-[var(--b-text-3)] text-eyebrow">Jogo real</span>
 			<div className="flex items-center gap-3">
-				<span className="font-bold font-display text-base uppercase text-[var(--b-text)]">
+				<span className="font-bold font-display text-[var(--b-text)] text-base uppercase">
 					{home}
 				</span>
-				<span className="font-black font-display text-3xl tabular-nums leading-none text-[var(--b-brand)]">
+				<span className="font-black font-display text-3xl text-[var(--b-brand)] tabular-nums leading-none">
 					{hs}
 				</span>
 				<span className="text-[var(--b-border-md)] text-xl">×</span>
-				<span className="font-black font-display text-3xl tabular-nums leading-none text-[var(--b-brand)]">
+				<span className="font-black font-display text-3xl text-[var(--b-brand)] tabular-nums leading-none">
 					{as}
 				</span>
-				<span className="font-bold font-display text-base uppercase text-[var(--b-text)]">
+				<span className="font-bold font-display text-[var(--b-text)] text-base uppercase">
 					{away}
 				</span>
 			</div>
-			<span className="text-[var(--b-text-3)] text-xs">
-				{winner} venceu
-			</span>
+			<span className="text-[var(--b-text-3)] text-xs">{winner} venceu</span>
 		</div>
 	);
 }

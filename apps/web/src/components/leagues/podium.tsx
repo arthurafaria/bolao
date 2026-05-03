@@ -64,7 +64,7 @@ export function Podium({ entries, className }: PodiumProps) {
 	return (
 		<div
 			className={cn(
-				"grid grid-cols-3 items-end gap-3 sm:gap-6 px-4",
+				"grid grid-cols-3 items-end gap-3 px-4 sm:gap-6",
 				className,
 			)}
 		>
@@ -82,7 +82,7 @@ export function Podium({ entries, className }: PodiumProps) {
 						>
 							{entry.position === 1 && (
 								<Crown
-									className="-top-7 -translate-x-1/2 absolute left-1/2 h-7 w-7 animate-float"
+									className="absolute -top-7 left-1/2 h-7 w-7 -translate-x-1/2 animate-float"
 									style={{
 										color: "var(--b-gold)",
 										filter: "drop-shadow(0 4px 8px rgba(0,0,0,0.25))",
@@ -103,7 +103,7 @@ export function Podium({ entries, className }: PodiumProps) {
 							) : (
 								<div
 									className={cn(
-										"flex items-center justify-center rounded-full font-black text-xl text-white ring-4",
+										"flex items-center justify-center rounded-full font-black text-white text-xl ring-4",
 										step.avatarSize,
 									)}
 									style={{
@@ -122,7 +122,7 @@ export function Podium({ entries, className }: PodiumProps) {
 							className="flex animate-podium-rise flex-col items-center gap-0.5 text-center"
 							style={{ animationDelay: step.delay }}
 						>
-							<span className="line-clamp-1 max-w-full font-bold font-display text-sm uppercase tracking-tight text-[var(--b-text)]">
+							<span className="line-clamp-1 max-w-full font-bold font-display text-[var(--b-text)] text-sm uppercase tracking-tight">
 								{entry.name}
 							</span>
 							<span

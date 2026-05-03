@@ -96,7 +96,7 @@ export function BentoTileEyebrow({
 	return (
 		<p
 			className={cn(
-				"text-eyebrow text-[var(--b-text-3)]",
+				"text-[var(--b-text-3)] text-eyebrow",
 				"data-[variant='dark']/tile:text-white/60",
 				className,
 			)}
@@ -123,7 +123,7 @@ export function BentoTileFooter({
 	return (
 		<div
 			className={cn(
-				"mt-auto flex items-center justify-between gap-2 text-xs text-[var(--b-text-3)]",
+				"mt-auto flex items-center justify-between gap-2 text-[var(--b-text-3)] text-xs",
 				className,
 			)}
 			{...props}

@@ -173,10 +173,10 @@ function JoinLeagueCard() {
 					<KeyRound className="h-5 w-5" />
 				</span>
 				<div>
-					<span className="text-eyebrow text-[var(--b-text-3)]">
+					<span className="text-[var(--b-text-3)] text-eyebrow">
 						Tem um convite?
 					</span>
-					<h3 className="font-bold font-display text-base uppercase tracking-tight text-[var(--b-text)]">
+					<h3 className="font-bold font-display text-[var(--b-text)] text-base uppercase tracking-tight">
 						Entrar por código
 					</h3>
 				</div>
@@ -187,7 +187,7 @@ function JoinLeagueCard() {
 					value={code}
 					onChange={(e) => setCode(e.target.value.toUpperCase())}
 					maxLength={6}
-					className="font-mono text-center text-base uppercase tracking-[0.4em]"
+					className="text-center font-mono text-base uppercase tracking-[0.4em]"
 				/>
 				<Button
 					type="submit"
@@ -214,14 +214,14 @@ export default function LeaguesPage() {
 		leagues?.reduce((acc, l) => acc + (l?.memberCount ?? 0), 0) ?? 0;
 
 	return (
-		<div className="space-y-7 animate-fade-in">
+		<div className="animate-fade-in space-y-7">
 			{/* Header editorial */}
 			<header className="flex flex-wrap items-end justify-between gap-4">
 				<div className="flex flex-col">
-					<span className="text-eyebrow text-[var(--b-brand)]">
+					<span className="text-[var(--b-brand)] text-eyebrow">
 						Onde você compete
 					</span>
-					<h1 className="font-black font-display text-4xl uppercase leading-[0.9] tracking-tight text-[var(--b-text)] sm:text-5xl">
+					<h1 className="font-black font-display text-4xl text-[var(--b-text)] uppercase leading-[0.9] tracking-tight sm:text-5xl">
 						Suas ligas
 					</h1>
 					<p className="mt-1 text-[var(--b-text-3)] text-sm">
@@ -236,7 +236,10 @@ export default function LeaguesPage() {
 				<div className="grid grid-cols-3 gap-3 rounded-[24px] border border-[var(--b-border-sm)] bg-[var(--b-card)] p-4">
 					<MiniStat label="Ligas" value={totalLeagues} />
 					<MiniStat label="Pontos somados" value={totalPoints} />
-					<MiniStat label="Adversários" value={Math.max(0, totalMembers - totalLeagues)} />
+					<MiniStat
+						label="Adversários"
+						value={Math.max(0, totalMembers - totalLeagues)}
+					/>
 				</div>
 			)}
 
@@ -247,10 +250,10 @@ export default function LeaguesPage() {
 			<section>
 				<header className="mb-4 flex items-end justify-between gap-3">
 					<div>
-						<span className="text-eyebrow text-[var(--b-text-3)]">
+						<span className="text-[var(--b-text-3)] text-eyebrow">
 							Suas disputas
 						</span>
-						<h2 className="font-black font-display text-2xl uppercase tracking-tight text-[var(--b-text)]">
+						<h2 className="font-black font-display text-2xl text-[var(--b-text)] uppercase tracking-tight">
 							Minhas ligas
 						</h2>
 					</div>
@@ -262,14 +265,14 @@ export default function LeaguesPage() {
 						<Skeleton className="h-36 rounded-[24px]" />
 					</div>
 				) : leagues.length === 0 ? (
-					<div className="flex flex-col items-center gap-3 rounded-[28px] border border-dashed border-[var(--b-border-md)] bg-[var(--b-card)] p-12 text-center">
+					<div className="flex flex-col items-center gap-3 rounded-[28px] border border-[var(--b-border-md)] border-dashed bg-[var(--b-card)] p-12 text-center">
 						<Trophy className="h-10 w-10 text-[var(--b-text-4)]" />
 						<p className="font-bold font-display text-[var(--b-text)] text-lg uppercase tracking-tight">
 							Sem liga ainda
 						</p>
 						<p className="max-w-md text-[var(--b-text-3)] text-sm leading-relaxed">
-							Crie uma liga pra disputar com seus amigos ou entre numa
-							existente com o código de convite.
+							Crie uma liga pra disputar com seus amigos ou entre numa existente
+							com o código de convite.
 						</p>
 					</div>
 				) : (
@@ -301,7 +304,7 @@ export default function LeaguesPage() {
 function MiniStat({ label, value }: { label: string; value: number }) {
 	return (
 		<div className="flex flex-col items-center gap-0.5">
-			<span className="font-black font-display text-2xl tabular-nums leading-none text-[var(--b-text)] sm:text-3xl">
+			<span className="font-black font-display text-2xl text-[var(--b-text)] tabular-nums leading-none sm:text-3xl">
 				{value}
 			</span>
 			<span className="text-[10px] text-[var(--b-text-4)] uppercase tracking-wider">
@@ -341,7 +344,7 @@ function LeagueCard({
 						<Trophy className="h-5 w-5" />
 					</span>
 					<div className="flex flex-col">
-						<h3 className="line-clamp-1 font-bold font-display text-base uppercase tracking-tight text-[var(--b-text)]">
+						<h3 className="line-clamp-1 font-bold font-display text-[var(--b-text)] text-base uppercase tracking-tight">
 							{name}
 						</h3>
 						<span className="inline-flex items-center gap-1.5 text-[var(--b-text-3)] text-xs">
@@ -366,7 +369,7 @@ function LeagueCard({
 					<span className="text-[10px] text-[var(--b-text-4)] uppercase tracking-wider">
 						Seus pontos
 					</span>
-					<span className="font-black font-display text-3xl tabular-nums leading-none text-[var(--b-text)]">
+					<span className="font-black font-display text-3xl text-[var(--b-text)] tabular-nums leading-none">
 						{points}
 					</span>
 				</div>

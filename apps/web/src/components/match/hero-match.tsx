@@ -157,7 +157,9 @@ export function HeroMatch({
 			{/* CTA */}
 			<div className="flex flex-col items-center gap-3 border-white/10 border-t px-6 py-4 sm:flex-row sm:justify-between">
 				<span className="text-white/70 text-xs uppercase tracking-wider">
-					{hasPrediction ? "Você já palpitou — pode editar" : "Sem palpite ainda"}
+					{hasPrediction
+						? "Você já palpitou — pode editar"
+						: "Sem palpite ainda"}
 				</span>
 				<Link
 					href="/predictions"

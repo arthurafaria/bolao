@@ -134,7 +134,7 @@ export function PointsMeter({ className }: { className?: string }) {
 						<span className="text-[10px] text-[var(--b-text-4)] uppercase tracking-wider">
 							Seu palpite
 						</span>
-						<span className="font-black font-display text-2xl tabular-nums text-[var(--b-text)]">
+						<span className="font-black font-display text-2xl text-[var(--b-text)] tabular-nums">
 							{tier.example.palpite}
 						</span>
 					</div>
@@ -145,7 +145,7 @@ export function PointsMeter({ className }: { className?: string }) {
 						<span className="text-[10px] text-[var(--b-text-4)] uppercase tracking-wider">
 							Resultado real
 						</span>
-						<span className="font-black font-display text-2xl tabular-nums text-[var(--b-text)]">
+						<span className="font-black font-display text-2xl text-[var(--b-text)] tabular-nums">
 							{tier.example.resultado}
 						</span>
 					</div>

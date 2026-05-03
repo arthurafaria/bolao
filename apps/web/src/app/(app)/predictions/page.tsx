@@ -13,14 +13,16 @@ import {
 import { Skeleton } from "@bolao/ui/components/skeleton";
 import { useQuery } from "convex/react";
 import type { FunctionReturnType } from "convex/server";
-import { CalendarOff, History, HelpCircle, Target, Trophy } from "lucide-react";
+import { CalendarOff, HelpCircle, History, Target, Trophy } from "lucide-react";
 import { useMemo, useState } from "react";
 
 import { DayHeader } from "@/components/match/day-header";
 import { Scorecard } from "@/components/match/scorecard";
 import { useTournament } from "@/contexts/tournament-context";
 
-type Match = NonNullable<FunctionReturnType<typeof api.matches.getAllByDate>[number]>;
+type Match = NonNullable<
+	FunctionReturnType<typeof api.matches.getAllByDate>[number]
+>;
 
 type FilterTab = "pending" | "upcoming" | "history";
 
@@ -44,8 +46,7 @@ function groupByDay(matches: Match[]): [string, Date, Match[]][] {
 	}
 	return Array.from(map.entries()).map(([key, { date, matches }]) => {
 		const sorted = [...matches].sort(
-			(a, b) =>
-				new Date(a.utcDate).getTime() - new Date(b.utcDate).getTime(),
+			(a, b) => new Date(a.utcDate).getTime() - new Date(b.utcDate).getTime(),
 		);
 		return [key, date, sorted];
 	});
@@ -60,8 +61,7 @@ function getNextRoundMatches(matches: Match[]): Match[] {
 
 	if (first.matchday != null) {
 		return sorted.filter(
-			(m) =>
-				m.stage === first.stage && m.matchday === first.matchday,
+			(m) => m.stage === first.stage && m.matchday === first.matchday,
 		);
 	}
 
@@ -93,7 +93,7 @@ function DemoTutorialSheet() {
 		{
 			n: 2,
 			title: "Salve seu palpite",
-			desc: "Clique em \"Salvar palpite\" para confirmar. Você pode alterar até 1 hora antes do jogo começar.",
+			desc: 'Clique em "Salvar palpite" para confirmar. Você pode alterar até 1 hora antes do jogo começar.',
 		},
 		{
 			n: 3,
@@ -103,7 +103,7 @@ function DemoTutorialSheet() {
 		{
 			n: 4,
 			title: "Dispute em ligas",
-			desc: "Crie ou entre em uma liga em \"Ligas\" para competir com seus amigos em tempo real.",
+			desc: 'Crie ou entre em uma liga em "Ligas" para competir com seus amigos em tempo real.',
 		},
 	];
 	return (
@@ -121,7 +121,7 @@ function DemoTutorialSheet() {
 			</SheetTrigger>
 			<SheetContent side="right" className="bg-[var(--b-card)]">
 				<SheetHeader className="px-6 pt-6">
-					<SheetTitle className="font-black font-display text-2xl uppercase tracking-tight text-[var(--b-text)]">
+					<SheetTitle className="font-black font-display text-2xl text-[var(--b-text)] uppercase tracking-tight">
 						Como funciona
 					</SheetTitle>
 					<SheetDescription className="text-[var(--b-text-3)] text-sm">
@@ -215,8 +215,7 @@ export default function PredictionsPage() {
 	const sortedActive = useMemo(() => {
 		const list = [...activeMatches];
 		list.sort(
-			(a, b) =>
-				new Date(a.utcDate).getTime() - new Date(b.utcDate).getTime(),
+			(a, b) => new Date(a.utcDate).getTime() - new Date(b.utcDate).getTime(),
 		);
 		if (tab === "history") list.reverse();
 		return list;
@@ -230,14 +229,14 @@ export default function PredictionsPage() {
 	const isLoading = matches === undefined || predMap === undefined;
 
 	return (
-		<div className="space-y-6 animate-fade-in">
+		<div className="animate-fade-in space-y-6">
 			{/* Header */}
 			<header className="flex flex-wrap items-end justify-between gap-3">
 				<div className="flex flex-col">
-					<span className="text-eyebrow text-[var(--b-brand)]">
+					<span className="text-[var(--b-brand)] text-eyebrow">
 						Sua mesa de palpites
 					</span>
-					<h1 className="font-black font-display text-4xl uppercase leading-[0.9] tracking-tight text-[var(--b-text)] sm:text-5xl">
+					<h1 className="font-black font-display text-4xl text-[var(--b-text)] uppercase leading-[0.9] tracking-tight sm:text-5xl">
 						Palpites
 					</h1>
 					<p className="mt-1 text-[var(--b-text-3)] text-sm">
@@ -350,7 +349,7 @@ function EmptyByTab({ tab }: { tab: FilterTab }) {
 	};
 	const { icon: Icon, title, desc } = config[tab];
 	return (
-		<div className="flex flex-col items-center gap-3 rounded-[28px] border border-dashed border-[var(--b-border-md)] bg-[var(--b-card)] p-12 text-center">
+		<div className="flex flex-col items-center gap-3 rounded-[28px] border border-[var(--b-border-md)] border-dashed bg-[var(--b-card)] p-12 text-center">
 			<Icon className="h-10 w-10 text-[var(--b-text-4)]" />
 			<p className="font-bold font-display text-[var(--b-text)] text-lg uppercase tracking-tight">
 				{title}

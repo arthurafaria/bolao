@@ -39,7 +39,7 @@ export function RuleToc({ items, className }: RuleTocProps) {
 
 	return (
 		<nav className={cn("flex flex-col gap-1", className)} aria-label="Sumário">
-			<span className="mb-2 text-eyebrow text-[var(--b-text-3)]">Sumário</span>
+			<span className="mb-2 text-[var(--b-text-3)] text-eyebrow">Sumário</span>
 			{items.map((it) => {
 				const isActive = it.id === active;
 				return (

@@ -58,13 +58,13 @@ export function DayHeader({
 				<div className="flex items-baseline gap-2">
 					<span
 						className={cn(
-							"font-bold font-display text-2xl uppercase tracking-tight leading-none sm:text-3xl",
+							"font-bold font-display text-2xl uppercase leading-none tracking-tight sm:text-3xl",
 							isToday ? "text-[var(--b-brand)]" : "text-[var(--b-text)]",
 						)}
 					>
 						{label}
 					</span>
-					<span className="text-eyebrow text-[var(--b-text-3)]">
+					<span className="text-[var(--b-text-3)] text-eyebrow">
 						{day} {month}
 					</span>
 				</div>

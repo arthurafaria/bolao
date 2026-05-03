@@ -250,20 +250,16 @@ export function Scorecard({
 		>
 			{/* Top strip */}
 			<div className="flex items-center justify-between gap-2 border-[var(--b-border-sm)] border-b bg-[var(--b-tint)] px-4 py-2">
-				<span className="text-eyebrow text-[var(--b-text-3)]">
+				<span className="text-[var(--b-text-3)] text-eyebrow">
 					{stageLabel}
 				</span>
 				<div className="flex items-center gap-2">
 					<span className="font-mono font-semibold text-[var(--b-text-3)] text-xs tabular-nums">
 						{timeStr}
 					</span>
-					{!isLocked && !isFinished && (
-						<LockCountdown kickoff={matchDate} />
-					)}
+					{!isLocked && !isFinished && <LockCountdown kickoff={matchDate} />}
 					{isLocked && !isFinished && (
-						<span className="text-[var(--b-text-4)] text-eyebrow">
-							Fechado
-						</span>
+						<span className="text-[var(--b-text-4)] text-eyebrow">Fechado</span>
 					)}
 					{isFinished && (
 						<span className="text-[var(--b-success)] text-eyebrow">

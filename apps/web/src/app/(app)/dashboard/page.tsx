@@ -44,9 +44,9 @@ function SectionTitle({
 		<div className="mb-4 flex items-end justify-between gap-3">
 			<div>
 				{eyebrow && (
-					<span className="text-eyebrow text-[var(--b-text-3)]">{eyebrow}</span>
+					<span className="text-[var(--b-text-3)] text-eyebrow">{eyebrow}</span>
 				)}
-				<h2 className="font-black font-display text-2xl uppercase tracking-tight text-[var(--b-text)] sm:text-3xl">
+				<h2 className="font-black font-display text-2xl text-[var(--b-text)] uppercase tracking-tight sm:text-3xl">
 					{title}
 				</h2>
 			</div>
@@ -77,31 +77,32 @@ export default function DashboardPage() {
 
 	const heroMatch = upcoming?.find(Boolean) ?? null;
 	const heroHasPrediction = heroMatch ? predMap?.has(heroMatch._id) : false;
-	const restMatches = upcoming?.filter((m) => m && m._id !== heroMatch?._id) ?? [];
+	const restMatches =
+		upcoming?.filter((m) => m && m._id !== heroMatch?._id) ?? [];
 
 	const totalPoints = stats?.totalPoints ?? 0;
 	const totalPredictions = stats?.total ?? 0;
 	const exact = stats?.exact ?? 0;
 	const correct = stats?.correct ?? 0;
 	const accuracy =
-		totalPredictions > 0
-			? Math.round((correct / totalPredictions) * 100)
-			: 0;
+		totalPredictions > 0 ? Math.round((correct / totalPredictions) * 100) : 0;
 
 	// Top liga (maior pontuação do usuário)
 	const topLeague = useMemo(() => {
 		if (!leagues || leagues.length === 0) return null;
-		return [...leagues].sort((a, b) => (b?.myPoints ?? 0) - (a?.myPoints ?? 0))[0];
+		return [...leagues].sort(
+			(a, b) => (b?.myPoints ?? 0) - (a?.myPoints ?? 0),
+		)[0];
 	}, [leagues]);
 
 	return (
-		<div className="space-y-8 animate-fade-in">
+		<div className="animate-fade-in space-y-8">
 			{/* Header editorial */}
 			<header className="flex flex-col gap-2">
-				<span className="text-eyebrow text-[var(--b-brand)]">
+				<span className="text-[var(--b-brand)] text-eyebrow">
 					{COMPETITIONS[tournament].label} · {COMPETITIONS[tournament].sublabel}
 				</span>
-				<h1 className="font-black font-display text-5xl uppercase leading-[0.9] tracking-tight text-[var(--b-text)] sm:text-6xl">
+				<h1 className="font-black font-display text-5xl text-[var(--b-text)] uppercase leading-[0.9] tracking-tight sm:text-6xl">
 					Bem-vindo
 					<br />
 					<span className="text-[var(--b-brand)]">ao seu painel</span>
@@ -114,7 +115,7 @@ export default function DashboardPage() {
 			) : upcoming === undefined ? (
 				<Skeleton className="h-[280px] w-full rounded-[32px]" />
 			) : (
-				<div className="flex flex-col items-center gap-3 rounded-[32px] border border-dashed border-[var(--b-border-md)] p-12 text-center">
+				<div className="flex flex-col items-center gap-3 rounded-[32px] border border-[var(--b-border-md)] border-dashed p-12 text-center">
 					<Shield className="h-10 w-10 text-[var(--b-text-4)]" />
 					<p className="font-bold font-display text-[var(--b-text-3)] text-lg uppercase tracking-tight">
 						Sem jogos agendados
@@ -135,9 +136,7 @@ export default function DashboardPage() {
 						value={totalPoints}
 						icon={Trophy}
 						variant="accent"
-						footer={
-							<span>Total acumulado</span>
-						}
+						footer={<span>Total acumulado</span>}
 					/>
 					<StatTile
 						label="Palpites"
@@ -180,7 +179,7 @@ export default function DashboardPage() {
 							<Skeleton className="h-[140px] w-full rounded-[24px]" />
 						</div>
 					) : restMatches.length === 0 ? (
-						<div className="flex flex-col items-center gap-2 rounded-[24px] border border-dashed border-[var(--b-border-md)] p-8 text-center">
+						<div className="flex flex-col items-center gap-2 rounded-[24px] border border-[var(--b-border-md)] border-dashed p-8 text-center">
 							<CalendarClock className="h-8 w-8 text-[var(--b-text-4)]" />
 							<p className="text-[var(--b-text-3)] text-sm">
 								Sem outros jogos agendados no momento
@@ -193,10 +192,7 @@ export default function DashboardPage() {
 						>
 							{restMatches.map((m, i) =>
 								m ? (
-									<div
-										key={m._id}
-										style={{ ["--i" as string]: i }}
-									>
+									<div key={m._id} style={{ ["--i" as string]: i }}>
 										<Scorecard
 											match={m}
 											prediction={
@@ -229,7 +225,7 @@ export default function DashboardPage() {
 									</span>
 								</BentoTileHeader>
 								<BentoTileBody>
-									<span className="font-black font-display text-6xl tabular-nums leading-none text-white">
+									<span className="font-black font-display text-6xl text-white tabular-nums leading-none">
 										{topLeague.myPoints}
 									</span>
 								</BentoTileBody>
@@ -273,7 +269,7 @@ export default function DashboardPage() {
 														{league.memberCount} membros
 													</span>
 												</div>
-												<span className="font-black font-display text-2xl tabular-nums text-[var(--b-text)]">
+												<span className="font-black font-display text-2xl text-[var(--b-text)] tabular-nums">
 													{league.myPoints}
 												</span>
 											</Link>
@@ -291,7 +287,7 @@ export default function DashboardPage() {
 								<Trophy className="h-5 w-5 text-[var(--b-brand)]" />
 							</BentoTileHeader>
 							<BentoTileBody>
-								<p className="font-bold font-display text-xl uppercase tracking-tight text-[var(--b-text)]">
+								<p className="font-bold font-display text-[var(--b-text)] text-xl uppercase tracking-tight">
 									Sem liga ainda?
 								</p>
 								<p className="text-[var(--b-text-3)] text-sm leading-relaxed">

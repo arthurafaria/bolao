@@ -20,7 +20,13 @@ const ADMIN_EMAIL = "arthurdearaujofaria@gmail.com";
 
 type RunState = "idle" | "running" | "done" | "error";
 
-function ResultLog({ state, result }: { state: RunState; result: string | null }) {
+function ResultLog({
+	state,
+	result,
+}: {
+	state: RunState;
+	result: string | null;
+}) {
 	if (!result) return null;
 	const isError = state === "error";
 	return (
@@ -218,7 +224,7 @@ export default function AdminPage() {
 
 	if (currentUser?.email !== ADMIN_EMAIL) {
 		return (
-			<div className="flex flex-col items-center gap-3 rounded-[28px] border border-dashed border-[var(--b-border-md)] bg-[var(--b-card)] p-12 text-center">
+			<div className="flex flex-col items-center gap-3 rounded-[28px] border border-[var(--b-border-md)] border-dashed bg-[var(--b-card)] p-12 text-center">
 				<Lock className="h-10 w-10 text-[var(--b-text-4)]" />
 				<p className="font-bold font-display text-[var(--b-text)] text-lg uppercase tracking-tight">
 					Acesso restrito
@@ -232,14 +238,14 @@ export default function AdminPage() {
 	}
 
 	return (
-		<div className="space-y-7 animate-fade-in">
+		<div className="animate-fade-in space-y-7">
 			{/* Header */}
 			<header className="flex flex-wrap items-end justify-between gap-3">
 				<div className="flex flex-col">
-					<span className="text-eyebrow text-[var(--b-brand)]">
+					<span className="text-[var(--b-brand)] text-eyebrow">
 						Painel operacional
 					</span>
-					<h1 className="font-black font-display text-4xl uppercase leading-[0.9] tracking-tight text-[var(--b-text)] sm:text-5xl">
+					<h1 className="font-black font-display text-4xl text-[var(--b-text)] uppercase leading-[0.9] tracking-tight sm:text-5xl">
 						Admin
 					</h1>
 					<p className="mt-1 text-[var(--b-text-3)] text-sm">
@@ -255,10 +261,10 @@ export default function AdminPage() {
 			{/* Sincronização */}
 			<section>
 				<header className="mb-4">
-					<span className="text-eyebrow text-[var(--b-text-3)]">
+					<span className="text-[var(--b-text-3)] text-eyebrow">
 						football-data.org
 					</span>
-					<h2 className="font-black font-display text-2xl uppercase tracking-tight text-[var(--b-text)]">
+					<h2 className="font-black font-display text-2xl text-[var(--b-text)] uppercase tracking-tight">
 						Sincronização
 					</h2>
 				</header>
@@ -281,10 +287,8 @@ export default function AdminPage() {
 			{/* Recomputo */}
 			<section>
 				<header className="mb-4">
-					<span className="text-eyebrow text-[var(--b-text-3)]">
-						Pontuação
-					</span>
-					<h2 className="font-black font-display text-2xl uppercase tracking-tight text-[var(--b-text)]">
+					<span className="text-[var(--b-text-3)] text-eyebrow">Pontuação</span>
+					<h2 className="font-black font-display text-2xl text-[var(--b-text)] uppercase tracking-tight">
 						Recomputação
 					</h2>
 				</header>
@@ -301,10 +305,10 @@ export default function AdminPage() {
 			{/* Correção manual */}
 			<section>
 				<header className="mb-4">
-					<span className="text-eyebrow text-[var(--b-text-3)]">
+					<span className="text-[var(--b-text-3)] text-eyebrow">
 						Hotfix manual
 					</span>
-					<h2 className="font-black font-display text-2xl uppercase tracking-tight text-[var(--b-text)]">
+					<h2 className="font-black font-display text-2xl text-[var(--b-text)] uppercase tracking-tight">
 						Correção
 					</h2>
 				</header>
@@ -316,8 +320,8 @@ export default function AdminPage() {
 				<div className="flex items-start gap-3">
 					<Terminal className="mt-0.5 h-4 w-4 shrink-0 text-[var(--b-text-3)]" />
 					<p className="text-[var(--b-text-3)] text-xs leading-relaxed">
-						Ações destrutivas pedem confirmação. Logs aparecem inline depois
-						que cada ação termina. Em caso de falha, abra os DevTools — o erro
+						Ações destrutivas pedem confirmação. Logs aparecem inline depois que
+						cada ação termina. Em caso de falha, abra os DevTools — o erro
 						completo aparece no toast e no card.
 					</p>
 				</div>

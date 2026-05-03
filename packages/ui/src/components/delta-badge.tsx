@@ -36,9 +36,7 @@ export function DeltaBadge({
 				: "text-[var(--b-text-4)]";
 
 	const sizing =
-		size === "sm"
-			? "h-5 px-1.5 text-[10px] gap-0.5"
-			: "h-6 px-2 text-xs gap-1";
+		size === "sm" ? "h-5 px-1.5 text-[10px] gap-0.5" : "h-6 px-2 text-xs gap-1";
 
 	const display = isFlat ? "0" : `${isUp ? "+" : ""}${value}`;
 

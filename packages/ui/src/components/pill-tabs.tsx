@@ -37,9 +37,8 @@ export function PillTabs<T extends string>({
 	useEffect(() => {
 		const container = containerRef.current;
 		if (!container) return;
-		const el = container.querySelector<HTMLButtonElement>(
-			`[data-active="true"]`,
-		);
+		const el =
+			container.querySelector<HTMLButtonElement>(`[data-active="true"]`);
 		if (!el) return;
 		setPillStyle({
 			left: el.offsetLeft,
@@ -48,8 +47,7 @@ export function PillTabs<T extends string>({
 	}, [value, items]);
 
 	const padding = size === "sm" ? "p-1" : "p-1.5";
-	const buttonSize =
-		size === "sm" ? "h-8 px-3 text-xs" : "h-10 px-4 text-sm";
+	const buttonSize = size === "sm" ? "h-8 px-3 text-xs" : "h-10 px-4 text-sm";
 
 	return (
 		<div

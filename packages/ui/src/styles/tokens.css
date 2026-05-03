@@ -211,8 +211,7 @@
 	/* Sombras editoriais */
 	--b-shadow-card-hard: 4px 4px 0 var(--b-brand);
 	--b-shadow-card-soft:
-		0 12px 32px oklch(0.3 0.12 145 / 0.1),
-		0 2px 4px oklch(0.3 0.12 145 / 0.06);
+		0 12px 32px oklch(0.3 0.12 145 / 0.1), 0 2px 4px oklch(0.3 0.12 145 / 0.06);
 
 	/* Gradientes editoriais */
 	--g-editorial-dark: linear-gradient(
@@ -225,7 +224,8 @@
 		oklch(0.46 0.22 145 / 0.85) 0%,
 		oklch(0.3 0.18 145 / 0.95) 100%
 	);
-	--g-hero-match: radial-gradient(
+	--g-hero-match:
+		radial-gradient(
 			ellipse 80% 60% at 50% 50%,
 			oklch(0.5 0.22 145 / 0.4) 0%,
 			transparent 70%
@@ -376,8 +376,7 @@
 	/* Sombras editoriais */
 	--b-shadow-card-hard: 4px 4px 0 var(--b-brand);
 	--b-shadow-card-soft:
-		0 12px 32px oklch(0.05 0.02 145 / 0.5),
-		0 2px 4px oklch(0.05 0.02 145 / 0.3);
+		0 12px 32px oklch(0.05 0.02 145 / 0.5), 0 2px 4px oklch(0.05 0.02 145 / 0.3);
 
 	/* Gradientes editoriais */
 	--g-editorial-dark: linear-gradient(
@@ -390,7 +389,8 @@
 		oklch(0.5 0.22 145 / 0.7) 0%,
 		oklch(0.18 0.08 145 / 0.95) 100%
 	);
-	--g-hero-match: radial-gradient(
+	--g-hero-match:
+		radial-gradient(
 			ellipse 80% 60% at 50% 50%,
 			oklch(0.5 0.22 145 / 0.45) 0%,
 			transparent 70%

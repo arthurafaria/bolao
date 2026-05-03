@@ -86,7 +86,7 @@ export default function ProfilePage() {
 	}
 
 	return (
-		<div className="space-y-7 animate-fade-in">
+		<div className="animate-fade-in space-y-7">
 			{/* Hero — carteirinha */}
 			<section
 				className="relative overflow-hidden rounded-[32px] border border-[var(--b-border-sm)] bg-[var(--b-card)] p-6 shadow-[var(--b-shadow-card-soft)] sm:p-8"
@@ -98,7 +98,7 @@ export default function ProfilePage() {
 				{/* Textura dots no fundo */}
 				<div
 					aria-hidden
-					className="-z-0 pointer-events-none absolute inset-0 opacity-30"
+					className="pointer-events-none absolute inset-0 -z-0 opacity-30"
 					style={{
 						backgroundImage:
 							"radial-gradient(circle, oklch(0.46 0.22 145 / 0.18) 1px, transparent 1.5px)",
@@ -117,7 +117,7 @@ export default function ProfilePage() {
 
 					{/* Nome / email */}
 					<div className="flex min-w-0 flex-1 flex-col gap-1">
-						<span className="text-eyebrow text-[var(--b-brand)]">
+						<span className="text-[var(--b-brand)] text-eyebrow">
 							Sua carteirinha
 						</span>
 						{editingName ? (
@@ -157,7 +157,7 @@ export default function ProfilePage() {
 							</div>
 						) : (
 							<div className="flex items-center gap-2">
-								<h1 className="line-clamp-1 font-black font-display text-3xl uppercase leading-[0.95] tracking-tight text-[var(--b-text)] sm:text-5xl">
+								<h1 className="line-clamp-1 font-black font-display text-3xl text-[var(--b-text)] uppercase leading-[0.95] tracking-tight sm:text-5xl">
 									{displayName}
 								</h1>
 								<button
@@ -181,11 +181,7 @@ export default function ProfilePage() {
 
 				{/* Stats inline (resumo bem grande) */}
 				<div className="relative z-10 mt-6 grid grid-cols-3 gap-3 border-[var(--b-border-sm)] border-t pt-5">
-					<HeroStat
-						label="Pontos"
-						value={stats?.totalPoints ?? 0}
-						accent
-					/>
+					<HeroStat label="Pontos" value={stats?.totalPoints ?? 0} accent />
 					<HeroStat label="Palpites" value={stats?.total ?? 0} />
 					<HeroStat label="Ligas" value={leagues?.length ?? 0} />
 				</div>
@@ -195,10 +191,10 @@ export default function ProfilePage() {
 			<section>
 				<header className="mb-4 flex items-end justify-between gap-3">
 					<div>
-						<span className="text-eyebrow text-[var(--b-text-3)]">
+						<span className="text-[var(--b-text-3)] text-eyebrow">
 							Sua performance
 						</span>
-						<h2 className="font-black font-display text-2xl uppercase tracking-tight text-[var(--b-text)]">
+						<h2 className="font-black font-display text-2xl text-[var(--b-text)] uppercase tracking-tight">
 							Números frios
 						</h2>
 					</div>
@@ -210,23 +206,14 @@ export default function ProfilePage() {
 						icon={Trophy}
 						variant="accent"
 					/>
-					<StatTile
-						label="Palpites"
-						value={stats?.total ?? 0}
-						icon={Target}
-					/>
+					<StatTile label="Palpites" value={stats?.total ?? 0} icon={Target} />
 					<StatTile
 						label="Exatos"
 						value={stats?.exact ?? 0}
 						icon={Crosshair}
 						variant={(stats?.exact ?? 0) > 0 ? "gold" : "default"}
 					/>
-					<StatTile
-						label="Precisão"
-						value={accuracy}
-						suffix="%"
-						icon={Flame}
-					/>
+					<StatTile label="Precisão" value={accuracy} suffix="%" icon={Flame} />
 				</div>
 			</section>
 
@@ -235,14 +222,14 @@ export default function ProfilePage() {
 				<section className="rounded-[28px] border border-[var(--b-border-sm)] bg-[var(--b-card)] p-6 shadow-[var(--b-shadow-card-soft)]">
 					<header className="mb-4 flex items-end justify-between gap-3">
 						<div>
-							<span className="text-eyebrow text-[var(--b-text-3)]">
+							<span className="text-[var(--b-text-3)] text-eyebrow">
 								Acertos / Palpites
 							</span>
-							<h2 className="font-black font-display text-2xl uppercase tracking-tight text-[var(--b-text)]">
+							<h2 className="font-black font-display text-2xl text-[var(--b-text)] uppercase tracking-tight">
 								Taxa de acerto
 							</h2>
 						</div>
-						<span className="font-black font-display text-5xl tabular-nums leading-none text-[var(--b-brand)] sm:text-6xl">
+						<span className="font-black font-display text-5xl text-[var(--b-brand)] tabular-nums leading-none sm:text-6xl">
 							{accuracy}%
 						</span>
 					</header>
@@ -274,10 +261,10 @@ export default function ProfilePage() {
 				<section>
 					<header className="mb-4 flex items-end justify-between gap-3">
 						<div>
-							<span className="text-eyebrow text-[var(--b-text-3)]">
+							<span className="text-[var(--b-text-3)] text-eyebrow">
 								Onde você compete
 							</span>
-							<h2 className="font-black font-display text-2xl uppercase tracking-tight text-[var(--b-text)]">
+							<h2 className="font-black font-display text-2xl text-[var(--b-text)] uppercase tracking-tight">
 								Minhas ligas
 							</h2>
 						</div>
@@ -307,7 +294,7 @@ export default function ProfilePage() {
 											{league.memberCount} membros
 										</span>
 									</div>
-									<span className="font-black font-display text-2xl tabular-nums text-[var(--b-brand)]">
+									<span className="font-black font-display text-2xl text-[var(--b-brand)] tabular-nums">
 										{league.myPoints}
 									</span>
 								</Link>
@@ -320,8 +307,8 @@ export default function ProfilePage() {
 			{/* Sair */}
 			<section>
 				<header className="mb-4">
-					<span className="text-eyebrow text-[var(--b-text-3)]">Conta</span>
-					<h2 className="font-black font-display text-2xl uppercase tracking-tight text-[var(--b-text)]">
+					<span className="text-[var(--b-text-3)] text-eyebrow">Conta</span>
+					<h2 className="font-black font-display text-2xl text-[var(--b-text)] uppercase tracking-tight">
 						Sessão
 					</h2>
 				</header>

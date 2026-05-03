@@ -66,7 +66,7 @@ export default function LeagueDetailPage({
 
 	if (league === null) {
 		return (
-			<div className="flex flex-col items-center gap-3 rounded-[28px] border border-dashed border-[var(--b-border-md)] bg-[var(--b-card)] p-12 text-center">
+			<div className="flex flex-col items-center gap-3 rounded-[28px] border border-[var(--b-border-md)] border-dashed bg-[var(--b-card)] p-12 text-center">
 				<Trophy className="h-10 w-10 text-[var(--b-text-4)]" />
 				<p className="font-bold font-display text-[var(--b-text)] text-lg uppercase tracking-tight">
 					Liga não encontrada
@@ -87,7 +87,7 @@ export default function LeagueDetailPage({
 	const isOwner = currentUser?._id === league.ownerId;
 
 	return (
-		<div className="space-y-7 animate-fade-in">
+		<div className="animate-fade-in space-y-7">
 			{/* Back link */}
 			<Link
 				href="/leagues"
@@ -100,10 +100,10 @@ export default function LeagueDetailPage({
 			{/* Header da liga */}
 			<header className="flex flex-wrap items-start justify-between gap-4">
 				<div className="flex flex-col gap-2">
-					<span className="text-eyebrow text-[var(--b-brand)]">
+					<span className="text-[var(--b-brand)] text-eyebrow">
 						Liga · {league.joinType === "OPEN" ? "Aberta" : "Moderada"}
 					</span>
-					<h1 className="font-black font-display text-4xl uppercase leading-[0.9] tracking-tight text-[var(--b-text)] sm:text-5xl">
+					<h1 className="font-black font-display text-4xl text-[var(--b-text)] uppercase leading-[0.9] tracking-tight sm:text-5xl">
 						{league.name}
 					</h1>
 					{league.description && (
@@ -123,7 +123,10 @@ export default function LeagueDetailPage({
 				</div>
 
 				<div className="flex flex-wrap items-center gap-2">
-					<InviteSheet inviteCode={league.inviteCode} leagueName={league.name} />
+					<InviteSheet
+						inviteCode={league.inviteCode}
+						leagueName={league.name}
+					/>
 					{isOwner && (
 						<Link href={`/leagues/${id}/manage` as Route}>
 							<Button variant="outline" size="default">
@@ -139,7 +142,7 @@ export default function LeagueDetailPage({
 			{ranking === undefined ? (
 				<Skeleton className="h-64 rounded-[28px]" />
 			) : ranking.length === 0 ? (
-				<div className="flex flex-col items-center gap-3 rounded-[28px] border border-dashed border-[var(--b-border-md)] bg-[var(--b-card)] p-12 text-center">
+				<div className="flex flex-col items-center gap-3 rounded-[28px] border border-[var(--b-border-md)] border-dashed bg-[var(--b-card)] p-12 text-center">
 					<Trophy className="h-10 w-10 text-[var(--b-text-4)]" />
 					<p className="font-bold font-display text-[var(--b-text)] text-lg uppercase tracking-tight">
 						Aguardando os primeiros pontos
@@ -156,10 +159,10 @@ export default function LeagueDetailPage({
 						<section>
 							<header className="mb-4 flex items-end justify-between gap-3">
 								<div>
-									<span className="text-eyebrow text-[var(--b-text-3)]">
+									<span className="text-[var(--b-text-3)] text-eyebrow">
 										Tabela completa
 									</span>
-									<h2 className="font-black font-display text-2xl uppercase tracking-tight text-[var(--b-text)]">
+									<h2 className="font-black font-display text-2xl text-[var(--b-text)] uppercase tracking-tight">
 										Ranking
 									</h2>
 								</div>
@@ -172,14 +175,9 @@ export default function LeagueDetailPage({
 								style={{ ["--d" as string]: "40ms" }}
 							>
 								{ranking.map((member, idx) => (
-									<div
-										key={member._id}
-										style={{ ["--i" as string]: idx }}
-									>
+									<div key={member._id} style={{ ["--i" as string]: idx }}>
 										<Link
-											href={
-												`/leagues/${id}/members/${member.userId}` as Route
-											}
+											href={`/leagues/${id}/members/${member.userId}` as Route}
 											className="block focus-visible:outline-none"
 										>
 											<RankingRow
@@ -199,10 +197,10 @@ export default function LeagueDetailPage({
 					<section className="rounded-[32px] border border-[var(--b-border-sm)] bg-[var(--b-card)] p-6 shadow-[var(--b-shadow-card-soft)]">
 						<div className="mb-6 flex items-center justify-between gap-3">
 							<div>
-								<span className="text-eyebrow text-[var(--b-text-3)]">
+								<span className="text-[var(--b-text-3)] text-eyebrow">
 									Top 3 da liga
 								</span>
-								<h2 className="font-black font-display text-2xl uppercase tracking-tight text-[var(--b-text)]">
+								<h2 className="font-black font-display text-2xl text-[var(--b-text)] uppercase tracking-tight">
 									Pódio
 								</h2>
 							</div>
@@ -258,20 +256,20 @@ function InviteSheet({
 			</SheetTrigger>
 			<SheetContent side="right" className="bg-[var(--b-card)]">
 				<SheetHeader className="px-6 pt-6">
-					<SheetTitle className="font-black font-display text-2xl uppercase tracking-tight text-[var(--b-text)]">
+					<SheetTitle className="font-black font-display text-2xl text-[var(--b-text)] uppercase tracking-tight">
 						Convidar amigos
 					</SheetTitle>
 					<SheetDescription className="text-[var(--b-text-3)] text-sm">
-						Compartilhe o código abaixo. Quem usar entra (ou pede pra entrar)
-						na liga {leagueName}.
+						Compartilhe o código abaixo. Quem usar entra (ou pede pra entrar) na
+						liga {leagueName}.
 					</SheetDescription>
 				</SheetHeader>
 				<div className="flex flex-col gap-4 px-6 py-4">
 					<div className="flex animate-scale-in flex-col items-center gap-3 rounded-2xl border border-[var(--b-brand-25)] bg-[var(--b-brand-10)] py-6 text-center">
-						<span className="text-eyebrow text-[var(--b-brand)]">
+						<span className="text-[var(--b-brand)] text-eyebrow">
 							Código de convite
 						</span>
-						<span className="font-black font-mono text-5xl tabular-nums tracking-[0.4em] text-[var(--b-brand)]">
+						<span className="font-black font-mono text-5xl text-[var(--b-brand)] tabular-nums tracking-[0.4em]">
 							{inviteCode}
 						</span>
 					</div>

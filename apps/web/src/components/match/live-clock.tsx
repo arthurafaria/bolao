@@ -73,7 +73,7 @@ export function LiveClock({
 		return (
 			<span
 				className={cn(
-					"font-bold font-display uppercase tracking-widest text-[var(--b-danger)]",
+					"font-bold font-display text-[var(--b-danger)] uppercase tracking-widest",
 					sizeStyles[size],
 					className,
 				)}
@@ -89,7 +89,7 @@ export function LiveClock({
 	return (
 		<span
 			className={cn(
-				"inline-flex items-baseline gap-1 font-mono font-medium tabular-nums leading-none",
+				"inline-flex items-baseline gap-1 font-medium font-mono tabular-nums leading-none",
 				sizeStyles[size],
 				className,
 			)}

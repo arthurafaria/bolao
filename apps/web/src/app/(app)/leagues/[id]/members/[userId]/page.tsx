@@ -83,8 +83,11 @@ export default function MemberProfilePage({
 	if (lockedPredictions === null) {
 		return (
 			<div className="space-y-5">
-				<BackLink href={`/leagues/${id}` as Route} label={league?.name ?? "Voltar"} />
-				<div className="flex flex-col items-center gap-3 rounded-[28px] border border-dashed border-[var(--b-border-md)] bg-[var(--b-card)] p-12 text-center">
+				<BackLink
+					href={`/leagues/${id}` as Route}
+					label={league?.name ?? "Voltar"}
+				/>
+				<div className="flex flex-col items-center gap-3 rounded-[28px] border border-[var(--b-border-md)] border-dashed bg-[var(--b-card)] p-12 text-center">
 					<p className="text-[var(--b-text-3)] text-sm">
 						Você precisa ser membro ativo desta liga pra ver os palpites.
 					</p>
@@ -96,8 +99,11 @@ export default function MemberProfilePage({
 	if (!member) {
 		return (
 			<div className="space-y-5">
-				<BackLink href={`/leagues/${id}` as Route} label={league?.name ?? "Voltar"} />
-				<div className="flex flex-col items-center gap-3 rounded-[28px] border border-dashed border-[var(--b-border-md)] bg-[var(--b-card)] p-12 text-center">
+				<BackLink
+					href={`/leagues/${id}` as Route}
+					label={league?.name ?? "Voltar"}
+				/>
+				<div className="flex flex-col items-center gap-3 rounded-[28px] border border-[var(--b-border-md)] border-dashed bg-[var(--b-card)] p-12 text-center">
 					<p className="text-[var(--b-text-3)] text-sm">
 						Membro não encontrado nessa liga.
 					</p>
@@ -116,8 +122,11 @@ export default function MemberProfilePage({
 					: undefined;
 
 	return (
-		<div className="space-y-7 animate-fade-in">
-			<BackLink href={`/leagues/${id}` as Route} label={league?.name ?? "Liga"} />
+		<div className="animate-fade-in space-y-7">
+			<BackLink
+				href={`/leagues/${id}` as Route}
+				label={league?.name ?? "Liga"}
+			/>
 
 			{/* Member hero */}
 			<section className="rounded-[28px] border border-[var(--b-border-sm)] bg-[var(--b-card)] p-5 shadow-[var(--b-shadow-card-soft)] sm:p-6">
@@ -132,7 +141,7 @@ export default function MemberProfilePage({
 						</div>
 						{position === 1 && (
 							<Crown
-								className="-top-3 -right-2 absolute h-6 w-6 animate-float"
+								className="absolute -top-3 -right-2 h-6 w-6 animate-float"
 								style={{
 									color: "var(--b-gold)",
 									filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.3))",
@@ -143,16 +152,14 @@ export default function MemberProfilePage({
 
 					{/* Identidade */}
 					<div className="flex min-w-0 flex-1 flex-col gap-1">
-						<span className="text-eyebrow text-[var(--b-brand)]">
+						<span className="text-[var(--b-brand)] text-eyebrow">
 							{position}º lugar na {league?.name ?? "liga"}
 						</span>
 						<div className="flex items-center gap-2">
-							<h1 className="line-clamp-1 font-black font-display text-3xl uppercase leading-[0.95] tracking-tight text-[var(--b-text)] sm:text-4xl">
+							<h1 className="line-clamp-1 font-black font-display text-3xl text-[var(--b-text)] uppercase leading-[0.95] tracking-tight sm:text-4xl">
 								{member.name}
 							</h1>
-							{isCurrentUser && (
-								<Tag variant="brand">você</Tag>
-							)}
+							{isCurrentUser && <Tag variant="brand">você</Tag>}
 						</div>
 						<div className="flex flex-wrap items-center gap-3 text-[var(--b-text-3)] text-xs">
 							<span>
@@ -211,17 +218,17 @@ export default function MemberProfilePage({
 			<section>
 				<header className="mb-4 flex items-end justify-between gap-3">
 					<div>
-						<span className="text-eyebrow text-[var(--b-text-3)]">
+						<span className="text-[var(--b-text-3)] text-eyebrow">
 							Palpites bloqueados
 						</span>
-						<h2 className="font-black font-display text-2xl uppercase tracking-tight text-[var(--b-text)]">
+						<h2 className="font-black font-display text-2xl text-[var(--b-text)] uppercase tracking-tight">
 							Histórico
 						</h2>
 					</div>
 				</header>
 
 				{lockedPredictions.length === 0 ? (
-					<div className="flex flex-col items-center gap-3 rounded-[28px] border border-dashed border-[var(--b-border-md)] bg-[var(--b-card)] p-12 text-center">
+					<div className="flex flex-col items-center gap-3 rounded-[28px] border border-[var(--b-border-md)] border-dashed bg-[var(--b-card)] p-12 text-center">
 						<Trophy className="h-10 w-10 text-[var(--b-text-4)]" />
 						<p className="font-bold font-display text-[var(--b-text)] text-base uppercase tracking-tight">
 							Sem palpites bloqueados
@@ -236,7 +243,7 @@ export default function MemberProfilePage({
 						{grouped.map(([key, label, roundMatches]) => (
 							<div key={key} className="space-y-3">
 								<header className="flex items-center gap-3">
-									<h3 className="font-black font-display text-sm uppercase tracking-widest text-[var(--b-brand)]">
+									<h3 className="font-black font-display text-[var(--b-brand)] text-sm uppercase tracking-widest">
 										{label}
 									</h3>
 									<div

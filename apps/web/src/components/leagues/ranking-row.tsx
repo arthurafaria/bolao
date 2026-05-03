@@ -48,7 +48,8 @@ export function RankingRow({
 				"group relative flex items-center gap-3 rounded-2xl border border-[var(--b-border-sm)] bg-[var(--b-card)] px-4 py-3",
 				"transition-[transform,box-shadow,background] duration-[var(--motion-base)] ease-[var(--ease-out-quart)]",
 				"hover:-translate-y-0.5 hover:shadow-[var(--b-shadow-brand-sm)]",
-				isYou && "ring-2 ring-[var(--b-brand)] ring-offset-2 ring-offset-[var(--b-bg)]",
+				isYou &&
+					"ring-2 ring-[var(--b-brand)] ring-offset-2 ring-offset-[var(--b-bg)]",
 				className,
 			)}
 			style={
@@ -93,8 +94,11 @@ export function RankingRow({
 				)}
 				{position === 1 && (
 					<Crown
-						className="-top-2 -right-1 absolute h-4 w-4 animate-float"
-						style={{ color: "var(--b-gold)", filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.2))" }}
+						className="absolute -top-2 -right-1 h-4 w-4 animate-float"
+						style={{
+							color: "var(--b-gold)",
+							filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.2))",
+						}}
 					/>
 				)}
 			</div>
@@ -123,7 +127,7 @@ export function RankingRow({
 
 			{/* Points */}
 			<div className="flex shrink-0 flex-col items-end">
-				<span className="font-black font-display text-2xl tabular-nums leading-none text-[var(--b-text)]">
+				<span className="font-black font-display text-2xl text-[var(--b-text)] tabular-nums leading-none">
 					{points}
 				</span>
 				<span className="text-[10px] text-[var(--b-text-4)] uppercase tracking-wider">

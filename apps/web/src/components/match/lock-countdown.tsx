@@ -86,7 +86,7 @@ export function LockCountdown({
 			aria-live="polite"
 		>
 			<Lock className="h-3 w-3" strokeWidth={2.5} />
-			<span className="text-eyebrow text-[10px] tracking-[0.18em]">
+			<span className="text-[10px] text-eyebrow tracking-[0.18em]">
 				{urgencyLabel[urgency]}
 			</span>
 			{urgency !== "locked" && (

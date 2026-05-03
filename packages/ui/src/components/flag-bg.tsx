@@ -52,7 +52,7 @@ export function FlagBg({
 				aria-hidden
 				className="absolute inset-0 -z-10"
 				style={{
-					background: `var(--g-flag-overlay)`,
+					background: "var(--g-flag-overlay)",
 					opacity: overlayStrength,
 				}}
 			/>
