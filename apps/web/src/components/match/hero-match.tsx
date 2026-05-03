@@ -81,7 +81,7 @@ export function HeroMatch({
 				className="pointer-events-none absolute inset-0 -z-10 animate-glow-breath"
 				style={{
 					background:
-						"radial-gradient(ellipse 70% 50% at 50% 50%, color-mix(in oklch, var(--b-brand) 30%, transparent) 0%, transparent 70%)",
+						"radial-gradient(ellipse 90% 60% at 50% 0%, color-mix(in oklch, var(--b-brand) 40%, transparent) 0%, transparent 70%)",
 				}}
 			/>
 

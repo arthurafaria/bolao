@@ -92,10 +92,10 @@
 		0 1px 0 rgb(255 255 255 / 0.8) inset, 0 18px 40px rgb(18 26 20 / 0.08);
 	--b-shadow-float:
 		0 1px 1px rgb(0 0 0 / 0.03), 0 24px 60px rgb(15 23 18 / 0.12);
-	--b-shadow-brand-sm: 0 2px 6px oklch(0.3 0.10 145 / 0.1);
-	--b-shadow-brand-md: 0 8px 24px oklch(0.3 0.10 145 / 0.14);
-	--b-shadow-brand-lg: 0 24px 60px oklch(0.3 0.10 145 / 0.18);
-	--b-shadow-brand-xl: 0 40px 96px oklch(0.3 0.10 145 / 0.22);
+	--b-shadow-brand-sm: 0 2px 6px oklch(0.3 0.1 145 / 0.1);
+	--b-shadow-brand-md: 0 8px 24px oklch(0.3 0.1 145 / 0.14);
+	--b-shadow-brand-lg: 0 24px 60px oklch(0.3 0.1 145 / 0.18);
+	--b-shadow-brand-xl: 0 40px 96px oklch(0.3 0.1 145 / 0.22);
 	--b-glow-brand:
 		0 0 0 1px oklch(0.46 0.18 145 / 0.18),
 		0 12px 36px oklch(0.46 0.18 145 / 0.14);
@@ -119,7 +119,7 @@
 
 	/* Brand (verde hue 145) */
 	--b-brand: oklch(0.46 0.18 145);
-	--b-brand-hi: oklch(0.52 0.20 145);
+	--b-brand-hi: oklch(0.52 0.2 145);
 	--b-brand-lo: oklch(0.36 0.17 145);
 	--b-brand-fg: oklch(0.99 0 0);
 	--b-brand-50: oklch(0.96 0.04 145);
@@ -141,16 +141,16 @@
 	/* Status */
 	--b-success: oklch(0.58 0.18 150);
 	--b-success-bg: oklch(0.95 0.04 150);
-	--b-success-fg: oklch(0.25 0.10 150);
+	--b-success-fg: oklch(0.25 0.1 150);
 	--b-warning: oklch(0.74 0.16 70);
 	--b-warning-bg: oklch(0.97 0.04 70);
-	--b-warning-fg: oklch(0.32 0.10 70);
+	--b-warning-fg: oklch(0.32 0.1 70);
 	--b-danger: oklch(0.58 0.22 27);
 	--b-danger-bg: oklch(0.96 0.04 27);
-	--b-danger-fg: oklch(0.25 0.10 27);
+	--b-danger-fg: oklch(0.25 0.1 27);
 	--b-info: oklch(0.58 0.18 230);
 	--b-info-bg: oklch(0.96 0.04 230);
-	--b-info-fg: oklch(0.25 0.10 230);
+	--b-info-fg: oklch(0.25 0.1 230);
 
 	/* Gradientes */
 	--g-brand-vert: linear-gradient(180deg, var(--b-brand-hi), var(--b-brand));
@@ -211,7 +211,7 @@
 	/* Sombras editoriais */
 	--b-shadow-card-hard: 4px 4px 0 var(--b-brand);
 	--b-shadow-card-soft:
-		0 12px 32px oklch(0.3 0.10 145 / 0.1), 0 2px 4px oklch(0.3 0.10 145 / 0.06);
+		0 12px 32px oklch(0.3 0.1 145 / 0.1), 0 2px 4px oklch(0.3 0.1 145 / 0.06);
 
 	/* Gradientes editoriais */
 	--g-editorial-dark: linear-gradient(
@@ -226,11 +226,11 @@
 	);
 	--g-hero-match:
 		radial-gradient(
-			ellipse 80% 60% at 50% 50%,
-			oklch(0.5 0.22 145 / 0.4) 0%,
+			ellipse 100% 65% at 50% 0%,
+			oklch(0.5 0.22 145 / 0.55) 0%,
 			transparent 70%
 		),
-		linear-gradient(135deg, oklch(0.16 0.04 145) 0%, oklch(0.1 0.025 145) 100%);
+		linear-gradient(180deg, oklch(0.24 0.12 145) 0%, oklch(0.085 0.025 145) 100%);
 
 	/* Scoreboard typography */
 	--font-scoreboard-size: clamp(3rem, 8vw, 6rem);
