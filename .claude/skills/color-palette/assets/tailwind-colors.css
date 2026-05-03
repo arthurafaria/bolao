@@ -13,68 +13,68 @@
 @import "tailwindcss";
 
 @theme {
-  /* ========================================
+	/* ========================================
      PRIMARY COLOR SCALE
      Replace these with your generated shades
      ======================================== */
 
-  --color-primary-50: #F0FDFA;   /* Lightest - 97% */
-  --color-primary-100: #CCFBF1;  /* 94% */
-  --color-primary-200: #99F6E4;  /* 87% */
-  --color-primary-300: #5EEAD4;  /* 75% */
-  --color-primary-400: #2DD4BF;  /* 62% */
-  --color-primary-500: #14B8A6;  /* 48% - Brand baseline */
-  --color-primary-600: #0D9488;  /* 40% - Brand color (light mode primary) */
-  --color-primary-700: #0F766E;  /* 33% */
-  --color-primary-800: #115E59;  /* 27% */
-  --color-primary-900: #134E4A;  /* 20% */
-  --color-primary-950: #042F2E;  /* Darkest - 10% */
+	--color-primary-50: #f0fdfa; /* Lightest - 97% */
+	--color-primary-100: #ccfbf1; /* 94% */
+	--color-primary-200: #99f6e4; /* 87% */
+	--color-primary-300: #5eead4; /* 75% */
+	--color-primary-400: #2dd4bf; /* 62% */
+	--color-primary-500: #14b8a6; /* 48% - Brand baseline */
+	--color-primary-600: #0d9488; /* 40% - Brand color (light mode primary) */
+	--color-primary-700: #0f766e; /* 33% */
+	--color-primary-800: #115e59; /* 27% */
+	--color-primary-900: #134e4a; /* 20% */
+	--color-primary-950: #042f2e; /* Darkest - 10% */
 
-  /* ========================================
+	/* ========================================
      LIGHT MODE SEMANTIC TOKENS
      ======================================== */
 
-  /* Page/App Background & Text */
-  --color-background: #FFFFFF;
-  --color-foreground: var(--color-primary-950);
+	/* Page/App Background & Text */
+	--color-background: #ffffff;
+	--color-foreground: var(--color-primary-950);
 
-  /* Cards & Elevated Surfaces */
-  --color-card: #FFFFFF;
-  --color-card-foreground: var(--color-primary-900);
+	/* Cards & Elevated Surfaces */
+	--color-card: #ffffff;
+	--color-card-foreground: var(--color-primary-900);
 
-  /* Popovers, Tooltips, Dropdowns */
-  --color-popover: #FFFFFF;
-  --color-popover-foreground: var(--color-primary-950);
+	/* Popovers, Tooltips, Dropdowns */
+	--color-popover: #ffffff;
+	--color-popover-foreground: var(--color-primary-950);
 
-  /* Primary Actions (Buttons, Links, CTAs) */
-  --color-primary: var(--color-primary-600);
-  --color-primary-foreground: #FFFFFF;
+	/* Primary Actions (Buttons, Links, CTAs) */
+	--color-primary: var(--color-primary-600);
+	--color-primary-foreground: #ffffff;
 
-  /* Secondary Actions (Less Prominent) */
-  --color-secondary: var(--color-primary-100);
-  --color-secondary-foreground: var(--color-primary-900);
+	/* Secondary Actions (Less Prominent) */
+	--color-secondary: var(--color-primary-100);
+	--color-secondary-foreground: var(--color-primary-900);
 
-  /* Muted/Subtle Content */
-  --color-muted: var(--color-primary-50);
-  --color-muted-foreground: var(--color-primary-600);
+	/* Muted/Subtle Content */
+	--color-muted: var(--color-primary-50);
+	--color-muted-foreground: var(--color-primary-600);
 
-  /* Accent/Highlight Areas */
-  --color-accent: var(--color-primary-100);
-  --color-accent-foreground: var(--color-primary-900);
+	/* Accent/Highlight Areas */
+	--color-accent: var(--color-primary-100);
+	--color-accent-foreground: var(--color-primary-900);
 
-  /* Destructive Actions (Delete, Error) */
-  --color-destructive: #DC2626;  /* red-600 */
-  --color-destructive-foreground: #FFFFFF;
+	/* Destructive Actions (Delete, Error) */
+	--color-destructive: #dc2626; /* red-600 */
+	--color-destructive-foreground: #ffffff;
 
-  /* Borders, Dividers, Input Borders */
-  --color-border: var(--color-primary-200);
-  --color-input: var(--color-primary-200);
+	/* Borders, Dividers, Input Borders */
+	--color-border: var(--color-primary-200);
+	--color-input: var(--color-primary-200);
 
-  /* Focus Rings (Keyboard Navigation) */
-  --color-ring: var(--color-primary-600);
+	/* Focus Rings (Keyboard Navigation) */
+	--color-ring: var(--color-primary-600);
 
-  /* Border Radius (Optional) */
-  --radius: 0.5rem;
+	/* Border Radius (Optional) */
+	--radius: 0.5rem;
 }
 
 /* ========================================
@@ -82,44 +82,44 @@
    ======================================== */
 
 .dark {
-  /* Page/App Background & Text */
-  --color-background: var(--color-primary-950);
-  --color-foreground: var(--color-primary-50);
+	/* Page/App Background & Text */
+	--color-background: var(--color-primary-950);
+	--color-foreground: var(--color-primary-50);
 
-  /* Cards & Elevated Surfaces */
-  --color-card: var(--color-primary-900);
-  --color-card-foreground: var(--color-primary-50);
+	/* Cards & Elevated Surfaces */
+	--color-card: var(--color-primary-900);
+	--color-card-foreground: var(--color-primary-50);
 
-  /* Popovers, Tooltips, Dropdowns */
-  --color-popover: var(--color-primary-900);
-  --color-popover-foreground: var(--color-primary-50);
+	/* Popovers, Tooltips, Dropdowns */
+	--color-popover: var(--color-primary-900);
+	--color-popover-foreground: var(--color-primary-50);
 
-  /* Primary Actions (Brighter for Visibility) */
-  --color-primary: var(--color-primary-500);
-  --color-primary-foreground: #FFFFFF;
+	/* Primary Actions (Brighter for Visibility) */
+	--color-primary: var(--color-primary-500);
+	--color-primary-foreground: #ffffff;
 
-  /* Secondary Actions */
-  --color-secondary: var(--color-primary-800);
-  --color-secondary-foreground: var(--color-primary-50);
+	/* Secondary Actions */
+	--color-secondary: var(--color-primary-800);
+	--color-secondary-foreground: var(--color-primary-50);
 
-  /* Muted/Subtle Content */
-  --color-muted: var(--color-primary-800);
-  --color-muted-foreground: var(--color-primary-400);
+	/* Muted/Subtle Content */
+	--color-muted: var(--color-primary-800);
+	--color-muted-foreground: var(--color-primary-400);
 
-  /* Accent/Highlight Areas */
-  --color-accent: var(--color-primary-800);
-  --color-accent-foreground: var(--color-primary-50);
+	/* Accent/Highlight Areas */
+	--color-accent: var(--color-primary-800);
+	--color-accent-foreground: var(--color-primary-50);
 
-  /* Destructive Actions (Brighter) */
-  --color-destructive: #EF4444;  /* red-500 */
-  --color-destructive-foreground: #FFFFFF;
+	/* Destructive Actions (Brighter) */
+	--color-destructive: #ef4444; /* red-500 */
+	--color-destructive-foreground: #ffffff;
 
-  /* Borders, Dividers, Input Borders */
-  --color-border: var(--color-primary-800);
-  --color-input: var(--color-primary-800);
+	/* Borders, Dividers, Input Borders */
+	--color-border: var(--color-primary-800);
+	--color-input: var(--color-primary-800);
 
-  /* Focus Rings */
-  --color-ring: var(--color-primary-500);
+	/* Focus Rings */
+	--color-ring: var(--color-primary-500);
 }
 
 /* ========================================
