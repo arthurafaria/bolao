@@ -35,7 +35,7 @@ export function AnimatedNumber({
 			const elapsed = now - start;
 			const progress = Math.min(elapsed / duration, 1);
 			// ease-out expo
-			const eased = 1 - Math.pow(1 - progress, 4);
+			const eased = 1 - (1 - progress) ** 4;
 			setDisplayed(from + (to - from) * eased);
 			if (progress < 1) rafRef.current = requestAnimationFrame(tick);
 		}
@@ -48,7 +48,9 @@ export function AnimatedNumber({
 
 	return (
 		<span className={className} aria-live="polite">
-			{prefix}{formatted}{suffix}
+			{prefix}
+			{formatted}
+			{suffix}
 		</span>
 	);
 }

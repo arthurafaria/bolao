@@ -18,14 +18,23 @@ interface SpinnerProps {
 	label?: string;
 }
 
-export function Spinner({ size = "md", className, label = "Carregando..." }: SpinnerProps) {
+export function Spinner({
+	size = "md",
+	className,
+	label = "Carregando...",
+}: SpinnerProps) {
 	const { outer, inner } = sizeMap[size];
 
 	return (
 		<span
 			role="status"
 			aria-label={label}
-			className={cn("relative inline-flex items-center justify-center", outer.split(" ").find(s => s.startsWith("h-")), inner.split(" ").find(s => s.startsWith("w-")), className)}
+			className={cn(
+				"relative inline-flex items-center justify-center",
+				outer.split(" ").find((s) => s.startsWith("h-")),
+				inner.split(" ").find((s) => s.startsWith("w-")),
+				className,
+			)}
 		>
 			{/* Anel externo */}
 			<span

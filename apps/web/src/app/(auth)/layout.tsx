@@ -8,11 +8,17 @@ import { useEffect } from "react";
 
 function RedirectToDashboard() {
 	const router = useRouter();
-	useEffect(() => { router.push("/dashboard"); }, [router]);
+	useEffect(() => {
+		router.push("/dashboard");
+	}, [router]);
 	return null;
 }
 
-export default function AuthLayout({ children }: { children: React.ReactNode }) {
+export default function AuthLayout({
+	children,
+}: {
+	children: React.ReactNode;
+}) {
 	return (
 		<>
 			<Authenticated>
@@ -34,7 +40,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
 
 				{/* Painel esquerdo — branding (desktop only) */}
 				<div
-					className="relative hidden flex-col justify-between overflow-hidden border-r p-12 animate-fade-in lg:flex lg:w-[48%] xl:p-14"
+					className="relative hidden animate-fade-in flex-col justify-between overflow-hidden border-r p-12 lg:flex lg:w-[48%] xl:p-14"
 					style={{
 						background: "var(--b-auth-panel-bg)",
 						borderColor: "var(--b-border)",
@@ -52,9 +58,10 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
 
 					{/* Dot pattern decoration */}
 					<div
-						className="pointer-events-none absolute bottom-0 right-0 h-64 w-64 opacity-[0.04]"
+						className="pointer-events-none absolute right-0 bottom-0 h-64 w-64 opacity-[0.04]"
 						style={{
-							backgroundImage: "radial-gradient(circle, var(--b-brand) 1px, transparent 1px)",
+							backgroundImage:
+								"radial-gradient(circle, var(--b-brand) 1px, transparent 1px)",
 							backgroundSize: "20px 20px",
 						}}
 					/>
@@ -68,7 +75,10 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
 								boxShadow: "var(--b-shadow-brand-md)",
 							}}
 						>
-							<Trophy className="h-5 w-5" style={{ color: "var(--b-brand-fg)" }} />
+							<Trophy
+								className="h-5 w-5"
+								style={{ color: "var(--b-brand-fg)" }}
+							/>
 						</div>
 						<span
 							className="text-display-sm text-xl"
@@ -80,20 +90,8 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
 
 					{/* Hero text */}
 					<div className="relative max-w-xl animate-slide-up">
-						<div
-							className="mb-5 inline-flex items-center gap-2 rounded-full px-4 py-1.5"
-							style={{
-								background: "color-mix(in oklch, var(--b-card) 78%, transparent)",
-								boxShadow: "var(--b-shadow-soft)",
-							}}
-						>
-							<span className="h-2 w-2 rounded-full bg-[var(--b-brand)] animate-pulse-glow" />
-							<span className="text-eyebrow text-[10px]" style={{ color: "var(--b-brand)" }}>
-								Seu bolão com cara de final
-							</span>
-						</div>
 						<h2
-							className="text-display-hero mb-5 text-balance"
+							className="mb-5 text-balance text-display-hero"
 							style={{
 								fontSize: "clamp(3rem, 4.5vw, 4.8rem)",
 								color: "var(--b-text)",
@@ -121,12 +119,16 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
 									key={item}
 									className="rounded-[22px] px-5 py-4"
 									style={{
-										background: "color-mix(in oklch, var(--b-card) 72%, transparent)",
+										background:
+											"color-mix(in oklch, var(--b-card) 72%, transparent)",
 										boxShadow: "var(--b-shadow-soft)",
 										outline: "1px solid var(--b-border-xs)",
 									}}
 								>
-									<p className="font-medium text-sm leading-relaxed" style={{ color: "var(--b-text)" }}>
+									<p
+										className="font-medium text-sm leading-relaxed"
+										style={{ color: "var(--b-text)" }}
+									>
 										{item}
 									</p>
 								</div>
@@ -135,7 +137,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
 					</div>
 
 					{/* Stats */}
-					<div className="relative grid grid-cols-3 gap-3">
+					<div className="relative mt-8 grid grid-cols-3 gap-3">
 						{[
 							{ n: "+400", l: "Jogos" },
 							{ n: "50", l: "Membros" },
@@ -145,19 +147,20 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
 								key={l}
 								className="rounded-[22px] px-4 py-4"
 								style={{
-									background: "color-mix(in oklch, var(--b-card) 72%, transparent)",
+									background:
+										"color-mix(in oklch, var(--b-card) 72%, transparent)",
 									boxShadow: "var(--b-shadow-soft)",
 									outline: "1px solid var(--b-border-xs)",
 								}}
 							>
 								<div
-									className="text-numeric text-display-xl text-3xl leading-none"
+									className="text-3xl text-display-xl text-numeric leading-none"
 									style={{ color: "var(--b-text)" }}
 								>
 									{n}
 								</div>
 								<div
-									className="text-eyebrow mt-1 text-[10px]"
+									className="mt-1 text-[10px] text-eyebrow"
 									style={{ color: "var(--b-text-3)" }}
 								>
 									{l}
@@ -178,16 +181,22 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
 								boxShadow: "var(--b-shadow-brand-sm)",
 							}}
 						>
-							<Trophy className="h-4 w-4" style={{ color: "var(--b-brand-fg)" }} />
+							<Trophy
+								className="h-4 w-4"
+								style={{ color: "var(--b-brand-fg)" }}
+							/>
 						</div>
-						<span className="text-display-sm text-xl" style={{ color: "var(--b-text)" }}>
+						<span
+							className="text-display-sm text-xl"
+							style={{ color: "var(--b-text)" }}
+						>
 							Bolão 2026
 						</span>
 					</div>
 
 					{/* Card do formulário */}
 					<div
-						className="w-full max-w-md rounded-[32px] p-6 sm:p-8 animate-scale-in"
+						className="w-full max-w-md animate-scale-in rounded-[32px] p-6 sm:p-8"
 						style={{
 							background: "color-mix(in oklch, var(--b-card) 88%, transparent)",
 							boxShadow: "var(--b-shadow-float)",

@@ -49,20 +49,20 @@ const pointsTiers = [
 		bg: "var(--b-brand-10)",
 	},
 	{
-		label: "Vencedor + saldo",
+		label: "Resultado + 1 Saldo",
 		pts: "7 pts",
 		color: "var(--b-accent)",
 		bg: "var(--b-accent-10)",
 	},
 	{
-		label: "Vencedor + 1 gol",
+		label: "Acertou Resultado",
 		pts: "5 pts",
 		color: "var(--b-success)",
 		bg: "var(--b-success-bg)",
 	},
 	{
-		label: "Só o vencedor",
-		pts: "3 pts",
+		label: "Só o Saldo",
+		pts: "2 pts",
 		color: "var(--b-warning)",
 		bg: "var(--b-warning-bg)",
 	},
@@ -177,16 +177,13 @@ export default function LandingPage() {
 						<h1
 							className="text-balance text-display-hero"
 							style={{
-								fontSize: "clamp(3.8rem, 9.5vw, 8rem)",
+								fontSize: "clamp(3.25rem, 7vw, 6.25rem)",
 								color: "var(--b-text)",
 							}}
 						>
-							Bolão <span style={{ color: "var(--b-brand)" }}>bonito</span>
+							Chuta <span style={{ color: "var(--b-brand)" }}>de bico!</span>
 							<br />
-							pra quem
-							<br />
-							leva futebol
-							<br />a sério
+							Vai que você crava?
 						</h1>
 
 						<p
@@ -218,7 +215,7 @@ export default function LandingPage() {
 						{/* Stats */}
 						<div className="mt-10 grid max-w-2xl gap-3 sm:grid-cols-3">
 							{[
-								{ value: "484", label: "Jogos cobertos" },
+								{ value: "+400", label: "Jogos cobertos" },
 								{ value: "20+", label: "Clubes e seleções" },
 								{ value: "100%", label: "Foco em ranking" },
 							].map((item) => (
@@ -446,7 +443,7 @@ export default function LandingPage() {
 							className="text-4xl text-display-xl md:text-5xl"
 							style={{ color: "var(--b-text)" }}
 						>
-							Tudo que seu bolão precisa
+							Bolão além do papel e caneta
 						</h2>
 					</div>
 					<div className="grid gap-5 md:grid-cols-3">
@@ -502,7 +499,7 @@ export default function LandingPage() {
 					>
 						<div className="mb-8 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
 							<div>
-								<Tag variant="accent" className="mb-3">
+								<Tag variant="warning" className="mb-3">
 									<Zap className="h-3 w-3" />
 									Pontuação
 								</Tag>
@@ -619,11 +616,20 @@ export default function LandingPage() {
 					<div
 						className="mx-auto max-w-5xl overflow-hidden rounded-[48px] px-8 py-16 text-center sm:px-12 sm:py-20"
 						style={{
-							background: "var(--g-brand-diag)",
-							boxShadow: "var(--b-shadow-brand-xl)",
+							background:
+								"linear-gradient(135deg, oklch(0.34 0.16 145) 0%, oklch(0.48 0.22 148) 42%, oklch(0.38 0.18 168) 100%)",
+							boxShadow:
+								"0 28px 80px oklch(0 0 0 / 45%), inset 0 1px 0 oklch(1 0 0 / 18%)",
 							position: "relative",
 						}}
 					>
+						<div
+							className="pointer-events-none absolute inset-0"
+							style={{
+								background:
+									"radial-gradient(circle at 18% 0%, oklch(1 0 0 / 18%), transparent 32%), linear-gradient(180deg, oklch(0 0 0 / 8%), oklch(0 0 0 / 24%))",
+							}}
+						/>
 						{/* Texture */}
 						<div
 							className="pointer-events-none absolute inset-0 opacity-[0.08]"
@@ -665,8 +671,12 @@ export default function LandingPage() {
 							<div className="mt-8 flex justify-center gap-3">
 								<Link
 									href="/sign-up"
-									className={`${buttonVariants({ size: "lg" })} gap-2 bg-white px-8 text-sm uppercase tracking-[0.16em]`}
-									style={{ color: "var(--b-brand-lo)" }}
+									className={`${buttonVariants({ size: "lg" })} gap-2 px-8 text-sm uppercase tracking-[0.16em]`}
+									style={{
+										background: "oklch(0.12 0.03 145)",
+										color: "oklch(0.96 0.03 145)",
+										boxShadow: "0 14px 34px oklch(0 0 0 / 28%)",
+									}}
 								>
 									Criar conta grátis
 									<ArrowRight className="h-4 w-4" />

@@ -12,12 +12,17 @@ import { toast } from "sonner";
 import { z } from "zod";
 
 function getSignUpErrorMessage(error: unknown) {
-	if (process.env.NODE_ENV !== "production") console.error("[sign-up error]", error);
+	if (process.env.NODE_ENV !== "production")
+		console.error("[sign-up error]", error);
 	const message = error instanceof Error ? error.message.toLowerCase() : "";
-	if (message.includes("already") || message.includes("exist")) return "Esse email já tem conta. Tente entrar.";
-	if (message.includes("invalidaccountid")) return "Sessão antiga detectada. Recarregue a página.";
-	if (message.includes("jwt_private_key") || message.includes("jwks")) return "Configuração de autenticação ausente.";
-	if (message.includes("password")) return "Senha não aceita. Use pelo menos 8 caracteres.";
+	if (message.includes("already") || message.includes("exist"))
+		return "Esse email já tem conta. Tente entrar.";
+	if (message.includes("invalidaccountid"))
+		return "Sessão antiga detectada. Recarregue a página.";
+	if (message.includes("jwt_private_key") || message.includes("jwks"))
+		return "Configuração de autenticação ausente.";
+	if (message.includes("password"))
+		return "Senha não aceita. Use pelo menos 8 caracteres.";
 	return "Erro ao criar conta. Tente novamente.";
 }
 
@@ -60,7 +65,7 @@ function PasswordStrength({ password }: { password: string }) {
 					))}
 				</div>
 				<span
-					className="text-[10px] font-semibold"
+					className="font-semibold text-[10px]"
 					style={{ color: score > 0 ? colors[score - 1] : "var(--b-text-4)" }}
 				>
 					{score > 0 ? labels[score - 1] : ""}
@@ -114,17 +119,20 @@ export default function SignUpPage() {
 					style={{ background: "var(--b-brand-10)", color: "var(--b-brand)" }}
 				>
 					<Sparkles className="h-3.5 w-3.5" />
-					<span className="text-eyebrow text-[10px]">Crie sua conta</span>
+					<span className="text-[10px] text-eyebrow">Crie sua conta</span>
 				</div>
 				<h1
-					className="text-display-hero text-balance text-4xl leading-tight"
+					className="text-balance text-4xl text-display-hero leading-tight"
 					style={{ color: "var(--b-text)" }}
 				>
 					Entre no jogo
 					<br />
 					<span style={{ color: "var(--b-brand)" }}>com estilo</span>
 				</h1>
-				<p className="mt-2 text-sm leading-relaxed" style={{ color: "var(--b-text-3)" }}>
+				<p
+					className="mt-2 text-sm leading-relaxed"
+					style={{ color: "var(--b-text-3)" }}
+				>
 					Gratuito. Sem cartão. Pronto em menos de 1 minuto.
 				</p>
 			</div>
@@ -142,7 +150,10 @@ export default function SignUpPage() {
 						<div key={benefit} className="flex items-center gap-2.5">
 							<div
 								className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full"
-								style={{ background: "var(--b-brand-15)", color: "var(--b-brand)" }}
+								style={{
+									background: "var(--b-brand-15)",
+									color: "var(--b-brand)",
+								}}
 							>
 								<Check className="h-3 w-3" />
 							</div>
@@ -207,7 +218,12 @@ export default function SignUpPage() {
 					)}
 				</form.Field>
 
-				<form.Subscribe selector={(s) => ({ canSubmit: s.canSubmit, isSubmitting: s.isSubmitting })}>
+				<form.Subscribe
+					selector={(s) => ({
+						canSubmit: s.canSubmit,
+						isSubmitting: s.isSubmitting,
+					})}
+				>
 					{({ canSubmit, isSubmitting }) => (
 						<Button
 							type="submit"

@@ -61,7 +61,8 @@ function AppNav() {
 		router.push("/");
 	}
 
-	const isActive = (href: string) => pathname === href || pathname.startsWith(`${href}/`);
+	const isActive = (href: string) =>
+		pathname === href || pathname.startsWith(`${href}/`);
 
 	return (
 		<>
@@ -69,7 +70,8 @@ function AppNav() {
 			<aside
 				className="hidden md:flex md:min-h-screen md:w-64 md:shrink-0 md:flex-col"
 				style={{
-					background: "linear-gradient(180deg, color-mix(in oklch, var(--b-surface) 92%, var(--b-card)), var(--b-surface))",
+					background:
+						"linear-gradient(180deg, color-mix(in oklch, var(--b-surface) 92%, var(--b-card)), var(--b-surface))",
 					borderRight: "1px solid var(--b-border)",
 				}}
 			>
@@ -85,9 +87,15 @@ function AppNav() {
 							boxShadow: "var(--b-shadow-brand-sm)",
 						}}
 					>
-						<Trophy className="h-4 w-4" style={{ color: "var(--b-brand-fg)" }} />
+						<Trophy
+							className="h-4 w-4"
+							style={{ color: "var(--b-brand-fg)" }}
+						/>
 					</div>
-					<span className="text-display-sm text-base" style={{ color: "var(--b-text)" }}>
+					<span
+						className="text-base text-display-sm"
+						style={{ color: "var(--b-text)" }}
+					>
 						Bolão 2026
 					</span>
 				</div>
@@ -112,7 +120,7 @@ function AppNav() {
 									>
 										{/* Barra indicadora esquerda */}
 										<span
-											className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] rounded-r-full transition-all duration-[var(--motion-medium)] ease-[var(--ease-out-back)]"
+											className="absolute top-1/2 left-0 w-[3px] -translate-y-1/2 rounded-r-full transition-all duration-[var(--motion-medium)] ease-[var(--ease-out-back)]"
 											style={{
 												background: "var(--b-brand)",
 												height: active ? "60%" : "0%",
@@ -138,7 +146,9 @@ function AppNav() {
 										background: isActive("/admin")
 											? "linear-gradient(135deg, var(--b-brand-12), color-mix(in oklch, var(--b-brand) 16%, transparent))"
 											: "transparent",
-										color: isActive("/admin") ? "var(--b-brand-hi)" : "var(--b-text-3)",
+										color: isActive("/admin")
+											? "var(--b-brand-hi)"
+											: "var(--b-text-3)",
 									}}
 								>
 									<Settings2 className="h-4 w-4 shrink-0" />
@@ -148,7 +158,10 @@ function AppNav() {
 						)}
 
 						{/* Divisor */}
-						<li className="pt-2" style={{ borderTop: "1px solid var(--b-border)" }}>
+						<li
+							className="pt-2"
+							style={{ borderTop: "1px solid var(--b-border)" }}
+						>
 							{currentUser === undefined ? (
 								<div className="flex items-center gap-3 px-3 py-2.5">
 									<Skeleton className="h-8 w-8 shrink-0 rounded-full" />
@@ -163,20 +176,34 @@ function AppNav() {
 										href="/profile"
 										className="flex min-h-10 flex-1 items-center gap-3 rounded-xl px-3 py-2 transition-[background-color] duration-[var(--motion-fast)]"
 										style={{
-											background: isActive("/profile") ? "var(--b-brand-10)" : "transparent",
+											background: isActive("/profile")
+												? "var(--b-brand-10)"
+												: "transparent",
 										}}
 									>
 										<div
 											className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full font-bold text-xs"
-											style={{ background: "var(--b-brand-15)", color: "var(--b-brand)" }}
+											style={{
+												background: "var(--b-brand-15)",
+												color: "var(--b-brand)",
+											}}
 										>
-											{(currentUser?.name ?? currentUser?.email)?.[0]?.toUpperCase() ?? "?"}
+											{(currentUser?.name ??
+												currentUser?.email)?.[0]?.toUpperCase() ?? "?"}
 										</div>
 										<div className="min-w-0 flex-1">
-											<p className="truncate font-medium text-sm" style={{ color: "var(--b-text)" }}>
-												{currentUser?.name ?? currentUser?.email?.split("@")[0] ?? "Perfil"}
+											<p
+												className="truncate font-medium text-sm"
+												style={{ color: "var(--b-text)" }}
+											>
+												{currentUser?.name ??
+													currentUser?.email?.split("@")[0] ??
+													"Perfil"}
 											</p>
-											<p className="truncate text-xs" style={{ color: "var(--b-text-3)" }}>
+											<p
+												className="truncate text-xs"
+												style={{ color: "var(--b-text-3)" }}
+											>
 												{currentUser?.email ?? ""}
 											</p>
 										</div>
@@ -221,14 +248,17 @@ function AppNav() {
 								<Link
 									href={href as Route}
 									className="relative flex flex-col items-center gap-1 rounded-xl px-4 py-1.5 font-medium text-xs transition-[color,transform] duration-[var(--motion-fast)] active:scale-[0.93]"
-									style={{ color: active ? "var(--b-brand-hi)" : "var(--b-text-3)" }}
+									style={{
+										color: active ? "var(--b-brand-hi)" : "var(--b-text-3)",
+									}}
 								>
 									{active && (
 										<span
 											className="absolute inset-0 rounded-xl"
 											style={{
 												background: "var(--b-brand-10)",
-												animation: "scale-in var(--motion-fast) var(--ease-out-back)",
+												animation:
+													"scale-in var(--motion-fast) var(--ease-out-back)",
 											}}
 										/>
 									)}
@@ -244,7 +274,11 @@ function AppNav() {
 						<Link
 							href="/profile"
 							className="relative flex flex-col items-center gap-1 rounded-xl px-4 py-1.5 font-medium text-xs transition-[color,transform] duration-[var(--motion-fast)] active:scale-[0.93]"
-							style={{ color: isActive("/profile") ? "var(--b-brand-hi)" : "var(--b-text-3)" }}
+							style={{
+								color: isActive("/profile")
+									? "var(--b-brand-hi)"
+									: "var(--b-text-3)",
+							}}
 						>
 							{isActive("/profile") && (
 								<span
@@ -261,7 +295,11 @@ function AppNav() {
 							<Link
 								href="/admin"
 								className="flex flex-col items-center gap-1 rounded-xl px-4 py-1.5 font-medium text-xs transition-colors"
-								style={{ color: isActive("/admin") ? "var(--b-brand-hi)" : "var(--b-text-3)" }}
+								style={{
+									color: isActive("/admin")
+										? "var(--b-brand-hi)"
+										: "var(--b-text-3)",
+								}}
 							>
 								<Settings2 className="h-5 w-5" />
 								Admin
@@ -296,11 +334,7 @@ function MobileSignOut() {
 			className="flex flex-col items-center gap-1 rounded-xl px-4 py-1.5 font-medium text-xs transition-[color,transform] active:scale-[0.93] disabled:opacity-60"
 			style={{ color: "var(--b-text-3)" }}
 		>
-			{isSigningOut ? (
-				<Spinner size="xs" />
-			) : (
-				<LogOut className="h-5 w-5" />
-			)}
+			{isSigningOut ? <Spinner size="xs" /> : <LogOut className="h-5 w-5" />}
 			Sair
 		</button>
 	);
@@ -308,7 +342,9 @@ function MobileSignOut() {
 
 function RedirectToSignIn() {
 	const router = useRouter();
-	useEffect(() => { router.push("/sign-in"); }, [router]);
+	useEffect(() => {
+		router.push("/sign-in");
+	}, [router]);
 	return null;
 }
 
@@ -321,7 +357,8 @@ function CompetitionSwitcher() {
 	useEffect(() => {
 		if (!open) return;
 		function onMouseDown(e: MouseEvent) {
-			if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+			if (ref.current && !ref.current.contains(e.target as Node))
+				setOpen(false);
 		}
 		document.addEventListener("mousedown", onMouseDown);
 		return () => document.removeEventListener("mousedown", onMouseDown);
@@ -354,14 +391,18 @@ function CompetitionSwitcher() {
 
 			{open && (
 				<div
-					className="absolute top-full right-0 z-50 mt-2 w-52 overflow-hidden rounded-2xl animate-scale-in"
+					className="absolute top-full right-0 z-50 mt-2 w-52 animate-scale-in overflow-hidden rounded-2xl"
 					style={{
 						background: "var(--b-card)",
 						border: "1px solid var(--b-border-md)",
 						boxShadow: "var(--b-shadow-float)",
 					}}
 				>
-					{(Object.values(COMPETITIONS) as (typeof COMPETITIONS)[TournamentCode][]).map((comp) => {
+					{(
+						Object.values(
+							COMPETITIONS,
+						) as (typeof COMPETITIONS)[TournamentCode][]
+					).map((comp) => {
 						const active = tournament === comp.code;
 						return (
 							<button
@@ -377,12 +418,18 @@ function CompetitionSwitcher() {
 								<span className="text-base leading-none">{comp.flag}</span>
 								<div className="flex-1 text-left">
 									<p className="font-medium leading-tight">{comp.label}</p>
-									<p className="text-xs leading-tight" style={{ color: "var(--b-text-3)" }}>
+									<p
+										className="text-xs leading-tight"
+										style={{ color: "var(--b-text-3)" }}
+									>
 										{comp.sublabel}
 									</p>
 								</div>
 								{active && (
-									<span className="h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: "var(--b-brand)" }} />
+									<span
+										className="h-1.5 w-1.5 shrink-0 rounded-full"
+										style={{ background: "var(--b-brand)" }}
+									/>
 								)}
 							</button>
 						);
@@ -397,7 +444,10 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 	return (
 		<TournamentProvider>
 			<Authenticated>
-				<div className="flex min-h-screen" style={{ background: "var(--b-bg)" }}>
+				<div
+					className="flex min-h-screen"
+					style={{ background: "var(--b-bg)" }}
+				>
 					<AppNav />
 					<div className="flex min-w-0 flex-1 flex-col">
 						{/* Top header */}
@@ -411,7 +461,10 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 							}}
 						>
 							{/* Mobile logo */}
-							<Link href="/dashboard" className="flex items-center gap-2 md:hidden">
+							<Link
+								href="/dashboard"
+								className="flex items-center gap-2 md:hidden"
+							>
 								<div
 									className="flex h-8 w-8 items-center justify-center rounded-xl"
 									style={{
@@ -419,9 +472,15 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 										boxShadow: "var(--b-shadow-brand-sm)",
 									}}
 								>
-									<Trophy className="h-3.5 w-3.5" style={{ color: "var(--b-brand-fg)" }} />
+									<Trophy
+										className="h-3.5 w-3.5"
+										style={{ color: "var(--b-brand-fg)" }}
+									/>
 								</div>
-								<span className="text-display-sm text-sm" style={{ color: "var(--b-text)" }}>
+								<span
+									className="text-display-sm text-sm"
+									style={{ color: "var(--b-text)" }}
+								>
 									Bolão 2026
 								</span>
 							</Link>
@@ -445,15 +504,21 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 					style={{ background: "var(--b-bg)" }}
 				>
 					<div
-						className="flex h-14 w-14 items-center justify-center rounded-2xl animate-pulse-glow"
+						className="flex h-14 w-14 animate-pulse-glow items-center justify-center rounded-2xl"
 						style={{
 							background: "var(--g-brand-diag)",
 							boxShadow: "var(--b-glow-brand)",
 						}}
 					>
-						<Trophy className="h-6 w-6" style={{ color: "var(--b-brand-fg)" }} />
+						<Trophy
+							className="h-6 w-6"
+							style={{ color: "var(--b-brand-fg)" }}
+						/>
 					</div>
-					<p className="text-eyebrow text-xs" style={{ color: "var(--b-text-4)" }}>
+					<p
+						className="text-eyebrow text-xs"
+						style={{ color: "var(--b-text-4)" }}
+					>
 						Preparando o gramado…
 					</p>
 				</div>

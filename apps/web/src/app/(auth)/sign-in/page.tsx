@@ -12,9 +12,12 @@ import { z } from "zod";
 
 function getAuthErrorMessage(error: unknown) {
 	const message = error instanceof Error ? error.message.toLowerCase() : "";
-	if (message.includes("invalid") || message.includes("credentials")) return "Email ou senha inválidos.";
-	if (message.includes("verification") || message.includes("token")) return "Esse link expirou. Solicite um novo acesso.";
-	if (message.includes("rate") || message.includes("too many")) return "Muitas tentativas. Tente em alguns minutos.";
+	if (message.includes("invalid") || message.includes("credentials"))
+		return "Email ou senha inválidos.";
+	if (message.includes("verification") || message.includes("token"))
+		return "Esse link expirou. Solicite um novo acesso.";
+	if (message.includes("rate") || message.includes("too many"))
+		return "Muitas tentativas. Tente em alguns minutos.";
 	return "Não foi possível concluir o acesso agora.";
 }
 
@@ -49,7 +52,7 @@ export default function SignInPage() {
 			{/* Header */}
 			<div className="mb-8">
 				<h1
-					className="text-display-hero text-balance text-4xl leading-tight"
+					className="text-balance text-4xl text-display-hero leading-tight"
 					style={{ color: "var(--b-text)" }}
 				>
 					Bem-vindo
@@ -104,7 +107,12 @@ export default function SignInPage() {
 					</Link>
 				</div>
 
-				<form.Subscribe selector={(s) => ({ canSubmit: s.canSubmit, isSubmitting: s.isSubmitting })}>
+				<form.Subscribe
+					selector={(s) => ({
+						canSubmit: s.canSubmit,
+						isSubmitting: s.isSubmitting,
+					})}
+				>
 					{({ canSubmit, isSubmitting }) => (
 						<Button
 							type="submit"
@@ -120,7 +128,10 @@ export default function SignInPage() {
 				</form.Subscribe>
 			</form>
 
-			<p className="mt-6 text-center text-sm" style={{ color: "var(--b-text-3)" }}>
+			<p
+				className="mt-6 text-center text-sm"
+				style={{ color: "var(--b-text-3)" }}
+			>
 				Não tem conta?{" "}
 				<Link
 					href="/sign-up"

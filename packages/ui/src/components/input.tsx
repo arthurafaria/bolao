@@ -8,7 +8,7 @@ function Input({ className, type, ...props }: React.ComponentProps<"input">) {
 			data-slot="input"
 			className={cn(
 				"h-10 w-full min-w-0 rounded-xl border border-[var(--b-border-md)] bg-[var(--b-input-bg)]",
-				"px-3.5 py-2 text-sm text-[var(--b-text)] outline-none",
+				"px-3.5 py-2 text-[var(--b-text)] text-sm outline-none",
 				"placeholder:text-[var(--b-text-4)]",
 				"transition-[border-color,box-shadow] duration-[var(--motion-base)] ease-[var(--ease-out-quart)]",
 				"focus-visible:border-[var(--b-brand)] focus-visible:ring-2 focus-visible:ring-[var(--b-brand)/20%]",
@@ -95,9 +95,9 @@ function FloatingInput({
 						}}
 						className={cn(
 							"w-full bg-transparent outline-none",
-							"text-sm text-[var(--b-text)] placeholder:text-transparent",
+							"text-[var(--b-text)] text-sm placeholder:text-transparent",
 							"disabled:pointer-events-none disabled:opacity-50",
-							floated ? "pb-2 pt-5" : "py-3",
+							floated ? "pt-5 pb-2" : "py-3",
 							icon ? "px-2" : "px-3.5",
 							className,
 						)}
@@ -106,13 +106,15 @@ function FloatingInput({
 				</div>
 
 				{rightSlot && (
-					<span className="mr-3 shrink-0 text-[var(--b-text-4)]">{rightSlot}</span>
+					<span className="mr-3 shrink-0 text-[var(--b-text-4)]">
+						{rightSlot}
+					</span>
 				)}
 			</div>
 
 			{error && (
 				<p
-					className="mt-1.5 text-xs animate-slide-up"
+					className="mt-1.5 animate-slide-up text-xs"
 					style={{ color: "var(--b-danger)" }}
 				>
 					{error}
@@ -122,4 +124,4 @@ function FloatingInput({
 	);
 }
 
-export { Input, FloatingInput };
+export { FloatingInput, Input };

@@ -34,14 +34,16 @@ function Button({
 			{(variant === "brand" || variant === "default") && (
 				<span
 					aria-hidden
-					className="pointer-events-none absolute inset-0 -skew-x-12 translate-x-[-100%] bg-white/20 group-hover/button:animate-[shine-sweep_0.6s_var(--ease-out-expo)_forwards]"
+					className="pointer-events-none absolute inset-0 translate-x-[-100%] -skew-x-12 bg-white/20 group-hover/button:animate-[shine-sweep_0.6s_var(--ease-out-expo)_forwards]"
 				/>
 			)}
 
 			{loading && (
 				<Loader2 className="absolute h-4 w-4 animate-spin" aria-hidden />
 			)}
-			<span className={cn("flex items-center gap-inherit", loading && "opacity-0")}>
+			<span
+				className={cn("flex items-center gap-inherit", loading && "opacity-0")}
+			>
 				{children}
 			</span>
 		</ButtonPrimitive>

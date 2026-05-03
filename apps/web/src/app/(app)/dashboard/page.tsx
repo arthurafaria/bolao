@@ -1,105 +1,65 @@
 "use client";
 
 import { api } from "@bolao/backend/convex/_generated/api";
+import {
+	BentoTile,
+	BentoTileBody,
+	BentoTileEyebrow,
+	BentoTileFooter,
+	BentoTileHeader,
+} from "@bolao/ui/components/bento-tile";
+import { Skeleton } from "@bolao/ui/components/skeleton";
 import { useQuery } from "convex/react";
 import {
 	ArrowRight,
 	CalendarClock,
+	Crosshair,
+	Flame,
 	Shield,
-	Sparkles,
 	Target,
 	Trophy,
+	Users,
 } from "lucide-react";
 import type { Route } from "next";
 import Link from "next/link";
 import { useMemo } from "react";
-import { MatchCard } from "@/components/match-card";
+
+import { StatTile } from "@/components/dashboard/stat-tile";
+import { HeroMatch } from "@/components/match/hero-match";
+import { Scorecard } from "@/components/match/scorecard";
 import { COMPETITIONS, useTournament } from "@/contexts/tournament-context";
 
-function StatCard({
-	label,
-	value,
-	sub,
-	accent = false,
-}: {
-	label: string;
-	value: string | number;
-	sub?: string;
-	accent?: boolean;
-}) {
-	return (
-		<div
-			className="rounded-[30px] p-5"
-			style={{
-				background: accent
-					? "linear-gradient(180deg, var(--b-brand-12), color-mix(in oklch, var(--b-card) 92%, transparent))"
-					: "color-mix(in oklch, var(--b-card) 88%, transparent)",
-				boxShadow: "var(--b-shadow-card)",
-				outline: `1px solid ${accent ? "var(--b-brand-25)" : "var(--b-border-sm)"}`,
-			}}
-		>
-			<p
-				className="mb-2 font-semibold text-xs uppercase tracking-[0.22em]"
-				style={{ color: accent ? "var(--b-brand)" : "var(--b-text-3)" }}
-			>
-				{label}
-			</p>
-			<p
-				className="font-black font-display text-5xl tabular-nums leading-none"
-				style={{ color: accent ? "var(--b-brand-hi)" : "var(--b-text)" }}
-			>
-				{value}
-			</p>
-			{sub && (
-				<p
-					className="mt-3 text-sm leading-relaxed"
-					style={{ color: "var(--b-text-3)" }}
-				>
-					{sub}
-				</p>
-			)}
-		</div>
-	);
-}
-
-function SectionHeader({
+function SectionTitle({
 	title,
 	href,
 	linkLabel,
+	eyebrow,
 }: {
 	title: string;
-	href: Route;
-	linkLabel: string;
+	href?: Route;
+	linkLabel?: string;
+	eyebrow?: string;
 }) {
 	return (
-		<div className="mb-5 flex items-center justify-between gap-3">
-			<h2
-				className="font-bold font-display text-2xl uppercase tracking-wide"
-				style={{ color: "var(--b-text)" }}
-			>
-				{title}
-			</h2>
-			<Link
-				href={href}
-				className="inline-flex min-h-10 items-center gap-2 rounded-full px-4 py-2 font-semibold text-sm transition-[transform,opacity] active:scale-[0.96]"
-				style={{
-					background: "var(--b-tint)",
-					color: "var(--b-brand)",
-				}}
-			>
-				{linkLabel}
-				<ArrowRight className="h-4 w-4" />
-			</Link>
+		<div className="mb-4 flex items-end justify-between gap-3">
+			<div>
+				{eyebrow && (
+					<span className="text-eyebrow text-[var(--b-text-3)]">{eyebrow}</span>
+				)}
+				<h2 className="font-black font-display text-2xl uppercase tracking-tight text-[var(--b-text)] sm:text-3xl">
+					{title}
+				</h2>
+			</div>
+			{href && linkLabel && (
+				<Link
+					href={href}
+					className="inline-flex h-9 items-center gap-1.5 rounded-full bg-[var(--b-tint)] px-3 font-bold text-[var(--b-brand)] text-xs uppercase tracking-wider transition-[transform,background] duration-[var(--motion-fast)] hover:bg-[var(--b-brand-12)] active:scale-[0.96]"
+				>
+					{linkLabel}
+					<ArrowRight className="h-3.5 w-3.5" />
+				</Link>
+			)}
 		</div>
-	);
-}
-
-function SkeletonCard() {
-	return (
-		<div
-			className="h-[164px] animate-pulse rounded-[30px]"
-			style={{ background: "var(--b-card)", boxShadow: "var(--b-shadow-card)" }}
-		/>
 	);
 }
 
@@ -115,181 +75,99 @@ export default function DashboardPage() {
 		return new Map(allPredictions.map((p) => [p.matchId as string, p]));
 	}, [allPredictions]);
 
-	const nextMatch = upcoming?.find(Boolean);
-	const pendingPredictions =
-		upcoming?.filter((match) => {
-			if (!match) return false;
-			return !predMap?.has(match._id);
-		}).length ?? 0;
+	const heroMatch = upcoming?.find(Boolean) ?? null;
+	const heroHasPrediction = heroMatch ? predMap?.has(heroMatch._id) : false;
+	const restMatches = upcoming?.filter((m) => m && m._id !== heroMatch?._id) ?? [];
+
+	const totalPoints = stats?.totalPoints ?? 0;
+	const totalPredictions = stats?.total ?? 0;
+	const exact = stats?.exact ?? 0;
+	const correct = stats?.correct ?? 0;
+	const accuracy =
+		totalPredictions > 0
+			? Math.round((correct / totalPredictions) * 100)
+			: 0;
+
+	// Top liga (maior pontuação do usuário)
+	const topLeague = useMemo(() => {
+		if (!leagues || leagues.length === 0) return null;
+		return [...leagues].sort((a, b) => (b?.myPoints ?? 0) - (a?.myPoints ?? 0))[0];
+	}, [leagues]);
 
 	return (
-		<div className="space-y-8">
-			<section
-				className="overflow-hidden rounded-[38px] p-6 sm:p-7"
-				style={{
-					background:
-						"linear-gradient(135deg, color-mix(in oklch, var(--b-brand) 12%, var(--b-card)), color-mix(in oklch, oklch(0.83 0.2 90) 7%, var(--b-card)))",
-					boxShadow: "var(--b-shadow-float)",
-					outline: "1px solid var(--b-border-sm)",
-				}}
-			>
-				<div className="grid gap-6 xl:grid-cols-[1.15fr_0.85fr] xl:items-start">
-					<div>
-						<div
-							className="inline-flex items-center gap-2 rounded-full px-4 py-1.5 font-semibold text-xs uppercase tracking-[0.22em]"
-							style={{ background: "var(--b-card)", color: "var(--b-brand)" }}
-						>
-							<Sparkles className="h-4 w-4" />
-							Painel principal
-						</div>
-						<h1
-							className="mt-5 text-balance font-black font-display text-5xl uppercase leading-none tracking-tight sm:text-6xl"
-							style={{ color: "var(--b-text)" }}
-						>
-							Início
-						</h1>
-						<p
-							className="mt-3 text-sm uppercase tracking-[0.22em]"
-							style={{ color: "var(--b-text-3)" }}
-						>
-							{COMPETITIONS[tournament].label}{" "}
-							{COMPETITIONS[tournament].sublabel}
-						</p>
-						<p
-							className="mt-5 max-w-2xl text-pretty text-base leading-relaxed sm:text-lg"
-							style={{ color: "var(--b-text-2)" }}
-						>
-							Veja rapidamente seu momento no bolão, o que ainda falta palpitar
-							e onde estão as melhores chances de somar pontos hoje.
-						</p>
-					</div>
+		<div className="space-y-8 animate-fade-in">
+			{/* Header editorial */}
+			<header className="flex flex-col gap-2">
+				<span className="text-eyebrow text-[var(--b-brand)]">
+					{COMPETITIONS[tournament].label} · {COMPETITIONS[tournament].sublabel}
+				</span>
+				<h1 className="font-black font-display text-5xl uppercase leading-[0.9] tracking-tight text-[var(--b-text)] sm:text-6xl">
+					Bem-vindo
+					<br />
+					<span className="text-[var(--b-brand)]">ao seu painel</span>
+				</h1>
+			</header>
 
-					<div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-1">
-						<div
-							className="rounded-[30px] p-5"
-							style={{
-								background:
-									"color-mix(in oklch, var(--b-card) 84%, transparent)",
-								boxShadow: "var(--b-shadow-card)",
-							}}
-						>
-							<div className="flex items-center gap-3">
-								<div
-									className="flex h-11 w-11 items-center justify-center rounded-2xl"
-									style={{
-										background: "var(--b-brand-10)",
-										color: "var(--b-brand)",
-									}}
-								>
-									<CalendarClock className="h-5 w-5" />
-								</div>
-								<div>
-									<p
-										className="text-xs uppercase tracking-[0.22em]"
-										style={{ color: "var(--b-text-3)" }}
-									>
-										Próxima janela
-									</p>
-									<p
-										className="mt-1 font-semibold"
-										style={{ color: "var(--b-text)" }}
-									>
-										{nextMatch
-											? new Date(nextMatch.utcDate).toLocaleString("pt-BR", {
-													day: "2-digit",
-													month: "2-digit",
-													hour: "2-digit",
-													minute: "2-digit",
-												})
-											: "Sem jogo agendado"}
-									</p>
-								</div>
-							</div>
-							<p
-								className="mt-4 text-sm leading-relaxed"
-								style={{ color: "var(--b-text-3)" }}
-							>
-								{nextMatch
-									? `${pendingPredictions} jogo${pendingPredictions === 1 ? "" : "s"} dessa lista ainda sem palpite salvo.`
-									: "Quando a agenda sair, seus próximos jogos aparecem aqui."}
-							</p>
-						</div>
+			{/* Hero match */}
+			{heroMatch ? (
+				<HeroMatch match={heroMatch} hasPrediction={!!heroHasPrediction} />
+			) : upcoming === undefined ? (
+				<Skeleton className="h-[280px] w-full rounded-[32px]" />
+			) : (
+				<div className="flex flex-col items-center gap-3 rounded-[32px] border border-dashed border-[var(--b-border-md)] p-12 text-center">
+					<Shield className="h-10 w-10 text-[var(--b-text-4)]" />
+					<p className="font-bold font-display text-[var(--b-text-3)] text-lg uppercase tracking-tight">
+						Sem jogos agendados
+					</p>
+					<p className="max-w-md text-[var(--b-text-3)] text-sm">
+						Quando a próxima janela do {COMPETITIONS[tournament].label} entrar
+						no ar, ela aparece aqui.
+					</p>
+				</div>
+			)}
 
-						<div
-							className="rounded-[30px] p-5"
-							style={{
-								background:
-									"color-mix(in oklch, var(--b-card) 84%, transparent)",
-								boxShadow: "var(--b-shadow-card)",
-							}}
-						>
-							<div className="flex items-center gap-3">
-								<div
-									className="flex h-11 w-11 items-center justify-center rounded-2xl"
-									style={{
-										background: "var(--b-brand-10)",
-										color: "var(--b-brand)",
-									}}
-								>
-									<Target className="h-5 w-5" />
-								</div>
-								<div>
-									<p
-										className="text-xs uppercase tracking-[0.22em]"
-										style={{ color: "var(--b-text-3)" }}
-									>
-										Status da rodada
-									</p>
-									<p
-										className="mt-1 font-semibold"
-										style={{ color: "var(--b-text)" }}
-									>
-										{(stats?.exact ?? 0) > 0
-											? "Você já cravou placares"
-											: "Hora de buscar os exatos"}
-									</p>
-								</div>
-							</div>
-							<p
-								className="mt-4 text-sm leading-relaxed"
-								style={{ color: "var(--b-text-3)" }}
-							>
-								{(stats?.total ?? 0) > 0
-									? `Você já registrou ${stats?.total ?? 0} palpites até agora.`
-									: "Seu primeiro palpite ainda está esperando por você."}
-							</p>
-						</div>
-					</div>
+			{/* Stats — bento grid */}
+			<section>
+				<SectionTitle eyebrow="Você no bolão" title="Seus números" />
+				<div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+					<StatTile
+						label="Pontos"
+						value={totalPoints}
+						icon={Trophy}
+						variant="accent"
+						footer={
+							<span>Total acumulado</span>
+						}
+					/>
+					<StatTile
+						label="Palpites"
+						value={totalPredictions}
+						icon={Target}
+						footer={<span>Jogos com placar dado</span>}
+					/>
+					<StatTile
+						label="Exatos"
+						value={exact}
+						icon={Crosshair}
+						variant={exact > 0 ? "gold" : "default"}
+						footer={<span>Cravadas (10 pts)</span>}
+					/>
+					<StatTile
+						label="Precisão"
+						value={accuracy}
+						suffix="%"
+						icon={Flame}
+						footer={<span>Palpites com pontos</span>}
+					/>
 				</div>
 			</section>
 
-			<div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-				<StatCard
-					label="Pontos"
-					value={stats?.totalPoints ?? 0}
-					sub="Total acumulado nas ligas e torneios"
-					accent
-				/>
-				<StatCard
-					label="Palpites"
-					value={stats?.total ?? 0}
-					sub="Jogos que ja receberam seu placar"
-				/>
-				<StatCard
-					label="Exatos"
-					value={stats?.exact ?? 0}
-					sub="Placar cravado com pontuação máxima"
-				/>
-				<StatCard
-					label="Ligas"
-					value={leagues?.length ?? 0}
-					sub="Grupos em que você está competindo"
-				/>
-			</div>
-
-			<div className="grid gap-8 xl:grid-cols-[1.2fr_0.8fr]">
-				<div>
-					<SectionHeader
+			{/* Próximos jogos + sidebar */}
+			<div className="grid gap-6 lg:grid-cols-[1fr_360px]">
+				{/* Coluna principal: próximos jogos */}
+				<section>
+					<SectionTitle
+						eyebrow="Em breve"
 						title="Próximos jogos"
 						href="/predictions"
 						linkLabel="Ver todos"
@@ -297,189 +175,141 @@ export default function DashboardPage() {
 
 					{upcoming === undefined ? (
 						<div className="space-y-3">
-							{[1, 2, 3].map((i) => (
-								<SkeletonCard key={i} />
-							))}
+							<Skeleton className="h-[140px] w-full rounded-[24px]" />
+							<Skeleton className="h-[140px] w-full rounded-[24px]" />
+							<Skeleton className="h-[140px] w-full rounded-[24px]" />
 						</div>
-					) : upcoming.length === 0 ? (
-						<div
-							className="rounded-[32px] p-10 text-center"
-							style={{
-								background: "var(--b-card)",
-								boxShadow: "var(--b-shadow-card)",
-								outline: "1px solid var(--b-border-sm)",
-							}}
-						>
-							<Shield
-								className="mx-auto mb-3 h-9 w-9 opacity-40"
-								style={{ color: "var(--b-brand)" }}
-							/>
-							<p style={{ color: "var(--b-text-3)" }}>
-								Nenhum jogo agendado ainda
+					) : restMatches.length === 0 ? (
+						<div className="flex flex-col items-center gap-2 rounded-[24px] border border-dashed border-[var(--b-border-md)] p-8 text-center">
+							<CalendarClock className="h-8 w-8 text-[var(--b-text-4)]" />
+							<p className="text-[var(--b-text-3)] text-sm">
+								Sem outros jogos agendados no momento
 							</p>
 						</div>
 					) : (
-						<div className="space-y-3">
-							{upcoming.map(
-								(m) =>
-									m && (
-										<MatchCard
-											key={m._id}
+						<div
+							className="stagger-children space-y-3"
+							style={{ ["--d" as string]: "70ms" }}
+						>
+							{restMatches.map((m, i) =>
+								m ? (
+									<div
+										key={m._id}
+										style={{ ["--i" as string]: i }}
+									>
+										<Scorecard
 											match={m}
 											prediction={
 												predMap ? (predMap.get(m._id) ?? null) : undefined
 											}
 										/>
-									),
+									</div>
+								) : null,
 							)}
 						</div>
 					)}
-				</div>
+				</section>
 
-				<div className="space-y-8">
-					<section>
-						<SectionHeader
-							title="Leitura rápida"
-							href="/profile"
-							linkLabel="Ver perfil"
-						/>
-						<div className="grid gap-4">
-							{[
-								{
-									icon: Trophy,
-									title: "Total de pontos",
-									value: `${stats?.totalPoints ?? 0} pts`,
-									copy: "Seu saldo geral no bolão até aqui.",
-								},
-								{
-									icon: Target,
-									title: "Precisão",
-									value:
-										(stats?.total ?? 0) > 0
-											? `${Math.round(((stats?.exact ?? 0) / (stats?.total ?? 1)) * 100)}%`
-											: "0%",
-									copy: "Percentual de palpites com placar exato.",
-								},
-							].map(({ icon: Icon, title, value, copy }) => (
-								<div
-									key={title}
-									className="rounded-[30px] p-5"
-									style={{
-										background: "var(--b-card)",
-										boxShadow: "var(--b-shadow-card)",
-										outline: "1px solid var(--b-border-sm)",
-									}}
-								>
-									<div className="flex items-center gap-3">
-										<div
-											className="flex h-11 w-11 items-center justify-center rounded-2xl"
-											style={{
-												background: "var(--b-brand-10)",
-												color: "var(--b-brand)",
-											}}
-										>
-											<Icon className="h-5 w-5" />
-										</div>
-										<div>
-											<p
-												className="text-xs uppercase tracking-[0.22em]"
-												style={{ color: "var(--b-text-3)" }}
-											>
-												{title}
-											</p>
-											<p
-												className="mt-1 font-display text-3xl tabular-nums"
-												style={{ color: "var(--b-text)", fontWeight: 800 }}
-											>
-												{value}
-											</p>
-										</div>
-									</div>
-									<p
-										className="mt-4 text-sm leading-relaxed"
-										style={{ color: "var(--b-text-3)" }}
-									>
-										{copy}
-									</p>
-								</div>
-							))}
-						</div>
-					</section>
-
-					{leagues && leagues.length > 0 && (
+				{/* Sidebar */}
+				<aside className="flex flex-col gap-6">
+					{/* Top liga */}
+					{topLeague && (
 						<section>
-							<SectionHeader
-								title="Minhas ligas"
+							<SectionTitle
+								eyebrow="Sua melhor liga"
+								title={topLeague.name}
+								href={`/leagues/${topLeague._id}` as Route}
+								linkLabel="Abrir"
+							/>
+							<BentoTile variant="dark">
+								<BentoTileHeader>
+									<BentoTileEyebrow>Pontos na liga</BentoTileEyebrow>
+									<span className="flex h-8 w-8 items-center justify-center rounded-full bg-white/10">
+										<Trophy className="h-4 w-4 text-[var(--b-gold)]" />
+									</span>
+								</BentoTileHeader>
+								<BentoTileBody>
+									<span className="font-black font-display text-6xl tabular-nums leading-none text-white">
+										{topLeague.myPoints}
+									</span>
+								</BentoTileBody>
+								<BentoTileFooter>
+									<span className="inline-flex items-center gap-1.5 text-white/70">
+										<Users className="h-3.5 w-3.5" />
+										{topLeague.memberCount} membros
+									</span>
+								</BentoTileFooter>
+							</BentoTile>
+						</section>
+					)}
+
+					{/* Lista de ligas (resto) */}
+					{leagues && leagues.length > 1 && (
+						<section>
+							<SectionTitle
+								eyebrow="Outras ligas"
+								title="Suas disputas"
 								href="/leagues"
 								linkLabel="Ver todas"
 							/>
-							<div className="space-y-3">
-								{leagues.map(
-									(league) =>
-										league && (
+							<div className="space-y-2">
+								{leagues
+									.filter((l) => l && l._id !== topLeague?._id)
+									.map((league) =>
+										league ? (
 											<Link
 												key={league._id}
-												href={`/leagues/${league._id}` as `/leagues/${string}`}
+												href={`/leagues/${league._id}` as Route}
+												className="group flex items-center gap-3 rounded-2xl border border-[var(--b-border-sm)] bg-[var(--b-card)] p-3 transition-[transform,box-shadow] duration-[var(--motion-base)] hover:-translate-y-0.5 hover:shadow-[var(--b-shadow-brand-sm)]"
 											>
-												<div
-													className="flex items-center justify-between rounded-[30px] px-5 py-4 transition-[transform,filter] hover:brightness-105 active:scale-[0.99]"
-													style={{
-														background:
-															"color-mix(in oklch, var(--b-card) 90%, transparent)",
-														boxShadow: "var(--b-shadow-card)",
-														outline: "1px solid var(--b-border-sm)",
-													}}
-												>
-													<div className="flex min-w-0 items-center gap-4">
-														<div
-															className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl"
-															style={{ background: "var(--b-brand-10)" }}
-														>
-															<Trophy
-																className="h-5 w-5"
-																style={{ color: "var(--b-brand)" }}
-															/>
-														</div>
-														<div className="min-w-0">
-															<p
-																className="truncate font-semibold"
-																style={{ color: "var(--b-text)" }}
-															>
-																{league.name}
-															</p>
-															<p
-																className="text-xs uppercase tracking-[0.18em]"
-																style={{ color: "var(--b-text-3)" }}
-															>
-																{league.memberCount} membros
-															</p>
-														</div>
-													</div>
-													<div className="text-right">
-														<p
-															className="font-display text-3xl tabular-nums leading-none"
-															style={{
-																color: "var(--b-brand)",
-																fontWeight: 800,
-															}}
-														>
-															{league.myPoints}
-														</p>
-														<p
-															className="mt-1 text-xs uppercase tracking-[0.18em]"
-															style={{ color: "var(--b-text-3)" }}
-														>
-															pontos
-														</p>
-													</div>
+												<span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[var(--b-brand-10)] text-[var(--b-brand)]">
+													<Trophy className="h-4 w-4" />
+												</span>
+												<div className="flex min-w-0 flex-1 flex-col">
+													<span className="truncate font-semibold text-[var(--b-text)] text-sm">
+														{league.name}
+													</span>
+													<span className="text-[10px] text-[var(--b-text-4)] uppercase tracking-wider">
+														{league.memberCount} membros
+													</span>
 												</div>
+												<span className="font-black font-display text-2xl tabular-nums text-[var(--b-text)]">
+													{league.myPoints}
+												</span>
 											</Link>
-										),
-								)}
+										) : null,
+									)}
 							</div>
 						</section>
 					)}
-				</div>
+
+					{/* CTA criar liga (se não tem nenhuma) */}
+					{leagues && leagues.length === 0 && (
+						<BentoTile variant="accent">
+							<BentoTileHeader>
+								<BentoTileEyebrow>Comece agora</BentoTileEyebrow>
+								<Trophy className="h-5 w-5 text-[var(--b-brand)]" />
+							</BentoTileHeader>
+							<BentoTileBody>
+								<p className="font-bold font-display text-xl uppercase tracking-tight text-[var(--b-text)]">
+									Sem liga ainda?
+								</p>
+								<p className="text-[var(--b-text-3)] text-sm leading-relaxed">
+									Crie ou entre numa liga pra disputar com seus amigos.
+								</p>
+							</BentoTileBody>
+							<BentoTileFooter>
+								<Link
+									href="/leagues"
+									className="inline-flex h-9 items-center gap-1.5 rounded-full bg-[var(--b-brand)] px-4 font-bold text-[var(--b-brand-fg)] text-xs uppercase tracking-wider transition-transform hover:scale-[1.04] active:scale-[0.96]"
+								>
+									Criar liga
+									<ArrowRight className="h-3.5 w-3.5" />
+								</Link>
+							</BentoTileFooter>
+						</BentoTile>
+					)}
+				</aside>
 			</div>
 		</div>
 	);

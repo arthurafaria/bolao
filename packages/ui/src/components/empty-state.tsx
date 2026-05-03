@@ -9,12 +9,18 @@ interface EmptyStateProps {
 	className?: string;
 }
 
-export function EmptyState({ icon, title, description, action, className }: EmptyStateProps) {
+export function EmptyState({
+	icon,
+	title,
+	description,
+	action,
+	className,
+}: EmptyStateProps) {
 	return (
 		<div
 			className={cn(
 				"flex flex-col items-center justify-center gap-4 rounded-[28px] px-8 py-14 text-center",
-				"border border-dashed border-[var(--b-border-md)] bg-[var(--b-surface)]",
+				"border border-[var(--b-border-md)] border-dashed bg-[var(--b-surface)]",
 				"animate-fade-in",
 				className,
 			)}
@@ -28,9 +34,13 @@ export function EmptyState({ icon, title, description, action, className }: Empt
 				</div>
 			)}
 			<div className="max-w-xs space-y-1.5">
-				<p className="font-display text-xl uppercase font-800 text-[var(--b-text)]">{title}</p>
+				<p className="font-800 font-display text-[var(--b-text)] text-xl uppercase">
+					{title}
+				</p>
 				{description && (
-					<p className="text-sm leading-relaxed text-[var(--b-text-3)]">{description}</p>
+					<p className="text-[var(--b-text-3)] text-sm leading-relaxed">
+						{description}
+					</p>
 				)}
 			</div>
 			{action && <div className="mt-1">{action}</div>}

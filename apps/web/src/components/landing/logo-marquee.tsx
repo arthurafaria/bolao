@@ -1,23 +1,15 @@
-const TEAM_FLAGS = [
-	{ name: "Brasil", flag: "🇧🇷" },
-	{ name: "Argentina", flag: "🇦🇷" },
-	{ name: "França", flag: "🇫🇷" },
-	{ name: "Espanha", flag: "🇪🇸" },
-	{ name: "Inglaterra", flag: "🏴󠁧󠁢󠁥󠁮󠁧󠁿" },
-	{ name: "Alemanha", flag: "🇩🇪" },
-	{ name: "Portugal", flag: "🇵🇹" },
-	{ name: "Holanda", flag: "🇳🇱" },
-	{ name: "Itália", flag: "🇮🇹" },
-	{ name: "Uruguai", flag: "🇺🇾" },
-	{ name: "EUA", flag: "🇺🇸" },
-	{ name: "México", flag: "🇲🇽" },
-	{ name: "Japão", flag: "🇯🇵" },
-	{ name: "Coreia", flag: "🇰🇷" },
-	{ name: "Marrocos", flag: "🇲🇦" },
-	{ name: "Senegal", flag: "🇸🇳" },
+const COMPETITIONS = [
+	{ name: "Copa do Mundo", code: "FIFA" },
+	{ name: "Brasileirão", code: "BR" },
+	{ name: "Mais competições em breve", code: "+" },
 ];
 
-const doubled = [...TEAM_FLAGS, ...TEAM_FLAGS];
+const doubled = [
+	...COMPETITIONS,
+	...COMPETITIONS,
+	...COMPETITIONS,
+	...COMPETITIONS,
+];
 
 export function LogoMarquee() {
 	return (
@@ -37,9 +29,9 @@ export function LogoMarquee() {
 					width: "max-content",
 				}}
 			>
-				{doubled.map((team, i) => (
+				{doubled.map((competition, i) => (
 					<div
-						key={`${team.name}-${i}`}
+						key={`${competition.name}-${i}`}
 						className="flex shrink-0 items-center gap-2 rounded-2xl px-4 py-2.5"
 						style={{
 							background: "color-mix(in oklch, var(--b-card) 80%, transparent)",
@@ -47,12 +39,17 @@ export function LogoMarquee() {
 							boxShadow: "var(--b-shadow-soft)",
 						}}
 					>
-						<span className="text-xl leading-none">{team.flag}</span>
+						<span
+							className="font-black font-mono text-sm leading-none"
+							style={{ color: "var(--b-text)" }}
+						>
+							{competition.code}
+						</span>
 						<span
 							className="font-semibold text-xs uppercase tracking-wider"
 							style={{ color: "var(--b-text-3)" }}
 						>
-							{team.name}
+							{competition.name}
 						</span>
 					</div>
 				))}

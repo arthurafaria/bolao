@@ -8,7 +8,7 @@ export default function Loader() {
 			aria-label="Carregando"
 		>
 			<div
-				className="flex h-12 w-12 items-center justify-center rounded-2xl animate-pulse-glow"
+				className="flex h-12 w-12 animate-pulse-glow items-center justify-center rounded-2xl"
 				style={{
 					background: "var(--g-brand-diag)",
 					boxShadow: "var(--b-glow-brand)",
@@ -16,7 +16,7 @@ export default function Loader() {
 			>
 				<Trophy className="h-5 w-5" style={{ color: "var(--b-brand-fg)" }} />
 			</div>
-			<p className="text-xs text-eyebrow" style={{ color: "var(--b-text-4)" }}>
+			<p className="text-eyebrow text-xs" style={{ color: "var(--b-text-4)" }}>
 				Preparando o gramado…
 			</p>
 		</div>

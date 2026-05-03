@@ -43,7 +43,7 @@
 .dark {
 	--background: oklch(0.085 0.025 145);
 	--foreground: oklch(0.96 0 0);
-	--card: oklch(0.135 0.030 145);
+	--card: oklch(0.135 0.03 145);
 	--card-foreground: oklch(0.96 0 0);
 	--popover: oklch(0.155 0.032 145);
 	--popover-foreground: oklch(0.96 0 0);
@@ -53,14 +53,14 @@
 	--secondary-foreground: oklch(0.9 0 0);
 	--muted: oklch(0.17 0.04 145);
 	--muted-foreground: oklch(0.56 0.05 145);
-	--accent: oklch(0.84 0.20 90);
+	--accent: oklch(0.84 0.2 90);
 	--accent-foreground: oklch(0.1 0.06 90);
 	--destructive: oklch(0.67 0.22 22);
 	--border: oklch(1 0 0 / 9%);
 	--input: oklch(1 0 0 / 11%);
 	--ring: oklch(0.72 0.22 145);
 	--chart-1: oklch(0.72 0.22 145);
-	--chart-2: oklch(0.84 0.20 90);
+	--chart-2: oklch(0.84 0.2 90);
 	--chart-3: oklch(0.58 0.2 250);
 	--chart-4: oklch(0.68 0.18 30);
 	--chart-5: oklch(0.63 0.15 300);
@@ -77,11 +77,11 @@
 /* ── Bolão semantic tokens (light) ───────────────────────────────── */
 :root {
 	/* Surfaces */
-	--b-bg:       oklch(0.975 0.006 145);
-	--b-surface:  oklch(0.945 0.008 145);
-	--b-card:     oklch(1 0 0);
-	--b-card-hi:  oklch(0.99 0.004 145);
-	--b-inner:    oklch(0.955 0.006 145);
+	--b-bg: oklch(0.975 0.006 145);
+	--b-surface: oklch(0.945 0.008 145);
+	--b-card: oklch(1 0 0);
+	--b-card-hi: oklch(0.99 0.004 145);
+	--b-inner: oklch(0.955 0.006 145);
 	--b-input-bg: oklch(0.985 0.004 145);
 
 	/* Shadows */
@@ -92,69 +92,79 @@
 		0 1px 0 rgb(255 255 255 / 0.8) inset, 0 18px 40px rgb(18 26 20 / 0.08);
 	--b-shadow-float:
 		0 1px 1px rgb(0 0 0 / 0.03), 0 24px 60px rgb(15 23 18 / 0.12);
-	--b-shadow-brand-sm:  0 2px 6px oklch(0.30 0.12 145 / 0.10);
-	--b-shadow-brand-md:  0 8px 24px oklch(0.30 0.12 145 / 0.14);
-	--b-shadow-brand-lg:  0 24px 60px oklch(0.30 0.12 145 / 0.18);
-	--b-shadow-brand-xl:  0 40px 96px oklch(0.30 0.12 145 / 0.22);
-	--b-glow-brand:       0 0 0 1px oklch(0.46 0.22 145 / 0.18), 0 12px 36px oklch(0.46 0.22 145 / 0.14);
+	--b-shadow-brand-sm: 0 2px 6px oklch(0.3 0.12 145 / 0.1);
+	--b-shadow-brand-md: 0 8px 24px oklch(0.3 0.12 145 / 0.14);
+	--b-shadow-brand-lg: 0 24px 60px oklch(0.3 0.12 145 / 0.18);
+	--b-shadow-brand-xl: 0 40px 96px oklch(0.3 0.12 145 / 0.22);
+	--b-glow-brand:
+		0 0 0 1px oklch(0.46 0.22 145 / 0.18),
+		0 12px 36px oklch(0.46 0.22 145 / 0.14);
 
 	/* Borders */
 	--b-border-xs: oklch(0 0 0 / 4%);
 	--b-border-sm: oklch(0 0 0 / 7%);
-	--b-border:    oklch(0 0 0 / 10%);
+	--b-border: oklch(0 0 0 / 10%);
 	--b-border-md: oklch(0 0 0 / 14%);
 	--b-border-lg: oklch(0 0 0 / 22%);
 
 	/* Tints */
-	--b-tint:    oklch(0 0 0 / 4%);
+	--b-tint: oklch(0 0 0 / 4%);
 	--b-tint-md: oklch(0 0 0 / 7%);
 
 	/* Text */
-	--b-text:   oklch(0.15 0.025 145);
+	--b-text: oklch(0.15 0.025 145);
 	--b-text-2: oklch(0.36 0.08 145);
 	--b-text-3: oklch(0.52 0.06 145);
 	--b-text-4: oklch(0.64 0.04 145);
 
 	/* Brand (verde hue 145) */
-	--b-brand:    oklch(0.46 0.22 145);
+	--b-brand: oklch(0.46 0.22 145);
 	--b-brand-hi: oklch(0.52 0.24 145);
-	--b-brand-lo: oklch(0.36 0.20 145);
+	--b-brand-lo: oklch(0.36 0.2 145);
 	--b-brand-fg: oklch(0.99 0 0);
-	--b-brand-50:  oklch(0.96 0.04 145);
+	--b-brand-50: oklch(0.96 0.04 145);
 	--b-brand-100: oklch(0.92 0.06 145);
-	--b-brand-200: oklch(0.86 0.10 145);
-	--b-brand-5:   color-mix(in oklch, var(--b-brand) 5%, transparent);
-	--b-brand-10:  color-mix(in oklch, var(--b-brand) 10%, transparent);
-	--b-brand-12:  color-mix(in oklch, var(--b-brand) 12%, transparent);
-	--b-brand-15:  color-mix(in oklch, var(--b-brand) 15%, transparent);
-	--b-brand-25:  color-mix(in oklch, var(--b-brand) 25%, transparent);
-	--b-brand-40:  color-mix(in oklch, var(--b-brand) 40%, transparent);
+	--b-brand-200: oklch(0.86 0.1 145);
+	--b-brand-5: color-mix(in oklch, var(--b-brand) 5%, transparent);
+	--b-brand-10: color-mix(in oklch, var(--b-brand) 10%, transparent);
+	--b-brand-12: color-mix(in oklch, var(--b-brand) 12%, transparent);
+	--b-brand-15: color-mix(in oklch, var(--b-brand) 15%, transparent);
+	--b-brand-25: color-mix(in oklch, var(--b-brand) 25%, transparent);
+	--b-brand-40: color-mix(in oklch, var(--b-brand) 40%, transparent);
 
 	/* Accent (amarelo hue 90) */
-	--b-accent:    oklch(0.78 0.18 90);
-	--b-accent-hi: oklch(0.84 0.20 90);
+	--b-accent: oklch(0.78 0.18 90);
+	--b-accent-hi: oklch(0.84 0.2 90);
 	--b-accent-50: oklch(0.97 0.05 90);
-	--b-accent-fg: oklch(0.18 0.10 90);
+	--b-accent-fg: oklch(0.18 0.1 90);
 
 	/* Status */
-	--b-success:    oklch(0.58 0.18 150);
+	--b-success: oklch(0.58 0.18 150);
 	--b-success-bg: oklch(0.95 0.05 150);
 	--b-success-fg: oklch(0.25 0.12 150);
-	--b-warning:    oklch(0.74 0.16 70);
+	--b-warning: oklch(0.74 0.16 70);
 	--b-warning-bg: oklch(0.97 0.05 70);
 	--b-warning-fg: oklch(0.32 0.12 70);
-	--b-danger:     oklch(0.58 0.22 27);
-	--b-danger-bg:  oklch(0.96 0.05 27);
-	--b-danger-fg:  oklch(0.25 0.14 27);
-	--b-info:       oklch(0.58 0.18 230);
-	--b-info-bg:    oklch(0.96 0.04 230);
-	--b-info-fg:    oklch(0.25 0.12 230);
+	--b-danger: oklch(0.58 0.22 27);
+	--b-danger-bg: oklch(0.96 0.05 27);
+	--b-danger-fg: oklch(0.25 0.14 27);
+	--b-info: oklch(0.58 0.18 230);
+	--b-info-bg: oklch(0.96 0.04 230);
+	--b-info-fg: oklch(0.25 0.12 230);
 
 	/* Gradientes */
-	--g-brand-vert:  linear-gradient(180deg, var(--b-brand-hi), var(--b-brand));
-	--g-brand-diag:  linear-gradient(135deg, var(--b-brand) 0%, oklch(0.72 0.22 155) 100%);
-	--g-brand-soft:  linear-gradient(135deg, var(--b-brand-100), var(--b-brand-50));
-	--g-card-shine:  linear-gradient(180deg, oklch(1 0 0 / 0.8), oklch(1 0 0 / 0));
+	--g-brand-vert: linear-gradient(180deg, var(--b-brand-hi), var(--b-brand));
+	--g-brand-diag: linear-gradient(
+		135deg,
+		var(--b-brand) 0%,
+		oklch(0.72 0.22 155) 100%
+	);
+	--g-brand-soft: linear-gradient(
+		135deg,
+		var(--b-brand-100),
+		var(--b-brand-50)
+	);
+	--g-card-shine: linear-gradient(180deg, oklch(1 0 0 / 0.8), oklch(1 0 0 / 0));
 
 	/* Hero / auth backgrounds */
 	--b-hero-bg:
@@ -178,26 +188,63 @@
 	--b-auth-panel-bg:
 		radial-gradient(
 			ellipse 120% 70% at 10% 110%,
-			oklch(0.7 0.14 145 / 0.30) 0%,
+			oklch(0.7 0.14 145 / 0.3) 0%,
 			transparent 55%
 		),
 		radial-gradient(
 			ellipse 80% 60% at 90% -10%,
-			oklch(0.80 0.12 90 / 0.12) 0%,
+			oklch(0.8 0.12 90 / 0.12) 0%,
 			transparent 50%
 		),
 		oklch(0.935 0.012 145);
+
+	/* ── V2 Editorial Sportivo ───────────────────────────────────── */
+
+	/* Pódio (top 3) */
+	--b-gold: oklch(0.78 0.16 85);
+	--b-gold-bg: oklch(0.96 0.06 85);
+	--b-silver: oklch(0.78 0.02 250);
+	--b-silver-bg: oklch(0.96 0.01 250);
+	--b-bronze: oklch(0.62 0.12 50);
+	--b-bronze-bg: oklch(0.95 0.05 50);
+
+	/* Sombras editoriais */
+	--b-shadow-card-hard: 4px 4px 0 var(--b-brand);
+	--b-shadow-card-soft:
+		0 12px 32px oklch(0.3 0.12 145 / 0.1),
+		0 2px 4px oklch(0.3 0.12 145 / 0.06);
+
+	/* Gradientes editoriais */
+	--g-editorial-dark: linear-gradient(
+		180deg,
+		oklch(0.18 0.04 145),
+		oklch(0.1 0.025 145)
+	);
+	--g-flag-overlay: linear-gradient(
+		135deg,
+		oklch(0.46 0.22 145 / 0.85) 0%,
+		oklch(0.3 0.18 145 / 0.95) 100%
+	);
+	--g-hero-match: radial-gradient(
+			ellipse 80% 60% at 50% 50%,
+			oklch(0.5 0.22 145 / 0.4) 0%,
+			transparent 70%
+		),
+		linear-gradient(135deg, oklch(0.16 0.04 145) 0%, oklch(0.1 0.025 145) 100%);
+
+	/* Scoreboard typography */
+	--font-scoreboard-size: clamp(3rem, 8vw, 6rem);
 }
 
 /* ── Bolão semantic tokens (dark) ────────────────────────────────── */
 .dark {
 	/* Surfaces */
-	--b-bg:       oklch(0.085 0.025 145);
-	--b-surface:  oklch(0.105 0.028 145);
-	--b-card:     oklch(0.135 0.030 145);
-	--b-card-hi:  oklch(0.155 0.032 145);
-	--b-inner:    oklch(0.115 0.026 145);
-	--b-input-bg: oklch(0.160 0.030 145);
+	--b-bg: oklch(0.085 0.025 145);
+	--b-surface: oklch(0.105 0.028 145);
+	--b-card: oklch(0.135 0.03 145);
+	--b-card-hi: oklch(0.155 0.032 145);
+	--b-inner: oklch(0.115 0.026 145);
+	--b-input-bg: oklch(0.16 0.03 145);
 
 	/* Shadows */
 	--b-shadow-soft:
@@ -206,75 +253,89 @@
 		0 1px 0 rgb(255 255 255 / 0.03) inset, 0 18px 48px rgb(0 0 0 / 0.38);
 	--b-shadow-float:
 		0 1px 0 rgb(255 255 255 / 0.04) inset, 0 28px 80px rgb(0 0 0 / 0.46);
-	--b-shadow-brand-sm:  0 2px 6px oklch(0.50 0.18 145 / 0.20);
-	--b-shadow-brand-md:  0 8px 24px oklch(0.50 0.18 145 / 0.26);
-	--b-shadow-brand-lg:  0 24px 60px oklch(0.50 0.18 145 / 0.32);
-	--b-shadow-brand-xl:  0 40px 96px oklch(0.50 0.18 145 / 0.40);
-	--b-glow-brand:       0 0 0 1px oklch(0.72 0.22 145 / 0.22), 0 12px 36px oklch(0.60 0.22 145 / 0.22);
+	--b-shadow-brand-sm: 0 2px 6px oklch(0.5 0.18 145 / 0.2);
+	--b-shadow-brand-md: 0 8px 24px oklch(0.5 0.18 145 / 0.26);
+	--b-shadow-brand-lg: 0 24px 60px oklch(0.5 0.18 145 / 0.32);
+	--b-shadow-brand-xl: 0 40px 96px oklch(0.5 0.18 145 / 0.4);
+	--b-glow-brand:
+		0 0 0 1px oklch(0.72 0.22 145 / 0.22),
+		0 12px 36px oklch(0.6 0.22 145 / 0.22);
 
 	/* Borders */
 	--b-border-xs: oklch(1 0 0 / 3%);
 	--b-border-sm: oklch(1 0 0 / 6%);
-	--b-border:    oklch(1 0 0 / 8%);
+	--b-border: oklch(1 0 0 / 8%);
 	--b-border-md: oklch(1 0 0 / 10%);
 	--b-border-lg: oklch(1 0 0 / 18%);
 
 	/* Tints */
-	--b-tint:    oklch(1 0 0 / 3%);
+	--b-tint: oklch(1 0 0 / 3%);
 	--b-tint-md: oklch(1 0 0 / 6%);
 
 	/* Text */
-	--b-text:   oklch(0.92 0 0);
+	--b-text: oklch(0.92 0 0);
 	--b-text-2: oklch(0.68 0.06 145);
 	--b-text-3: oklch(0.52 0.05 145);
-	--b-text-4: oklch(0.40 0.04 145);
+	--b-text-4: oklch(0.4 0.04 145);
 
 	/* Brand (verde hue 145) */
-	--b-brand:    oklch(0.72 0.22 145);
-	--b-brand-hi: oklch(0.82 0.20 145);
+	--b-brand: oklch(0.72 0.22 145);
+	--b-brand-hi: oklch(0.82 0.2 145);
 	--b-brand-lo: oklch(0.62 0.22 145);
 	--b-brand-fg: oklch(0.07 0.025 145);
-	--b-brand-50:  oklch(0.18 0.06 145);
+	--b-brand-50: oklch(0.18 0.06 145);
 	--b-brand-100: oklch(0.22 0.08 145);
 	--b-brand-200: oklch(0.28 0.12 145);
-	--b-brand-5:   color-mix(in oklch, var(--b-brand) 5%, transparent);
-	--b-brand-10:  color-mix(in oklch, var(--b-brand) 10%, transparent);
-	--b-brand-12:  color-mix(in oklch, var(--b-brand) 12%, transparent);
-	--b-brand-15:  color-mix(in oklch, var(--b-brand) 15%, transparent);
-	--b-brand-25:  color-mix(in oklch, var(--b-brand) 25%, transparent);
-	--b-brand-40:  color-mix(in oklch, var(--b-brand) 40%, transparent);
+	--b-brand-5: color-mix(in oklch, var(--b-brand) 5%, transparent);
+	--b-brand-10: color-mix(in oklch, var(--b-brand) 10%, transparent);
+	--b-brand-12: color-mix(in oklch, var(--b-brand) 12%, transparent);
+	--b-brand-15: color-mix(in oklch, var(--b-brand) 15%, transparent);
+	--b-brand-25: color-mix(in oklch, var(--b-brand) 25%, transparent);
+	--b-brand-40: color-mix(in oklch, var(--b-brand) 40%, transparent);
 
 	/* Accent (amarelo hue 90) */
-	--b-accent:    oklch(0.84 0.20 90);
-	--b-accent-hi: oklch(0.90 0.20 90);
-	--b-accent-50: oklch(0.20 0.08 90);
-	--b-accent-fg: oklch(0.10 0.06 90);
+	--b-accent: oklch(0.84 0.2 90);
+	--b-accent-hi: oklch(0.9 0.2 90);
+	--b-accent-50: oklch(0.2 0.08 90);
+	--b-accent-fg: oklch(0.1 0.06 90);
 
 	/* Status */
-	--b-success:    oklch(0.74 0.20 150);
-	--b-success-bg: oklch(0.20 0.08 150);
+	--b-success: oklch(0.74 0.2 150);
+	--b-success-bg: oklch(0.2 0.08 150);
 	--b-success-fg: oklch(0.88 0.12 150);
-	--b-warning:    oklch(0.82 0.18 70);
+	--b-warning: oklch(0.82 0.18 70);
 	--b-warning-bg: oklch(0.22 0.08 70);
-	--b-warning-fg: oklch(0.90 0.12 70);
-	--b-danger:     oklch(0.70 0.22 22);
-	--b-danger-bg:  oklch(0.20 0.08 27);
-	--b-danger-fg:  oklch(0.90 0.12 27);
-	--b-info:       oklch(0.72 0.18 230);
-	--b-info-bg:    oklch(0.18 0.08 230);
-	--b-info-fg:    oklch(0.88 0.12 230);
+	--b-warning-fg: oklch(0.9 0.12 70);
+	--b-danger: oklch(0.7 0.22 22);
+	--b-danger-bg: oklch(0.2 0.08 27);
+	--b-danger-fg: oklch(0.9 0.12 27);
+	--b-info: oklch(0.72 0.18 230);
+	--b-info-bg: oklch(0.18 0.08 230);
+	--b-info-fg: oklch(0.88 0.12 230);
 
 	/* Gradientes */
-	--g-brand-vert:  linear-gradient(180deg, var(--b-brand-hi), var(--b-brand));
-	--g-brand-diag:  linear-gradient(135deg, var(--b-brand) 0%, oklch(0.85 0.22 155) 100%);
-	--g-brand-soft:  linear-gradient(135deg, var(--b-brand-200), var(--b-brand-50));
-	--g-card-shine:  linear-gradient(180deg, oklch(1 0 0 / 0.04), oklch(1 0 0 / 0));
+	--g-brand-vert: linear-gradient(180deg, var(--b-brand-hi), var(--b-brand));
+	--g-brand-diag: linear-gradient(
+		135deg,
+		var(--b-brand) 0%,
+		oklch(0.85 0.22 155) 100%
+	);
+	--g-brand-soft: linear-gradient(
+		135deg,
+		var(--b-brand-200),
+		var(--b-brand-50)
+	);
+	--g-card-shine: linear-gradient(
+		180deg,
+		oklch(1 0 0 / 0.04),
+		oklch(1 0 0 / 0)
+	);
 
 	/* Hero / auth backgrounds */
 	--b-hero-bg:
 		radial-gradient(
 			ellipse 140% 70% at 50% 115%,
-			oklch(0.30 0.20 145 / 0.58) 0%,
+			oklch(0.3 0.2 145 / 0.58) 0%,
 			transparent 60%
 		),
 		radial-gradient(
@@ -292,7 +353,7 @@
 	--b-auth-panel-bg:
 		radial-gradient(
 			ellipse 120% 70% at 10% 110%,
-			oklch(0.30 0.20 145 / 0.72) 0%,
+			oklch(0.3 0.2 145 / 0.72) 0%,
 			transparent 55%
 		),
 		radial-gradient(
@@ -301,4 +362,38 @@
 			transparent 50%
 		),
 		oklch(0.11 0.03 145);
+
+	/* ── V2 Editorial Sportivo (dark) ────────────────────────────── */
+
+	/* Pódio */
+	--b-gold: oklch(0.85 0.18 85);
+	--b-gold-bg: oklch(0.22 0.1 85);
+	--b-silver: oklch(0.84 0.02 250);
+	--b-silver-bg: oklch(0.2 0.02 250);
+	--b-bronze: oklch(0.72 0.14 50);
+	--b-bronze-bg: oklch(0.2 0.08 50);
+
+	/* Sombras editoriais */
+	--b-shadow-card-hard: 4px 4px 0 var(--b-brand);
+	--b-shadow-card-soft:
+		0 12px 32px oklch(0.05 0.02 145 / 0.5),
+		0 2px 4px oklch(0.05 0.02 145 / 0.3);
+
+	/* Gradientes editoriais */
+	--g-editorial-dark: linear-gradient(
+		180deg,
+		oklch(0.16 0.04 145),
+		oklch(0.06 0.02 145)
+	);
+	--g-flag-overlay: linear-gradient(
+		135deg,
+		oklch(0.5 0.22 145 / 0.7) 0%,
+		oklch(0.18 0.08 145 / 0.95) 100%
+	);
+	--g-hero-match: radial-gradient(
+			ellipse 80% 60% at 50% 50%,
+			oklch(0.5 0.22 145 / 0.45) 0%,
+			transparent 70%
+		),
+		linear-gradient(135deg, oklch(0.13 0.04 145) 0%, oklch(0.08 0.025 145) 100%);
 }

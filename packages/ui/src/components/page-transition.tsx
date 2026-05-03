@@ -2,7 +2,7 @@
 
 import { cn } from "@bolao/ui/lib/utils";
 import { usePathname } from "next/navigation";
-import * as React from "react";
+import type * as React from "react";
 
 export function PageTransition({
 	children,
@@ -14,10 +14,7 @@ export function PageTransition({
 	const pathname = usePathname();
 
 	return (
-		<div
-			key={pathname}
-			className={cn("animate-slide-up", className)}
-		>
+		<div key={pathname} className={cn("animate-slide-up", className)}>
 			{children}
 		</div>
 	);

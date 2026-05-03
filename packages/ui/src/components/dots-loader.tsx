@@ -27,7 +27,7 @@ export function DotsLoader({ label, className, size = "md" }: DotsLoaderProps) {
 				/>
 			))}
 			{label && (
-				<span className="ml-2 text-sm text-[var(--b-text-3)]">{label}</span>
+				<span className="ml-2 text-[var(--b-text-3)] text-sm">{label}</span>
 			)}
 		</span>
 	);

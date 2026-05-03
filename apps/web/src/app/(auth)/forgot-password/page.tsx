@@ -19,7 +19,9 @@ export default function ForgotPasswordPage() {
 
 	const emailForm = useForm({
 		defaultValues: { email: "" },
-		validators: { onSubmit: z.object({ email: z.string().email("Email inválido") }) },
+		validators: {
+			onSubmit: z.object({ email: z.string().email("Email inválido") }),
+		},
 		onSubmit: async ({ value }) => {
 			try {
 				await signIn("password", { email: value.email, flow: "reset" });
@@ -60,7 +62,10 @@ export default function ForgotPasswordPage() {
 		return (
 			<div className="animate-slide-up">
 				<div className="mb-8">
-					<h1 className="text-display-hero text-4xl" style={{ color: "var(--b-text)" }}>
+					<h1
+						className="text-4xl text-display-hero"
+						style={{ color: "var(--b-text)" }}
+					>
 						Redefinir
 						<br />
 						<span style={{ color: "var(--b-brand)" }}>senha</span>
@@ -71,7 +76,13 @@ export default function ForgotPasswordPage() {
 					</p>
 				</div>
 
-				<form onSubmit={(e) => { e.preventDefault(); verifyForm.handleSubmit(); }} className="space-y-4">
+				<form
+					onSubmit={(e) => {
+						e.preventDefault();
+						verifyForm.handleSubmit();
+					}}
+					className="space-y-4"
+				>
 					<verifyForm.Field name="code">
 						{(field) => (
 							<FloatingInput
@@ -100,7 +111,12 @@ export default function ForgotPasswordPage() {
 						)}
 					</verifyForm.Field>
 
-					<verifyForm.Subscribe selector={(s) => ({ canSubmit: s.canSubmit, isSubmitting: s.isSubmitting })}>
+					<verifyForm.Subscribe
+						selector={(s) => ({
+							canSubmit: s.canSubmit,
+							isSubmitting: s.isSubmitting,
+						})}
+					>
 						{({ canSubmit, isSubmitting }) => (
 							<Button
 								type="submit"
@@ -132,7 +148,10 @@ export default function ForgotPasswordPage() {
 	return (
 		<div>
 			<div className="mb-8">
-				<h1 className="text-display-hero text-4xl" style={{ color: "var(--b-text)" }}>
+				<h1
+					className="text-4xl text-display-hero"
+					style={{ color: "var(--b-text)" }}
+				>
 					Esqueceu
 					<br />
 					<span style={{ color: "var(--b-brand)" }}>a senha?</span>
@@ -142,7 +161,13 @@ export default function ForgotPasswordPage() {
 				</p>
 			</div>
 
-			<form onSubmit={(e) => { e.preventDefault(); emailForm.handleSubmit(); }} className="space-y-4">
+			<form
+				onSubmit={(e) => {
+					e.preventDefault();
+					emailForm.handleSubmit();
+				}}
+				className="space-y-4"
+			>
 				<emailForm.Field name="email">
 					{(field) => (
 						<FloatingInput
@@ -157,7 +182,12 @@ export default function ForgotPasswordPage() {
 					)}
 				</emailForm.Field>
 
-				<emailForm.Subscribe selector={(s) => ({ canSubmit: s.canSubmit, isSubmitting: s.isSubmitting })}>
+				<emailForm.Subscribe
+					selector={(s) => ({
+						canSubmit: s.canSubmit,
+						isSubmitting: s.isSubmitting,
+					})}
+				>
 					{({ canSubmit, isSubmitting }) => (
 						<Button
 							type="submit"
@@ -173,7 +203,10 @@ export default function ForgotPasswordPage() {
 				</emailForm.Subscribe>
 			</form>
 
-			<p className="mt-6 text-center text-sm" style={{ color: "var(--b-text-3)" }}>
+			<p
+				className="mt-6 text-center text-sm"
+				style={{ color: "var(--b-text-3)" }}
+			>
 				<Link
 					href="/sign-in"
 					className="inline-flex items-center gap-1.5 font-semibold transition-colors hover:text-[var(--b-brand-hi)]"

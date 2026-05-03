@@ -26,9 +26,9 @@ Site de previsão de placares para a Copa do Mundo 2026 (e futuras competições
 | Resultado | Pontos |
 |-----------|--------|
 | Placar exato | 10 pts |
-| Vencedor correto + saldo de gols correto | 7 pts |
-| Vencedor correto + gols de um dos times correto | 5 pts |
-| Apenas vencedor correto (ou empate certo, placar errado) | 3 pts |
+| Resultado + placar de um dos times correto | 7 pts |
+| Vencedor correto, sem gols individuais corretos | 5 pts |
+| Gols de apenas um time corretos, com resultado errado | 2 pts |
 | Resultado completamente errado | 0 pts |
 
 ### 3. Ligas

@@ -38,7 +38,7 @@ export function ThemeSwitch({ className = "" }: ThemeSwitchProps) {
 			className={[
 				"relative flex h-8 w-8 items-center justify-center overflow-hidden rounded-full",
 				"transition-[opacity,background-color] duration-[var(--motion-fast)] ease-[var(--ease-out-quart)]",
-				"hover:bg-[var(--b-tint-md)] hover:opacity-100 opacity-80",
+				"opacity-80 hover:bg-[var(--b-tint-md)] hover:opacity-100",
 				className,
 			].join(" ")}
 			aria-label={isDark ? "Ativar modo claro" : "Ativar modo escuro"}

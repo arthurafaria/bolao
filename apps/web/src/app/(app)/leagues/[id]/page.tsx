@@ -2,101 +2,36 @@
 
 import { api } from "@bolao/backend/convex/_generated/api";
 import type { Id } from "@bolao/backend/convex/_generated/dataModel";
-import { Badge } from "@bolao/ui/components/badge";
 import { Button } from "@bolao/ui/components/button";
-import { Card, CardContent } from "@bolao/ui/components/card";
+import {
+	Sheet,
+	SheetContent,
+	SheetDescription,
+	SheetHeader,
+	SheetTitle,
+	SheetTrigger,
+} from "@bolao/ui/components/sheet";
 import { Skeleton } from "@bolao/ui/components/skeleton";
+import { Tag } from "@bolao/ui/components/tag";
+import { cn } from "@bolao/ui/lib/utils";
 import { useQuery } from "convex/react";
-import { Check, Copy, Crown, Settings, Users } from "lucide-react";
+import {
+	ArrowLeft,
+	Check,
+	Copy,
+	Crown,
+	Settings,
+	Share2,
+	Trophy,
+	Users,
+} from "lucide-react";
+import type { Route } from "next";
 import Link from "next/link";
-import { use, useState } from "react";
+import { use, useMemo, useState } from "react";
 import { toast } from "sonner";
 
-import { getPointsTier } from "@/lib/points-palette";
-
-function RankingRow({
-	position,
-	leagueId,
-	member,
-	currentUserId,
-}: {
-	position: number;
-	leagueId: string;
-	member: {
-		userId: string;
-		totalPoints: number;
-		exactScores: number;
-		correctResults: number;
-		name: string;
-		lastPoints?: number;
-	};
-	currentUserId: string | undefined;
-}) {
-	const isCurrentUser = currentUserId === member.userId;
-	const lastTier =
-		member.lastPoints != null ? getPointsTier(member.lastPoints) : null;
-
-	return (
-		<Link
-			href={`/leagues/${leagueId}/members/${member.userId}`}
-			className={`flex items-center gap-3 rounded-lg px-4 py-3 transition-colors ${
-				isCurrentUser
-					? "border border-primary/20 bg-primary/10"
-					: "hover:bg-muted/40"
-			}`}
-		>
-			<span
-				className={`w-7 text-center font-bold text-sm ${
-					position === 1
-						? "text-accent"
-						: position <= 3
-							? "text-muted-foreground"
-							: "text-muted-foreground/60"
-				}`}
-			>
-				{position === 1
-					? "🥇"
-					: position === 2
-						? "🥈"
-						: position === 3
-							? "🥉"
-							: position}
-			</span>
-			<div className="min-w-0 flex-1">
-				<div className="flex items-center gap-1.5">
-					<span className="truncate font-medium text-sm">{member.name}</span>
-					{isCurrentUser && (
-						<Badge
-							variant="secondary"
-							className="h-4 shrink-0 px-1 text-[10px]"
-						>
-							você
-						</Badge>
-					)}
-					{position === 1 && (
-						<Crown className="h-3.5 w-3.5 shrink-0 text-accent" />
-					)}
-				</div>
-				<p className="text-muted-foreground text-xs">
-					{member.exactScores} exatos · {member.correctResults} acertos
-				</p>
-			</div>
-			<div className="flex flex-col items-end gap-1">
-				<span className="font-bold text-sm tabular-nums">
-					{member.totalPoints} pts
-				</span>
-				{lastTier && (
-					<span
-						className="rounded-full px-1.5 py-px font-bold text-[10px] tabular-nums"
-						style={{ background: lastTier.bg, color: lastTier.color }}
-					>
-						{lastTier.label} último
-					</span>
-				)}
-			</div>
-		</Link>
-	);
-}
+import { Podium, type PodiumEntry } from "@/components/leagues/podium";
+import { RankingRow } from "@/components/leagues/ranking-row";
 
 export default function LeagueDetailPage({
 	params,
@@ -109,30 +44,42 @@ export default function LeagueDetailPage({
 	const league = useQuery(api.leagues.getById, { leagueId });
 	const ranking = useQuery(api.leagues.getRanking, { leagueId });
 	const currentUser = useQuery(api.auth.getCurrentUser);
-	const [copied, setCopied] = useState(false);
 
-	function copyCode() {
-		if (!league?.inviteCode) return;
-		navigator.clipboard.writeText(league.inviteCode);
-		setCopied(true);
-		toast.success("Código copiado!");
-		setTimeout(() => setCopied(false), 2000);
-	}
+	const podiumEntries: PodiumEntry[] = useMemo(() => {
+		if (!ranking) return [];
+		return ranking.slice(0, 3).map((m, idx) => ({
+			position: (idx + 1) as 1 | 2 | 3,
+			name: m.name,
+			points: m.totalPoints,
+		}));
+	}, [ranking]);
 
 	if (league === undefined) {
 		return (
-			<div className="space-y-4">
-				<Skeleton className="h-8 w-48" />
-				<Skeleton className="h-32 rounded-xl" />
-				<Skeleton className="h-64 rounded-xl" />
+			<div className="space-y-6">
+				<Skeleton className="h-12 w-64 rounded-md" />
+				<Skeleton className="h-48 rounded-[28px]" />
+				<Skeleton className="h-72 rounded-[28px]" />
 			</div>
 		);
 	}
 
 	if (league === null) {
 		return (
-			<div className="py-12 text-center text-muted-foreground">
-				Liga não encontrada
+			<div className="flex flex-col items-center gap-3 rounded-[28px] border border-dashed border-[var(--b-border-md)] bg-[var(--b-card)] p-12 text-center">
+				<Trophy className="h-10 w-10 text-[var(--b-text-4)]" />
+				<p className="font-bold font-display text-[var(--b-text)] text-lg uppercase tracking-tight">
+					Liga não encontrada
+				</p>
+				<p className="text-[var(--b-text-3)] text-sm">
+					Talvez você não seja mais membro dessa liga.
+				</p>
+				<Link href="/leagues">
+					<Button variant="brand" size="default">
+						<ArrowLeft className="h-4 w-4" />
+						Voltar pras minhas ligas
+					</Button>
+				</Link>
 			</div>
 		);
 	}
@@ -140,84 +87,226 @@ export default function LeagueDetailPage({
 	const isOwner = currentUser?._id === league.ownerId;
 
 	return (
-		<div className="space-y-5">
-			<div className="flex items-start justify-between gap-3">
-				<div>
-					<h1 className="font-bold text-2xl">{league.name}</h1>
+		<div className="space-y-7 animate-fade-in">
+			{/* Back link */}
+			<Link
+				href="/leagues"
+				className="inline-flex items-center gap-1.5 text-[var(--b-text-3)] text-xs uppercase tracking-wider transition-colors hover:text-[var(--b-brand)]"
+			>
+				<ArrowLeft className="h-3.5 w-3.5" />
+				Todas as ligas
+			</Link>
+
+			{/* Header da liga */}
+			<header className="flex flex-wrap items-start justify-between gap-4">
+				<div className="flex flex-col gap-2">
+					<span className="text-eyebrow text-[var(--b-brand)]">
+						Liga · {league.joinType === "OPEN" ? "Aberta" : "Moderada"}
+					</span>
+					<h1 className="font-black font-display text-4xl uppercase leading-[0.9] tracking-tight text-[var(--b-text)] sm:text-5xl">
+						{league.name}
+					</h1>
 					{league.description && (
-						<p className="mt-0.5 text-muted-foreground text-sm">
+						<p className="max-w-2xl text-[var(--b-text-3)] text-sm leading-relaxed">
 							{league.description}
 						</p>
 					)}
-					<div className="mt-2 flex items-center gap-2 text-muted-foreground text-sm">
-						<Users className="h-4 w-4" />
-						<span>{league.memberCount} membros</span>
-						<Badge variant="outline" className="text-xs">
-							{league.joinType === "OPEN" ? "Aberta" : "Moderada"}
-						</Badge>
+					<div className="mt-1 flex items-center gap-3 text-[var(--b-text-3)] text-sm">
+						<span className="inline-flex items-center gap-1.5">
+							<Users className="h-4 w-4" />
+							<span className="font-mono tabular-nums">
+								{league.memberCount}
+							</span>{" "}
+							membros
+						</span>
 					</div>
 				</div>
-				{isOwner && (
-					<Link href={`/leagues/${id}/manage`}>
-						<Button variant="outline" size="sm">
-							<Settings className="mr-1.5 h-4 w-4" />
-							Gerenciar
-						</Button>
-					</Link>
-				)}
-			</div>
 
-			<Card>
-				<CardContent className="flex items-center justify-between p-4">
-					<div>
-						<p className="mb-0.5 text-muted-foreground text-xs">
-							Código de convite
-						</p>
-						<p className="font-bold font-mono text-primary text-xl tracking-widest">
-							{league.inviteCode}
-						</p>
-					</div>
-					<Button variant="outline" size="sm" onClick={copyCode}>
-						{copied ? (
-							<Check className="h-4 w-4" />
-						) : (
-							<Copy className="h-4 w-4" />
-						)}
-						<span className="ml-1.5">{copied ? "Copiado!" : "Copiar"}</span>
-					</Button>
-				</CardContent>
-			</Card>
+				<div className="flex flex-wrap items-center gap-2">
+					<InviteSheet inviteCode={league.inviteCode} leagueName={league.name} />
+					{isOwner && (
+						<Link href={`/leagues/${id}/manage` as Route}>
+							<Button variant="outline" size="default">
+								<Settings className="h-4 w-4" />
+								Gerenciar
+							</Button>
+						</Link>
+					)}
+				</div>
+			</header>
 
-			<div>
-				<h2 className="mb-3 font-semibold">Ranking</h2>
-				<Card>
-					<CardContent className="p-2">
-						{ranking === undefined ? (
-							<div className="space-y-2 p-2">
-								{[1, 2, 3].map((i) => (
-									<Skeleton key={i} className="h-12 rounded-lg" />
-								))}
-							</div>
-						) : ranking.length === 0 ? (
-							<div className="p-6 text-center text-muted-foreground text-sm">
-								Nenhum membro ativo ainda
-							</div>
-						) : (
-							<div className="space-y-1">
+			{/* Ranking e pódio */}
+			{ranking === undefined ? (
+				<Skeleton className="h-64 rounded-[28px]" />
+			) : ranking.length === 0 ? (
+				<div className="flex flex-col items-center gap-3 rounded-[28px] border border-dashed border-[var(--b-border-md)] bg-[var(--b-card)] p-12 text-center">
+					<Trophy className="h-10 w-10 text-[var(--b-text-4)]" />
+					<p className="font-bold font-display text-[var(--b-text)] text-lg uppercase tracking-tight">
+						Aguardando os primeiros pontos
+					</p>
+					<p className="max-w-md text-[var(--b-text-3)] text-sm leading-relaxed">
+						Quando os palpites começarem a virar pontos, o pódio dessa liga
+						aparece aqui.
+					</p>
+				</div>
+			) : (
+				<>
+					{/* Ranking completo */}
+					{ranking.length > 0 && (
+						<section>
+							<header className="mb-4 flex items-end justify-between gap-3">
+								<div>
+									<span className="text-eyebrow text-[var(--b-text-3)]">
+										Tabela completa
+									</span>
+									<h2 className="font-black font-display text-2xl uppercase tracking-tight text-[var(--b-text)]">
+										Ranking
+									</h2>
+								</div>
+								<span className="font-mono text-[var(--b-text-3)] text-xs tabular-nums">
+									{ranking.length} {ranking.length === 1 ? "membro" : "membros"}
+								</span>
+							</header>
+							<div
+								className="stagger-children flex flex-col gap-2"
+								style={{ ["--d" as string]: "40ms" }}
+							>
 								{ranking.map((member, idx) => (
-									<RankingRow
+									<div
 										key={member._id}
-										position={idx + 1}
-										leagueId={id}
-										member={member}
-										currentUserId={currentUser?._id}
-									/>
+										style={{ ["--i" as string]: idx }}
+									>
+										<Link
+											href={
+												`/leagues/${id}/members/${member.userId}` as Route
+											}
+											className="block focus-visible:outline-none"
+										>
+											<RankingRow
+												position={idx + 1}
+												name={member.name}
+												points={member.totalPoints}
+												isYou={currentUser?._id === member.userId}
+											/>
+										</Link>
+									</div>
 								))}
 							</div>
-						)}
-					</CardContent>
-				</Card>
-			</div>
+						</section>
+					)}
+
+					{/* Pódio */}
+					<section className="rounded-[32px] border border-[var(--b-border-sm)] bg-[var(--b-card)] p-6 shadow-[var(--b-shadow-card-soft)]">
+						<div className="mb-6 flex items-center justify-between gap-3">
+							<div>
+								<span className="text-eyebrow text-[var(--b-text-3)]">
+									Top 3 da liga
+								</span>
+								<h2 className="font-black font-display text-2xl uppercase tracking-tight text-[var(--b-text)]">
+									Pódio
+								</h2>
+							</div>
+							<Crown
+								className="h-6 w-6 animate-float"
+								style={{ color: "var(--b-gold)" }}
+							/>
+						</div>
+						<Podium entries={podiumEntries} />
+					</section>
+				</>
+			)}
 		</div>
+	);
+}
+
+function InviteSheet({
+	inviteCode,
+	leagueName,
+}: {
+	inviteCode: string;
+	leagueName: string;
+}) {
+	const [copied, setCopied] = useState(false);
+
+	function copy() {
+		navigator.clipboard.writeText(inviteCode);
+		setCopied(true);
+		toast.success("Código copiado!");
+		setTimeout(() => setCopied(false), 2000);
+	}
+
+	function shareNative() {
+		if (typeof navigator !== "undefined" && "share" in navigator) {
+			navigator
+				.share({
+					title: `Liga ${leagueName}`,
+					text: `Entre na minha liga "${leagueName}" no Bolão. Código: ${inviteCode}`,
+				})
+				.catch(() => {
+					// Cancelado pelo user
+				});
+		} else {
+			copy();
+		}
+	}
+
+	return (
+		<Sheet>
+			<SheetTrigger render={<Button variant="brand" size="default" />}>
+				<Share2 className="h-4 w-4" />
+				Convidar
+			</SheetTrigger>
+			<SheetContent side="right" className="bg-[var(--b-card)]">
+				<SheetHeader className="px-6 pt-6">
+					<SheetTitle className="font-black font-display text-2xl uppercase tracking-tight text-[var(--b-text)]">
+						Convidar amigos
+					</SheetTitle>
+					<SheetDescription className="text-[var(--b-text-3)] text-sm">
+						Compartilhe o código abaixo. Quem usar entra (ou pede pra entrar)
+						na liga {leagueName}.
+					</SheetDescription>
+				</SheetHeader>
+				<div className="flex flex-col gap-4 px-6 py-4">
+					<div className="flex animate-scale-in flex-col items-center gap-3 rounded-2xl border border-[var(--b-brand-25)] bg-[var(--b-brand-10)] py-6 text-center">
+						<span className="text-eyebrow text-[var(--b-brand)]">
+							Código de convite
+						</span>
+						<span className="font-black font-mono text-5xl tabular-nums tracking-[0.4em] text-[var(--b-brand)]">
+							{inviteCode}
+						</span>
+					</div>
+					<div className="flex gap-2">
+						<Button
+							onClick={copy}
+							variant="outline"
+							className={cn("flex-1")}
+							size="lg"
+						>
+							{copied ? (
+								<>
+									<Check className="h-4 w-4" />
+									Copiado!
+								</>
+							) : (
+								<>
+									<Copy className="h-4 w-4" />
+									Copiar código
+								</>
+							)}
+						</Button>
+						<Button onClick={shareNative} variant="brand" size="lg">
+							<Share2 className="h-4 w-4" />
+							Compartilhar
+						</Button>
+					</div>
+					<div className="rounded-2xl bg-[var(--b-tint)] p-4 text-[var(--b-text-3)] text-xs leading-relaxed">
+						<strong className="font-bold text-[var(--b-text-2)]">Dica:</strong>{" "}
+						quem receber o código pode entrar acessando{" "}
+						<span className="font-mono">/leagues</span> e digitando em{" "}
+						<em>"Entrar por código"</em>.
+					</div>
+				</div>
+			</SheetContent>
+		</Sheet>
 	);
 }
