@@ -60,7 +60,6 @@ function getNextRoundMatches(matches: Match[]): Match[] {
 	return sorted.filter((m) => dayKey(m.utcDate) === dayKey(first.utcDate));
 }
 
-
 export default function PredictionsPage() {
 	const { tournament } = useTournament();
 	const matches = useQuery(api.matches.getAllByDate, { tournament });
