@@ -13,6 +13,7 @@ import {
 } from "convex/react";
 import {
 	BookOpen,
+	Check,
 	ChevronDown,
 	LayoutDashboard,
 	LogOut,
@@ -406,11 +407,11 @@ function CompetitionSwitcher() {
 								key={comp.code}
 								type="button"
 								onClick={() => handleSelect(comp.code as TournamentCode)}
-								className="flex w-full items-center gap-3 px-4 py-3 text-sm transition-[background] duration-[var(--motion-fast)]"
-								style={{
-									background: active ? "var(--b-brand-10)" : "transparent",
-									color: active ? "var(--b-brand)" : "var(--b-text)",
-								}}
+								className={`flex w-full items-center gap-3 px-4 py-3 text-sm transition-[background,transform] duration-[var(--motion-fast)] active:scale-[0.98] ${
+									active
+										? "bg-[var(--b-brand-10)] text-[var(--b-brand)]"
+										: "text-[var(--b-text)] hover:bg-[var(--b-brand-10)]/50"
+								}`}
 							>
 								<span className="text-base leading-none">{comp.flag}</span>
 								<div className="flex-1 text-left">
@@ -422,12 +423,14 @@ function CompetitionSwitcher() {
 										{comp.sublabel}
 									</p>
 								</div>
-								{active && (
-									<span
-										className="h-1.5 w-1.5 shrink-0 rounded-full"
-										style={{ background: "var(--b-brand)" }}
-									/>
-								)}
+								<Check
+									className="h-3.5 w-3.5 shrink-0 transition-[opacity,transform] duration-[var(--motion-fast)]"
+									style={{
+										opacity: active ? 1 : 0,
+										scale: active ? "1" : "0.5",
+										color: "var(--b-brand)",
+									}}
+								/>
 							</button>
 						);
 					})}
