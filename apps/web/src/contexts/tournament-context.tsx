@@ -3,23 +3,17 @@
 import { createContext, useContext, useEffect, useState } from "react";
 
 export const COMPETITIONS = {
-	WC2026: {
-		code: "WC2026",
-		label: "Copa do Mundo",
-		sublabel: "2026",
-		flag: "🌍",
-	},
 	BSA2026: {
 		code: "BSA2026",
 		label: "Brasileirão",
 		sublabel: "Série A 2026",
 		flag: "🇧🇷",
 	},
-	DEMO: {
-		code: "DEMO",
-		label: "Demonstração",
-		sublabel: "Dados de exemplo",
-		flag: "🎮",
+	WC2026: {
+		code: "WC2026",
+		label: "Copa do Mundo",
+		sublabel: "2026",
+		flag: "🌍",
 	},
 } as const;
 

@@ -9,7 +9,6 @@ import {
 	Authenticated,
 	AuthLoading,
 	Unauthenticated,
-	useMutation,
 	useQuery,
 } from "convex/react";
 import {
@@ -350,7 +349,6 @@ function RedirectToSignIn() {
 
 function CompetitionSwitcher() {
 	const { tournament, setTournament } = useTournament();
-	const seedDemo = useMutation(api.demo.seedDemo);
 	const [open, setOpen] = useState(false);
 	const ref = useRef<HTMLDivElement>(null);
 
@@ -366,7 +364,6 @@ function CompetitionSwitcher() {
 
 	const handleSelect = (code: TournamentCode) => {
 		setTournament(code);
-		if (code === "DEMO") seedDemo();
 		setOpen(false);
 	};
 
@@ -377,7 +374,7 @@ function CompetitionSwitcher() {
 			<button
 				type="button"
 				onClick={() => setOpen((v) => !v)}
-				className="flex cursor-pointer items-center gap-1.5 rounded-full px-3 py-1.5 font-medium text-xs transition-[opacity,background] duration-[var(--motion-fast)] hover:opacity-90"
+				className="flex cursor-pointer items-center gap-1.5 rounded-full px-3 py-1.5 font-medium text-xs transition-[opacity,background,scale] duration-[var(--motion-fast)] hover:opacity-90 active:scale-[0.96]"
 				style={{ background: "var(--b-brand-10)", color: "var(--b-brand)" }}
 			>
 				<span>{current.flag}</span>
