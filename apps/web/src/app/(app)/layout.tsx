@@ -348,6 +348,45 @@ function RedirectToSignIn() {
 	return null;
 }
 
+function BrazilFlag({ size }: { size: number }) {
+	return (
+		<svg
+			viewBox="0 0 20 14"
+			width={size}
+			height={size * 0.7}
+			aria-hidden
+			role="img"
+			aria-label="Bandeira do Brasil"
+			style={{ flexShrink: 0, borderRadius: 2, display: "block" }}
+		>
+			<title>Bandeira do Brasil</title>
+			<rect width="20" height="14" fill="#009C3B" />
+			<polygon points="10,1.2 19,7 10,12.8 1,7" fill="#FFDF00" />
+			<circle cx="10" cy="7" r="3.4" fill="#002776" />
+			<path
+				d="M7 7.4 Q10 6.2 13 7.4"
+				stroke="#fff"
+				strokeWidth="0.7"
+				fill="none"
+				opacity="0.7"
+			/>
+		</svg>
+	);
+}
+
+function CompetitionFlag({
+	code,
+	flag,
+	size,
+}: {
+	code: string;
+	flag: string;
+	size: number;
+}) {
+	if (code === "BSA2026") return <BrazilFlag size={size} />;
+	return <span style={{ fontSize: size * 0.9, lineHeight: 1 }}>{flag}</span>;
+}
+
 function CompetitionSwitcher() {
 	const { tournament, setTournament } = useTournament();
 	const [open, setOpen] = useState(false);
@@ -375,21 +414,21 @@ function CompetitionSwitcher() {
 			<button
 				type="button"
 				onClick={() => setOpen((v) => !v)}
-				className="flex cursor-pointer items-center gap-1.5 rounded-full px-3 py-1.5 font-medium text-xs transition-[opacity,background,scale] duration-[var(--motion-fast)] hover:opacity-90 active:scale-[0.96]"
+				className="flex cursor-pointer items-center gap-2 rounded-xl px-3.5 py-2 font-semibold text-sm transition-[opacity,scale] duration-[var(--motion-fast)] hover:opacity-85 active:scale-[0.96]"
 				style={{ background: "var(--b-brand-10)", color: "var(--b-brand)" }}
 			>
-				<span>{current.flag}</span>
+				<CompetitionFlag code={current.code} flag={current.flag} size={20} />
 				<span className="hidden sm:inline">{current.label}</span>
 				<span className="sm:hidden">{current.sublabel}</span>
 				<ChevronDown
-					className="h-3 w-3 transition-transform duration-[var(--motion-base)]"
+					className="h-3.5 w-3.5 shrink-0 opacity-70 transition-transform duration-[var(--motion-base)]"
 					style={{ transform: open ? "rotate(180deg)" : "rotate(0deg)" }}
 				/>
 			</button>
 
 			{open && (
 				<div
-					className="absolute top-full right-0 z-50 mt-2 w-52 animate-scale-in overflow-hidden rounded-2xl"
+					className="absolute top-full right-0 z-50 mt-2 w-56 animate-scale-in overflow-hidden rounded-2xl"
 					style={{
 						background: "var(--b-card)",
 						border: "1px solid var(--b-border-md)",
@@ -413,7 +452,7 @@ function CompetitionSwitcher() {
 										: "text-[var(--b-text)] hover:bg-[var(--b-brand-10)]/50"
 								}`}
 							>
-								<span className="text-base leading-none">{comp.flag}</span>
+								<CompetitionFlag code={comp.code} flag={comp.flag} size={22} />
 								<div className="flex-1 text-left">
 									<p className="font-medium leading-tight">{comp.label}</p>
 									<p
