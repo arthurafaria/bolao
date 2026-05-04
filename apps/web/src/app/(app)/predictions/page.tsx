@@ -2,18 +2,10 @@
 
 import { api } from "@bolao/backend/convex/_generated/api";
 import { PillTabs } from "@bolao/ui/components/pill-tabs";
-import {
-	Sheet,
-	SheetContent,
-	SheetDescription,
-	SheetHeader,
-	SheetTitle,
-	SheetTrigger,
-} from "@bolao/ui/components/sheet";
 import { Skeleton } from "@bolao/ui/components/skeleton";
 import { useQuery } from "convex/react";
 import type { FunctionReturnType } from "convex/server";
-import { CalendarOff, HelpCircle, History, Target, Trophy } from "lucide-react";
+import { CalendarOff, History, Target, Trophy } from "lucide-react";
 import { useMemo, useState } from "react";
 
 import { DayHeader } from "@/components/match/day-header";
@@ -68,91 +60,6 @@ function getNextRoundMatches(matches: Match[]): Match[] {
 	return sorted.filter((m) => dayKey(m.utcDate) === dayKey(first.utcDate));
 }
 
-function DemoBanner() {
-	return (
-		<div className="flex items-center gap-3 rounded-2xl border border-[var(--b-warning-fg)]/20 bg-[var(--b-warning-bg)] px-4 py-2.5 text-[var(--b-warning-fg)]">
-			<span className="text-base">🎮</span>
-			<div className="flex-1 text-xs leading-snug">
-				<span className="font-bold uppercase tracking-wider">
-					Modo Demonstração
-				</span>{" "}
-				— torneio fictício pra você testar. Troque pra Copa ou Brasileirão no
-				seletor acima.
-			</div>
-		</div>
-	);
-}
-
-function DemoTutorialSheet() {
-	const steps = [
-		{
-			n: 1,
-			title: "Escolha um placar",
-			desc: "Use os botões + e − para definir o resultado que você acha que vai acontecer em cada jogo.",
-		},
-		{
-			n: 2,
-			title: "Salve seu palpite",
-			desc: 'Clique em "Salvar palpite" para confirmar. Você pode alterar até 1 hora antes do jogo começar.',
-		},
-		{
-			n: 3,
-			title: "Ganhe pontos",
-			desc: "Acertou o placar exato? 10 pts. Acertou o resultado? Até 7 pts. Errou? 0 pts.",
-		},
-		{
-			n: 4,
-			title: "Dispute em ligas",
-			desc: 'Crie ou entre em uma liga em "Ligas" para competir com seus amigos em tempo real.',
-		},
-	];
-	return (
-		<Sheet>
-			<SheetTrigger
-				render={
-					<button
-						type="button"
-						className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-[var(--b-border-md)] bg-[var(--b-card)] text-[var(--b-brand)] transition-[transform,background] duration-[var(--motion-fast)] hover:bg-[var(--b-brand-12)] active:scale-[0.94]"
-						aria-label="Como funciona"
-					/>
-				}
-			>
-				<HelpCircle className="h-4 w-4" />
-			</SheetTrigger>
-			<SheetContent side="right" className="bg-[var(--b-card)]">
-				<SheetHeader className="px-6 pt-6">
-					<SheetTitle className="font-black font-display text-2xl text-[var(--b-text)] uppercase tracking-tight">
-						Como funciona
-					</SheetTitle>
-					<SheetDescription className="text-[var(--b-text-3)] text-sm">
-						Quatro passos pra dominar o bolão.
-					</SheetDescription>
-				</SheetHeader>
-				<div className="flex flex-col gap-4 px-6 py-4">
-					{steps.map((s, i) => (
-						<div
-							key={s.n}
-							className="flex animate-slide-up gap-3"
-							style={{ animationDelay: `${i * 60}ms` }}
-						>
-							<span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[var(--b-brand)] font-black font-display text-[var(--b-brand-fg)] text-base">
-								{s.n}
-							</span>
-							<div className="flex flex-col gap-0.5">
-								<p className="font-bold font-display text-[var(--b-text)] text-sm uppercase tracking-tight">
-									{s.title}
-								</p>
-								<p className="text-[var(--b-text-3)] text-xs leading-relaxed">
-									{s.desc}
-								</p>
-							</div>
-						</div>
-					))}
-				</div>
-			</SheetContent>
-		</Sheet>
-	);
-}
 
 export default function PredictionsPage() {
 	const { tournament } = useTournament();
@@ -243,10 +150,7 @@ export default function PredictionsPage() {
 						Palpites se fecham 1h antes de cada jogo. Boa sorte.
 					</p>
 				</div>
-				{tournament === "DEMO" && <DemoTutorialSheet />}
 			</header>
-
-			{tournament === "DEMO" && <DemoBanner />}
 
 			{/* Filter tabs */}
 			<PillTabs
