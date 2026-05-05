@@ -1,3 +1,4 @@
+import Google from "@convex-dev/auth/providers/Google";
 import { Password } from "@convex-dev/auth/providers/Password";
 import { convexAuth } from "@convex-dev/auth/server";
 import { ConvexError, v } from "convex/values";
@@ -15,6 +16,7 @@ export const { auth, signIn, signOut, store, isAuthenticated } = convexAuth({
 				};
 			},
 		}),
+		Google,
 	],
 });
 
