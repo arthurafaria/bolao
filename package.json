@@ -37,6 +37,7 @@
 	"dependencies": {
 		"@bolao/env": "workspace:*",
 		"dotenv": "catalog:",
+		"resend": "^6.12.2",
 		"zod": "catalog:"
 	},
 	"devDependencies": {

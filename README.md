@@ -6,7 +6,7 @@ Site de previsão de placares para a Copa do Mundo 2026 e Brasileirão Série A.
 
 - **Next.js 15** (App Router) — frontend
 - **Convex** — backend reativo, real-time, crons e funções serverless
-- **@convex-dev/auth** — autenticação (email+senha; chaves RSA RS256 obrigatórias)
+- **@convex-dev/auth** — autenticação (email+senha com OTP via Resend e Google OAuth; chaves RSA RS256 obrigatórias)
 - **shadcn/ui** + **TailwindCSS 4** — UI (design system Copa: verde + amarelo, dark mode, Barlow/DM Mono)
 - **Bun** — runtime e gerenciador de workspaces
 - **Biome** — lint e formatação (pre-commit hook)
@@ -85,6 +85,12 @@ A UI abre no **Brasileirão** por padrão (tem jogos em andamento agora). O usu�
 - Stats: total de palpites, % de acerto, pontos totais
 - Editor de nome (para contas criadas antes do campo ser obrigatório)
 
+### Autenticação
+- Login com email+senha e Google OAuth
+- Cadastro com email+senha em duas etapas: cria a conta, envia um código de 6 dígitos por email e só entra depois da confirmação
+- Código de verificação enviado pelo Resend via `packages/backend/convex/ResendOTP.ts`, com validade de 15 minutos
+- Reenvio de código pela UI com cooldown de 30 segundos
+
 ### Página admin (`/admin`)
 Acessível apenas para o e-mail owner. Botões:
 - **Resync Brasileirão** — força `syncTodayBSA` imediatamente
@@ -101,6 +107,8 @@ Acessível apenas para o e-mail owner. Botões:
 
 - [Bun](https://bun.sh) >= 1.3
 - Conta no [Convex](https://convex.dev)
+- Conta/API key no [Resend](https://resend.com) para envio do código de verificação no cadastro
+- Credenciais OAuth do Google (opcional, necessárias para o botão "Entrar com Google")
 - Chave de API do [football-data.org](https://www.football-data.org) (gratuita, 10 req/min)
 - Chave da [API-FOOTBALL](https://www.api-football.com/) (opcional, usada para enriquecer estádios quando a football-data.org não informa; o plano precisa liberar a temporada atual)
 
@@ -126,13 +134,16 @@ CONVEX_DEPLOYMENT=...            # gerado pelo dev:setup
 CONVEX_SITE_URL=...              # URL do Convex HTTP local
 FOOTBALL_DATA_API_KEY=...        # football-data.org
 API_FOOTBALL_KEY=...             # opcional, API-FOOTBALL/API-Sports para estádios; requer temporada atual liberada no plano
+AUTH_RESEND_KEY=...              # Resend API key para envio do OTP de cadastro
+AUTH_GOOGLE_ID=...               # opcional, OAuth Google
+AUTH_GOOGLE_SECRET=...           # opcional, OAuth Google
 
 # apps/web/.env.local
 NEXT_PUBLIC_CONVEX_URL=...       # copiado de packages/backend
 NEXT_PUBLIC_CONVEX_SITE_URL=...  # URL do HTTP actions do Convex
 ```
 
-> **Nota:** a autenticação não usa variáveis `BETTER_AUTH_*` nem `RESEND_*`. O `@convex-dev/auth` com provider `Password` requer chaves **RSA** (RS256) — ver seção Chaves JWT abaixo.
+> **Nota:** a autenticação não usa variáveis `BETTER_AUTH_*`. O `@convex-dev/auth` com provider `Password` requer chaves **RSA** (RS256) e usa `AUTH_RESEND_KEY` para enviar o OTP de cadastro — ver seção Chaves JWT abaixo.
 
 Instale o pre-commit hook (Biome):
 
@@ -207,6 +218,9 @@ Variáveis de ambiente do Convex Cloud (produção):
 | `JWT_PRIVATE_KEY` | Chave privada RSA 2048 PKCS#8 PEM |
 | `JWKS` | Chave pública RS256 em formato JSON |
 | `SITE_URL` | URL do Vercel (`https://<projeto>.vercel.app`) |
+| `AUTH_RESEND_KEY` | Resend API key usada por `ResendOTP.ts` para enviar o código de verificação |
+| `AUTH_GOOGLE_ID` | Opcional; client ID do Google OAuth |
+| `AUTH_GOOGLE_SECRET` | Opcional; client secret do Google OAuth |
 | `FOOTBALL_DATA_API_KEY` | Token da football-data.org |
 | `API_FOOTBALL_KEY` | Opcional; token da API-FOOTBALL/API-Sports para completar estádios do Brasileirão. O plano precisa liberar a temporada atual |
 
@@ -215,7 +229,7 @@ Variáveis de ambiente do Convex Cloud (produção):
 Ver [DEPLOY.md](DEPLOY.md) para o guia completo. Resumo:
 
 1. `bunx convex deploy` (da raiz do monorepo) → sobe backend + gera URLs
-2. Configurar as 4 variáveis acima no dashboard do Convex (prod)
+2. Configurar as variáveis acima no dashboard do Convex (prod)
 3. Criar projeto no Vercel apontando para este repo
    - Root directory: `apps/web`
    - Instalar integração oficial Convex↔Vercel (injeta `NEXT_PUBLIC_CONVEX_URL`)
