@@ -2,14 +2,11 @@ import Google from "@auth/core/providers/google";
 import { Password } from "@convex-dev/auth/providers/Password";
 import { convexAuth } from "@convex-dev/auth/server";
 import { ConvexError, v } from "convex/values";
-
-import { ResendOTP } from "./ResendOTP";
 import { mutation, query } from "./_generated/server";
 
 export const { auth, signIn, signOut, store, isAuthenticated } = convexAuth({
 	providers: [
 		Password({
-			verify: ResendOTP,
 			profile(params) {
 				const name = params.name as string | undefined;
 				return {

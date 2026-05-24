@@ -13,4 +13,11 @@ crons.cron(
 	{},
 );
 
+crons.cron(
+	"schedule first match reminder",
+	"0 3 * * *",
+	internal.notifications.scheduleDailyReminder,
+	{},
+);
+
 export default crons;

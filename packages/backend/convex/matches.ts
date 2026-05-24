@@ -295,3 +295,36 @@ export const forceFinishStaleLive = internalMutation({
 		return { promoted, promotedIds };
 	},
 });
+
+export const getFirstMatchOfDay = internalQuery({
+	args: {
+		tournament: v.string(),
+		dayStartUtc: v.string(),
+		dayEndUtc: v.string(),
+	},
+	handler: async (ctx, args) => {
+		return ctx.db
+			.query("matches")
+			.withIndex("by_tournament_date", (q) =>
+				q
+					.eq("tournament", args.tournament)
+					.gte("utcDate", args.dayStartUtc)
+					.lt("utcDate", args.dayEndUtc),
+			)
+			.order("asc")
+			.filter((q) =>
+				q.or(
+					q.eq(q.field("status"), "TIMED"),
+					q.eq(q.field("status"), "SCHEDULED"),
+				),
+			)
+			.first();
+	},
+});
+
+export const markReminderScheduled = internalMutation({
+	args: { matchId: v.id("matches") },
+	handler: async (ctx, args) => {
+		await ctx.db.patch(args.matchId, { reminderScheduledAt: Date.now() });
+	},
+});

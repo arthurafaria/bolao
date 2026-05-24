@@ -12,14 +12,29 @@ import { toast } from "sonner";
 import { z } from "zod";
 
 function getAuthErrorMessage(error: unknown) {
+	if (process.env.NODE_ENV !== "production")
+		console.error("[sign-in error]", error);
 	const message = error instanceof Error ? error.message.toLowerCase() : "";
-	if (message.includes("invalid") || message.includes("credentials"))
+	if (message.includes("invalidaccountid")) return "Email ou senha inválidos.";
+	if (
+		message.includes("invalid") ||
+		message.includes("credentials") ||
+		message.includes("secret")
+	)
 		return "Email ou senha inválidos.";
-	if (message.includes("verification") || message.includes("token"))
-		return "Esse link expirou. Solicite um novo acesso.";
+	if (
+		message.includes("not found") ||
+		message.includes("no account") ||
+		message.includes("does not exist")
+	)
+		return "Nenhuma conta encontrada com esse email.";
 	if (message.includes("rate") || message.includes("too many"))
 		return "Muitas tentativas. Tente em alguns minutos.";
-	if (message.includes("google") || message.includes("oauth") || message.includes("provider"))
+	if (
+		message.includes("google") ||
+		message.includes("oauth") ||
+		message.includes("provider")
+	)
 		return "Login com Google indisponível. Tente em instantes ou use email e senha.";
 	return "Não foi possível concluir o acesso agora.";
 }
@@ -85,26 +100,52 @@ export default function SignInPage() {
 				onClick={handleGoogleSignIn}
 				disabled={googleLoading}
 				aria-label="Entrar com Google"
-				className="mb-6 flex w-full cursor-pointer items-center justify-center gap-3 rounded-2xl border px-4 py-3 text-sm font-medium transition-colors hover:bg-[var(--b-surface-2)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--b-brand)] disabled:cursor-not-allowed disabled:opacity-60"
+				className="mb-6 flex w-full cursor-pointer items-center justify-center gap-3 rounded-2xl border px-4 py-3 font-medium text-sm transition-colors hover:bg-[var(--b-surface-2)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--b-brand)] disabled:cursor-not-allowed disabled:opacity-60"
 				style={{
 					borderColor: "var(--b-border-md)",
 					color: "var(--b-text-2)",
 					background: "var(--b-surface)",
 				}}
 			>
-				<svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
-					<path d="M17.64 9.205c0-.639-.057-1.252-.164-1.841H9v3.481h4.844a4.14 4.14 0 0 1-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615Z" fill="#4285F4"/>
-					<path d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18Z" fill="#34A853"/>
-					<path d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332Z" fill="#FBBC05"/>
-					<path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58Z" fill="#EA4335"/>
+				<svg
+					width="18"
+					height="18"
+					viewBox="0 0 18 18"
+					fill="none"
+					aria-hidden="true"
+				>
+					<path
+						d="M17.64 9.205c0-.639-.057-1.252-.164-1.841H9v3.481h4.844a4.14 4.14 0 0 1-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615Z"
+						fill="#4285F4"
+					/>
+					<path
+						d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18Z"
+						fill="#34A853"
+					/>
+					<path
+						d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332Z"
+						fill="#FBBC05"
+					/>
+					<path
+						d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58Z"
+						fill="#EA4335"
+					/>
 				</svg>
 				{googleLoading ? "Conectando…" : "Entrar com Google"}
 			</button>
 
 			<div className="relative mb-6 flex items-center">
-				<div className="flex-1 border-t" style={{ borderColor: "var(--b-border)" }} />
-				<span className="mx-3 text-xs" style={{ color: "var(--b-text-4)" }}>ou</span>
-				<div className="flex-1 border-t" style={{ borderColor: "var(--b-border)" }} />
+				<div
+					className="flex-1 border-t"
+					style={{ borderColor: "var(--b-border)" }}
+				/>
+				<span className="mx-3 text-xs" style={{ color: "var(--b-text-4)" }}>
+					ou
+				</span>
+				<div
+					className="flex-1 border-t"
+					style={{ borderColor: "var(--b-border)" }}
+				/>
 			</div>
 
 			<form

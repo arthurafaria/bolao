@@ -352,6 +352,22 @@ export const recomputeAll = internalAction({
 	},
 });
 
+// Zera todos os pontos sem recalcular — para reiniciar o placar do zero.
+export const adminResetAllPoints = action({
+	args: {},
+	handler: async (
+		ctx,
+	): Promise<{ resetMemberships: number; resetPredictions: number }> => {
+		const userId = await auth.getUserId(ctx);
+		if (!userId) throw new ConvexError("Unauthorized");
+		const adminCheck = await ctx.runQuery(internal.predictions.getAdminUser, {
+			userId,
+		});
+		if (!adminCheck?.isAdmin) throw new ConvexError("Unauthorized");
+		return ctx.runMutation(internal.predictions.resetComputedPoints, {});
+	},
+});
+
 // Public wrapper for admin use — guards by email, inlines recomputeAll logic
 // to avoid circular type-inference from self-referencing internal.predictions.
 export const adminRecomputeAll = action({

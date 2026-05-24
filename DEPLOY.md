@@ -122,6 +122,7 @@ Revisar cada página nos breakpoints **375px**, **768px** e **1024px**.
 | `JWT_PRIVATE_KEY` | gerado via Node (RSA 2048, PKCS#8 PEM) | **deve ser RSA**, não EC |
 | `JWKS` | gerado via Node (RS256) | par público do `JWT_PRIVATE_KEY` |
 | `SITE_URL` | Manual | URL do Vercel (`https://<projeto>.vercel.app`) |
+| `AUTH_RESEND_KEY` | Manual | obrigatório para verificação por email e reset de senha |
 | `FOOTBALL_DATA_API_KEY` | Manual | token da football-data.org |
 | `API_FOOTBALL_KEY` | Manual | opcional; token da API-FOOTBALL/API-Sports para enriquecer estádios do Brasileirão |
 
