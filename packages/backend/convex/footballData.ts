@@ -1,6 +1,7 @@
 import { ConvexError, v } from "convex/values";
 
 import { internal } from "./_generated/api";
+import type { Id } from "./_generated/dataModel";
 import type { ActionCtx } from "./_generated/server";
 import { action, internalAction } from "./_generated/server";
 import { auth } from "./auth";
@@ -209,6 +210,103 @@ async function fetchApiFootballFixtures(
 	return data.response ?? [];
 }
 
+// ─── Fallback de placar via ESPN (sem chave, tempo real) ─────────────────────
+// A football-data.org (tier free) atrasa o placar: marca FINISHED com
+// fullTime null por até horas. O scoreboard público da ESPN tem o placar
+// na hora do apito final e serve de fonte secundária.
+
+const ESPN_LEAGUE_CODES: Record<string, string> = {
+	WC2026: "fifa.world",
+	BSA2026: "bra.1",
+};
+
+interface EspnEvent {
+	date: string;
+	homeTla?: string;
+	awayTla?: string;
+	homeName: string;
+	awayName: string;
+	homeScore: number | null;
+	awayScore: number | null;
+	completed: boolean;
+}
+
+async function fetchEspnScoreboard(
+	tournament: string,
+	dates: string[],
+): Promise<EspnEvent[]> {
+	const leagueCode = ESPN_LEAGUE_CODES[tournament];
+	if (!leagueCode || dates.length === 0) return [];
+
+	const events: EspnEvent[] = [];
+	for (const date of dates) {
+		try {
+			const res = await fetch(
+				`https://site.api.espn.com/apis/site/v2/sports/soccer/${leagueCode}/scoreboard?dates=${date}`,
+			);
+			if (!res.ok) {
+				console.warn(`[ESPN fallback] HTTP ${res.status} para ${date}`);
+				continue;
+			}
+			const data = (await res.json()) as {
+				events?: Array<{
+					date: string;
+					status?: { type?: { completed?: boolean } };
+					competitions?: Array<{
+						competitors?: Array<{
+							homeAway: string;
+							score?: string;
+							team?: { displayName?: string; abbreviation?: string };
+						}>;
+					}>;
+				}>;
+			};
+			for (const event of data.events ?? []) {
+				const competitors = event.competitions?.[0]?.competitors ?? [];
+				const home = competitors.find((c) => c.homeAway === "home");
+				const away = competitors.find((c) => c.homeAway === "away");
+				if (!home?.team || !away?.team) continue;
+				events.push({
+					date: event.date,
+					homeTla: home.team.abbreviation,
+					awayTla: away.team.abbreviation,
+					homeName: home.team.displayName ?? "",
+					awayName: away.team.displayName ?? "",
+					homeScore: home.score != null ? Number(home.score) : null,
+					awayScore: away.score != null ? Number(away.score) : null,
+					completed: event.status?.type?.completed === true,
+				});
+			}
+		} catch (err) {
+			console.warn(`[ESPN fallback] erro ao buscar ${date}: ${err}`);
+		}
+	}
+	return events;
+}
+
+function findEspnScore(
+	match: ApiMatch,
+	espnEvents: EspnEvent[],
+): EspnEvent | undefined {
+	const homeTla = match.homeTeam.tla;
+	const awayTla = match.awayTeam.tla;
+	const homeName = normalizeTeamName(match.homeTeam.name);
+	const awayName = normalizeTeamName(match.awayTeam.name);
+
+	return espnEvents.find((event) => {
+		if (!datesAreClose(match.utcDate, event.date)) return false;
+		const tlaMatch =
+			homeTla &&
+			awayTla &&
+			event.homeTla === homeTla &&
+			event.awayTla === awayTla;
+		const nameMatch =
+			normalizeTeamName(event.homeName) === homeName &&
+			normalizeTeamName(event.awayName) === awayName;
+		return Boolean(tlaMatch || nameMatch);
+	});
+}
+
 async function doSync(
 	ctx: ActionCtx,
 	competitionCode: string,
@@ -220,6 +318,7 @@ async function doSync(
 	pointsComputed: number;
 	promoted: number;
 	venuesEnriched: number;
+	fallbackApplied: number;
 }> {
 	const apiKey = process.env.FOOTBALL_DATA_API_KEY;
 	if (!apiKey) throw new Error("FOOTBALL_DATA_API_KEY not set");
@@ -248,6 +347,10 @@ async function doSync(
 	let synced = 0;
 	let pointsComputed = 0;
 	let venuesEnriched = 0;
+	const scoreFallbackCandidates: {
+		match: ApiMatch;
+		dbId: Id<"matches">;
+	}[] = [];
 
 	for (const match of data.matches) {
 		if (!match.homeTeam.id || !match.awayTeam.id) continue;
@@ -314,6 +417,67 @@ async function doSync(
 			});
 			pointsComputed++;
 		}
+
+		// Candidato a fallback de placar: jogo que (provavelmente) acabou mas a
+		// football-data ainda não publicou o placar.
+		if (!result.hasScore) {
+			const kickoff = new Date(match.utcDate).getTime();
+			const likelyEnded = Date.now() - kickoff > 105 * 60 * 1000; // 1h45 após o início
+			const liveStatuses = ["LIVE", "IN_PLAY", "PAUSED"];
+			if (
+				match.status === "FINISHED" ||
+				(liveStatuses.includes(match.status) && likelyEnded)
+			) {
+				scoreFallbackCandidates.push({ match, dbId: result.id });
+			}
+		}
+	}
+
+	// Fallback ESPN: busca o placar dos jogos pendentes e computa pontos.
+	let fallbackApplied = 0;
+	if (scoreFallbackCandidates.length > 0) {
+		const dates = [
+			...new Set(
+				scoreFallbackCandidates.map((c) =>
+					c.match.utcDate.slice(0, 10).replace(/-/g, ""),
+				),
+			),
+		];
+		const espnEvents = await fetchEspnScoreboard(tournament, dates);
+		for (const { match, dbId } of scoreFallbackCandidates) {
+			const espn = findEspnScore(match, espnEvents);
+			if (espn?.completed && espn.homeScore != null && espn.awayScore != null) {
+				await ctx.runMutation(internal.matches.patchMatchScore, {
+					matchId: dbId,
+					homeScore: espn.homeScore,
+					awayScore: espn.awayScore,
+				});
+				await ctx.runMutation(internal.predictions.computeForMatch, {
+					matchId: dbId,
+				});
+				fallbackApplied++;
+				console.log(
+					`[${tournament}] [ESPN fallback] ${match.homeTeam.name} ${espn.homeScore} x ${espn.awayScore} ${match.awayTeam.name}`,
+				);
+			} else {
+				// Nenhuma fonte tem o placar: alerta o admin uma única vez por jogo,
+				// se o jogo já deveria ter terminado há bastante tempo.
+				const kickoff = new Date(match.utcDate).getTime();
+				if (Date.now() - kickoff > 150 * 60 * 1000) {
+					const { shouldAlert } = await ctx.runMutation(
+						internal.matches.claimScoreAlert,
+						{ matchId: dbId },
+					);
+					if (shouldAlert) {
+						await ctx.scheduler.runAfter(
+							0,
+							internal.notifications.sendScoreMissingAlert,
+							{ matchId: dbId },
+						);
+					}
+				}
+			}
+		}
 	}
 
 	// Promote any IN_PLAY/PAUSED matches that started >4h ago and have a score.
@@ -327,9 +491,9 @@ async function doSync(
 	}
 
 	console.log(
-		`[${tournament}] Synced ${synced} matches, enriched ${venuesEnriched} venues, computed points for ${pointsComputed}, promoted ${promoted} stale matches`,
+		`[${tournament}] Synced ${synced} matches, enriched ${venuesEnriched} venues, computed points for ${pointsComputed}, promoted ${promoted} stale matches, ESPN fallback ${fallbackApplied}`,
 	);
-	return { synced, pointsComputed, promoted, venuesEnriched };
+	return { synced, pointsComputed, promoted, venuesEnriched, fallbackApplied };
 }
 
 // ─── World Cup 2026 ───────────────────────────────────────────────────────────

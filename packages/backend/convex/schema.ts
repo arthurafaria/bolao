@@ -37,6 +37,7 @@ export default defineSchema({
 		apiId: v.number(),
 		tournament: v.string(),
 		reminderScheduledAt: v.optional(v.number()),
+		scoreAlertSentAt: v.optional(v.number()),
 	})
 		.index("by_apiId", ["apiId"])
 		.index("by_status", ["status"])

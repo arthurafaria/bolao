@@ -61,6 +61,40 @@ export const scheduleDailyReminder = internalAction({
 	},
 });
 
+// Alerta o admin quando um jogo terminou e nenhuma fonte automática
+// (football-data + ESPN) tem o placar. Disparado no máximo 1x por jogo.
+export const sendScoreMissingAlert = internalAction({
+	args: { matchId: v.id("matches") },
+	handler: async (ctx, args) => {
+		const apiKey = process.env.AUTH_RESEND_KEY;
+		if (!apiKey) {
+			console.error("[sendScoreMissingAlert] AUTH_RESEND_KEY não configurada");
+			return;
+		}
+		const siteUrl = process.env.SITE_URL ?? "";
+		const adminEmail = "arthurdearaujofaria@gmail.com";
+
+		const match = await ctx.runQuery(api.matches.getById, {
+			matchId: args.matchId,
+		});
+		if (!match) return;
+
+		const homeName = match.homeTeam?.shortName ?? "Time A";
+		const awayName = match.awayTeam?.shortName ?? "Time B";
+
+		const resend = new Resend(apiKey);
+		await resend.emails.send({
+			from: "Bolão 2026 <onboarding@resend.dev>",
+			to: [adminEmail],
+			subject: `⚠️ Placar pendente — ${homeName} x ${awayName} — Bolão 2026`,
+			text: `O jogo ${homeName} x ${awayName} (${formatBRT(match.utcDate)}) terminou, mas nem a football-data.org nem a ESPN publicaram o placar ainda.\n\nOs pontos serão computados automaticamente assim que alguma fonte publicar. Se quiser adiantar, lance o placar manualmente em ${siteUrl}/admin.`,
+		});
+		console.log(
+			`[sendScoreMissingAlert] Alerta enviado para ${adminEmail}: ${homeName} x ${awayName}`,
+		);
+	},
+});
+
 export const sendFirstMatchReminder = internalAction({
 	args: { matchId: v.id("matches") },
 	handler: async (ctx, args) => {

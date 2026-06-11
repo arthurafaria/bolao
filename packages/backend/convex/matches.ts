@@ -185,15 +185,22 @@ export const upsertMatch = internalMutation({
 				utcDate: args.utcDate,
 				venue: args.venue ?? existing.venue,
 			});
+			const finalHome = args.homeScore ?? existing.homeScore;
+			const finalAway = args.awayScore ?? existing.awayScore;
 			return {
 				id: existing._id,
 				shouldComputePoints:
 					newlyFinished || scoreNowVisible || alreadyFinishedWithScore,
+				hasScore: finalHome != null && finalAway != null,
 			};
 		}
 
 		const id = await ctx.db.insert("matches", args);
-		return { id, shouldComputePoints: false };
+		return {
+			id,
+			shouldComputePoints: false,
+			hasScore: args.homeScore != null && args.awayScore != null,
+		};
 	},
 });
 
@@ -298,6 +305,18 @@ export const forceFinishStaleLive = internalMutation({
 			);
 		}
 		return { promoted, promotedIds };
+	},
+});
+
+// Marca o alerta de placar pendente de forma atômica: retorna shouldAlert=true
+// apenas na primeira chamada por jogo, evitando spam de email a cada cron.
+export const claimScoreAlert = internalMutation({
+	args: { matchId: v.id("matches") },
+	handler: async (ctx, args) => {
+		const match = await ctx.db.get(args.matchId);
+		if (!match || match.scoreAlertSentAt) return { shouldAlert: false };
+		await ctx.db.patch(args.matchId, { scoreAlertSentAt: Date.now() });
+		return { shouldAlert: true };
 	},
 });
 
