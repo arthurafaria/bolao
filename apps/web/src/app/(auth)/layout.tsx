@@ -6,10 +6,12 @@ import { Trophy } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
+import { getPostAuthRedirect } from "@/lib/safe-redirect";
+
 function RedirectToDashboard() {
 	const router = useRouter();
 	useEffect(() => {
-		router.push("/dashboard");
+		router.push(getPostAuthRedirect());
 	}, [router]);
 	return null;
 }

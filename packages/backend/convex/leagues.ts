@@ -365,6 +365,50 @@ export const getByInviteCode = query({
 	},
 });
 
+export const getInvitePreview = query({
+	args: { inviteCode: v.string() },
+	handler: async (ctx, args) => {
+		const league = await ctx.db
+			.query("leagues")
+			.withIndex("by_inviteCode", (q) =>
+				q.eq("inviteCode", args.inviteCode.toUpperCase()),
+			)
+			.unique();
+		if (!league) return null;
+
+		const owner = await ctx.db.get(league.ownerId as Id<"users">);
+
+		const userId = await auth.getUserId(ctx);
+		let viewerStatus: "MEMBER" | "PENDING_REQUEST" | null = null;
+		if (userId) {
+			const membership = await getActiveMembership(ctx, league._id, userId);
+			if (membership) {
+				viewerStatus = "MEMBER";
+			} else {
+				const pendingRequest = await ctx.db
+					.query("leagueJoinRequests")
+					.withIndex("by_league_status", (q) =>
+						q.eq("leagueId", league._id).eq("status", "PENDING"),
+					)
+					.filter((q) => q.eq(q.field("userId"), userId))
+					.unique();
+				if (pendingRequest) viewerStatus = "PENDING_REQUEST";
+			}
+		}
+
+		return {
+			leagueId: league._id,
+			name: league.name,
+			description: league.description ?? null,
+			memberCount: league.memberCount,
+			joinType: league.joinType,
+			isFull: league.memberCount >= 50,
+			ownerName: owner?.name ?? null,
+			viewerStatus,
+		};
+	},
+});
+
 export const getRanking = query({
 	args: { leagueId: v.id("leagues") },
 	handler: async (ctx, args) => {

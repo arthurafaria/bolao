@@ -7,9 +7,11 @@ import { useForm } from "@tanstack/react-form";
 import { Check, Lock, Mail, Sparkles, User } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { z } from "zod";
+
+import { getPostAuthRedirect, sanitizeRedirect } from "@/lib/safe-redirect";
 
 function getSignUpErrorMessage(error: unknown) {
 	if (process.env.NODE_ENV !== "production")
@@ -92,12 +94,21 @@ export default function SignUpPage() {
 	const { signIn } = useAuthActions();
 	const [password, setPassword] = useState("");
 	const [googleLoading, setGoogleLoading] = useState(false);
+	const [redirectParam, setRedirectParam] = useState<string | null>(null);
+
+	useEffect(() => {
+		setRedirectParam(
+			sanitizeRedirect(
+				new URLSearchParams(window.location.search).get("redirect"),
+			),
+		);
+	}, []);
 
 	const handleGoogleSignIn = async () => {
 		if (googleLoading) return;
 		setGoogleLoading(true);
 		try {
-			await signIn("google", { redirectTo: "/dashboard" });
+			await signIn("google", { redirectTo: getPostAuthRedirect() });
 		} catch (error) {
 			toast.error(getSignUpErrorMessage(error));
 			setGoogleLoading(false);
@@ -121,7 +132,7 @@ export default function SignUpPage() {
 					password: value.password,
 					flow: "signUp",
 				});
-				router.push("/dashboard");
+				router.push(getPostAuthRedirect());
 			} catch (error) {
 				toast.error(getSignUpErrorMessage(error));
 			}
@@ -314,7 +325,11 @@ export default function SignUpPage() {
 			<p className="text-center text-sm" style={{ color: "var(--b-text-3)" }}>
 				Já tem conta?{" "}
 				<Link
-					href="/sign-in"
+					href={
+						redirectParam
+							? `/sign-in?redirect=${encodeURIComponent(redirectParam)}`
+							: "/sign-in"
+					}
 					className="font-semibold transition-colors hover:text-[var(--b-brand-hi)]"
 					style={{ color: "var(--b-brand)" }}
 				>

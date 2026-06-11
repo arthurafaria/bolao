@@ -13,7 +13,6 @@ import {
 } from "@bolao/ui/components/sheet";
 import { Skeleton } from "@bolao/ui/components/skeleton";
 import { Tag } from "@bolao/ui/components/tag";
-import { cn } from "@bolao/ui/lib/utils";
 import { useQuery } from "convex/react";
 import {
 	ArrowLeft,
@@ -241,27 +240,40 @@ function InviteSheet({
 	inviteCode: string;
 	leagueName: string;
 }) {
-	const [copied, setCopied] = useState(false);
+	const [copiedLink, setCopiedLink] = useState(false);
+	const [copiedCode, setCopiedCode] = useState(false);
 
-	function copy() {
+	function getInviteUrl() {
+		return `${window.location.origin}/convite/${inviteCode}`;
+	}
+
+	function copyLink() {
+		navigator.clipboard.writeText(getInviteUrl());
+		setCopiedLink(true);
+		toast.success("Link copiado! Cole no WhatsApp para convidar.");
+		setTimeout(() => setCopiedLink(false), 2000);
+	}
+
+	function copyCode() {
 		navigator.clipboard.writeText(inviteCode);
-		setCopied(true);
+		setCopiedCode(true);
 		toast.success("Código copiado!");
-		setTimeout(() => setCopied(false), 2000);
+		setTimeout(() => setCopiedCode(false), 2000);
 	}
 
 	function shareNative() {
 		if (typeof navigator !== "undefined" && "share" in navigator) {
 			navigator
 				.share({
-					title: `Liga ${leagueName}`,
-					text: `Entre na minha liga "${leagueName}" no Bolão. Código: ${inviteCode}`,
+					title: `Liga ${leagueName} — Bolão da Copa 2026`,
+					text: `⚽ Vem palpitar comigo! Entre na minha liga "${leagueName}" no Bolão da Copa 2026. É só tocar no link:`,
+					url: getInviteUrl(),
 				})
 				.catch(() => {
 					// Cancelado pelo user
 				});
 		} else {
-			copy();
+			copyLink();
 		}
 	}
 
@@ -277,48 +289,59 @@ function InviteSheet({
 						Convidar amigos
 					</SheetTitle>
 					<SheetDescription className="text-[var(--b-text-3)] text-sm">
-						Compartilhe o código abaixo. Quem usar entra (ou pede pra entrar) na
-						liga {leagueName}.
+						Mande o link de convite. Quem abrir entra (ou pede pra entrar) na
+						liga {leagueName} com um toque.
 					</SheetDescription>
 				</SheetHeader>
 				<div className="flex flex-col gap-4 px-6 py-4">
-					<div className="flex animate-scale-in flex-col items-center gap-3 rounded-2xl border border-[var(--b-brand-25)] bg-[var(--b-brand-10)] py-6 text-center">
-						<span className="text-[var(--b-brand)] text-eyebrow">
-							Código de convite
-						</span>
-						<span className="font-black font-mono text-5xl text-[var(--b-brand)] tabular-nums tracking-[0.4em]">
-							{inviteCode}
-						</span>
-					</div>
-					<div className="flex gap-2">
-						<Button
-							onClick={copy}
-							variant="outline"
-							className={cn("flex-1")}
-							size="lg"
-						>
-							{copied ? (
+					<div className="flex flex-col gap-2">
+						<Button onClick={shareNative} variant="action" size="lg">
+							<Share2 className="h-4 w-4" />
+							Compartilhar convite
+						</Button>
+						<Button onClick={copyLink} variant="outline" size="lg">
+							{copiedLink ? (
 								<>
 									<Check className="h-4 w-4" />
-									Copiado!
+									Link copiado!
 								</>
 							) : (
 								<>
 									<Copy className="h-4 w-4" />
-									Copiar código
+									Copiar link
 								</>
 							)}
 						</Button>
-						<Button onClick={shareNative} variant="action" size="lg">
-							<Share2 className="h-4 w-4" />
-							Compartilhar
-						</Button>
+					</div>
+					<div className="flex animate-scale-in flex-col items-center gap-2 rounded-2xl border border-[var(--b-brand-25)] bg-[var(--b-brand-10)] py-5 text-center">
+						<span className="text-[var(--b-brand)] text-eyebrow">
+							Ou compartilhe o código
+						</span>
+						<span className="font-black font-mono text-4xl text-[var(--b-brand)] tabular-nums tracking-[0.4em]">
+							{inviteCode}
+						</span>
+						<button
+							type="button"
+							onClick={copyCode}
+							className="inline-flex cursor-pointer items-center gap-1.5 text-[var(--b-text-3)] text-xs transition-colors hover:text-[var(--b-brand)]"
+						>
+							{copiedCode ? (
+								<>
+									<Check className="h-3.5 w-3.5" />
+									Copiado!
+								</>
+							) : (
+								<>
+									<Copy className="h-3.5 w-3.5" />
+									Copiar código
+								</>
+							)}
+						</button>
 					</div>
 					<div className="rounded-2xl bg-[var(--b-tint)] p-4 text-[var(--b-text-3)] text-xs leading-relaxed">
 						<strong className="font-bold text-[var(--b-text-2)]">Dica:</strong>{" "}
-						quem receber o código pode entrar acessando{" "}
-						<span className="font-mono">/leagues</span> e digitando em{" "}
-						<em>"Entrar por código"</em>.
+						quem abrir o link entra direto na liga. O código também funciona em{" "}
+						<em>Ligas → Entrar por código</em>.
 					</div>
 				</div>
 			</SheetContent>

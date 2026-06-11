@@ -7,9 +7,11 @@ import { useForm } from "@tanstack/react-form";
 import { Lock, Mail } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { z } from "zod";
+
+import { getPostAuthRedirect, sanitizeRedirect } from "@/lib/safe-redirect";
 
 function getAuthErrorMessage(error: unknown) {
 	if (process.env.NODE_ENV !== "production")
@@ -43,12 +45,21 @@ export default function SignInPage() {
 	const router = useRouter();
 	const { signIn } = useAuthActions();
 	const [googleLoading, setGoogleLoading] = useState(false);
+	const [redirectParam, setRedirectParam] = useState<string | null>(null);
+
+	useEffect(() => {
+		setRedirectParam(
+			sanitizeRedirect(
+				new URLSearchParams(window.location.search).get("redirect"),
+			),
+		);
+	}, []);
 
 	const handleGoogleSignIn = async () => {
 		if (googleLoading) return;
 		setGoogleLoading(true);
 		try {
-			await signIn("google", { redirectTo: "/dashboard" });
+			await signIn("google", { redirectTo: getPostAuthRedirect() });
 		} catch (error) {
 			toast.error(getAuthErrorMessage(error));
 			setGoogleLoading(false);
@@ -70,7 +81,7 @@ export default function SignInPage() {
 					password: value.password,
 					flow: "signIn",
 				});
-				router.push("/dashboard");
+				router.push(getPostAuthRedirect());
 			} catch (error) {
 				toast.error(getAuthErrorMessage(error));
 			}
@@ -218,7 +229,11 @@ export default function SignInPage() {
 			>
 				Não tem conta?{" "}
 				<Link
-					href="/sign-up"
+					href={
+						redirectParam
+							? `/sign-up?redirect=${encodeURIComponent(redirectParam)}`
+							: "/sign-up"
+					}
 					className="font-semibold transition-colors hover:text-[var(--b-brand-hi)]"
 					style={{ color: "var(--b-brand)" }}
 				>
