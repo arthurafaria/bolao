@@ -3,6 +3,7 @@ import { ThemeSwitch } from "@bolao/ui/components/theme-switch-button";
 import { buttonVariants } from "@bolao/ui/lib/button-variants";
 import {
 	ArrowRight,
+	GitBranch,
 	Shield,
 	Sparkles,
 	Star,
@@ -12,14 +13,15 @@ import {
 	Zap,
 } from "lucide-react";
 import Link from "next/link";
+import { CupCountdown } from "@/components/landing/cup-countdown";
 import { LogoMarquee } from "@/components/landing/logo-marquee";
 
 const featureCards = [
 	{
 		icon: Shield,
-		title: "Palpite inteligente",
+		title: "Palpites por grupo",
 		description:
-			"Interface rápida pra travar seu placar até 1h antes do apito — sem perder o contexto do jogo.",
+			"Palpite os jogos da Copa grupo a grupo, com os confrontos da rodada organizados sem virar lista infinita.",
 		highlight: "10 pts no placar exato",
 		color: "var(--b-brand)",
 	},
@@ -27,9 +29,17 @@ const featureCards = [
 		icon: Users,
 		title: "Ligas privadas",
 		description:
-			"Monte grupos com amigos, família ou trabalho e acompanhe a classificação rodada a rodada.",
-		highlight: "Código de 6 dígitos, aberta ou moderada",
+			"Monte grupos com amigos, família ou trabalho; o líder escolhe ranking por pontos ou por cravadas.",
+		highlight: "Código de 6 dígitos",
 		color: "var(--b-accent)",
+	},
+	{
+		icon: GitBranch,
+		title: "Mata-mata ao vivo",
+		description:
+			"Acompanhe o chaveamento das pré-oitavas até a final quando a fase decisiva chegar.",
+		highlight: "Bracket pronto pra decisão",
+		color: "var(--b-info)",
 	},
 	{
 		icon: Timer,
@@ -75,7 +85,7 @@ const pointsTiers = [
 ];
 
 const storySteps = [
-	{ n: "01", text: "Escolha o torneio e faça seus palpites em poucos toques." },
+	{ n: "01", text: "Entre e palpite os jogos da Copa, grupo a grupo." },
 	{
 		n: "02",
 		text: "Entre em ligas privadas e acompanhe quem está cravando mais.",
@@ -136,7 +146,7 @@ export default function LandingPage() {
 								className="mt-0.5 text-[10px] text-eyebrow"
 								style={{ color: "var(--b-text-4)" }}
 							>
-								Copa 2026 · Brasileirão
+								Copa do Mundo 2026
 							</p>
 						</div>
 					</div>
@@ -152,7 +162,7 @@ export default function LandingPage() {
 						</Link>
 						<Link
 							href="/sign-up"
-							className={buttonVariants({ variant: "brand", size: "sm" })}
+							className={buttonVariants({ variant: "action", size: "sm" })}
 						>
 							Criar conta
 						</Link>
@@ -166,7 +176,11 @@ export default function LandingPage() {
 					<div className="max-w-3xl">
 						{/* Tags */}
 						<div className="mb-6 flex flex-wrap gap-2">
-							{["Copa 2026", "Brasileirão", "Ligas privadas"].map((tag) => (
+							{[
+								"Copa do Mundo 2026",
+								"12 grupos · 104 jogos",
+								"Ligas com amigos",
+							].map((tag) => (
 								<Tag key={tag} variant="brand">
 									{tag}
 								</Tag>
@@ -181,25 +195,28 @@ export default function LandingPage() {
 								color: "var(--b-text)",
 							}}
 						>
-							Chuta <span style={{ color: "var(--b-brand)" }}>de bico!</span>
+							A Copa de 2026{" "}
+							<span style={{ color: "var(--b-brand)" }}>começou.</span>
 							<br />
-							Vai que você crava?
+							Crava aí.
 						</h1>
+
+						<CupCountdown />
 
 						<p
 							className="mt-6 max-w-xl text-pretty text-lg leading-relaxed md:text-xl"
 							style={{ color: "var(--b-text-2)" }}
 						>
-							Faça palpites, acompanhe ligas e veja a tabela mudar em tempo real
-							com uma experiência mais elegante do que qualquer planilha no
-							grupo.
+							Palpite por grupo, acompanhe o mata-mata em chaveamento e dispute
+							ligas privadas com ranking por pontos ou cravadas. E o Brasileirão
+							segue valendo no mesmo app.
 						</p>
 
 						{/* CTAs */}
 						<div className="mt-8 flex flex-col gap-3 sm:flex-row">
 							<Link
 								href="/sign-up"
-								className={`${buttonVariants({ variant: "brand", size: "lg" })} gap-2 px-7 text-sm uppercase tracking-[0.16em]`}
+								className={`${buttonVariants({ variant: "action", size: "lg" })} gap-2 px-7 text-sm uppercase tracking-[0.16em]`}
 							>
 								Começar grátis
 								<ArrowRight className="h-4 w-4" />
@@ -215,8 +232,8 @@ export default function LandingPage() {
 						{/* Stats */}
 						<div className="mt-10 grid max-w-2xl gap-3 sm:grid-cols-3">
 							{[
-								{ value: "+400", label: "Jogos cobertos" },
-								{ value: "20+", label: "Clubes e seleções" },
+								{ value: "104", label: "Jogos da Copa" },
+								{ value: "12", label: "Grupos A–L" },
 								{ value: "100%", label: "Foco em ranking" },
 							].map((item) => (
 								<div
@@ -446,7 +463,7 @@ export default function LandingPage() {
 							Bolão além do papel e caneta
 						</h2>
 					</div>
-					<div className="grid gap-5 md:grid-cols-3">
+					<div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
 						{featureCards.map(
 							({ icon: Icon, title, description, highlight, color }) => (
 								<div
@@ -671,12 +688,7 @@ export default function LandingPage() {
 							<div className="mt-8 flex justify-center gap-3">
 								<Link
 									href="/sign-up"
-									className={`${buttonVariants({ size: "lg" })} gap-2 px-8 text-sm uppercase tracking-[0.16em]`}
-									style={{
-										background: "oklch(0.12 0.03 145)",
-										color: "oklch(0.96 0.03 145)",
-										boxShadow: "0 14px 34px oklch(0 0 0 / 28%)",
-									}}
+									className={`${buttonVariants({ variant: "action", size: "lg" })} gap-2 px-8 text-sm uppercase tracking-[0.16em]`}
 								>
 									Criar conta grátis
 									<ArrowRight className="h-4 w-4" />

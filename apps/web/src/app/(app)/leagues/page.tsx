@@ -22,14 +22,40 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 
+type RankingMode = "POINTS" | "EXACTS";
+type ScoringMode = "DEFAULT" | "CUSTOM";
+
 function CreateLeagueDialog() {
 	const createLeague = useMutation(api.leagues.create);
 	const router = useRouter();
 	const [open, setOpen] = useState(false);
+	const [step, setStep] = useState<1 | 2 | 3>(1);
 	const [name, setName] = useState("");
 	const [description, setDescription] = useState("");
 	const [joinType, setJoinType] = useState<"OPEN" | "MODERATED">("OPEN");
+	const [rankingMode, setRankingMode] = useState<RankingMode>("POINTS");
+	const [scoringMode, setScoringMode] = useState<ScoringMode>("DEFAULT");
+	const [scoreResult, setScoreResult] = useState(5);
+	const [scoreGoal, setScoreGoal] = useState(2);
+	const [scoreExactBonus, setScoreExactBonus] = useState(1);
 	const [loading, setLoading] = useState(false);
+
+	function resetForm() {
+		setStep(1);
+		setName("");
+		setDescription("");
+		setJoinType("OPEN");
+		setRankingMode("POINTS");
+		setScoringMode("DEFAULT");
+		setScoreResult(5);
+		setScoreGoal(2);
+		setScoreExactBonus(1);
+	}
+
+	function handleOpenChange(nextOpen: boolean) {
+		setOpen(nextOpen);
+		if (!nextOpen) resetForm();
+	}
 
 	async function handleSubmit(e: React.FormEvent) {
 		e.preventDefault();
@@ -43,11 +69,19 @@ function CreateLeagueDialog() {
 				name,
 				description: description || undefined,
 				joinType,
+				rankingMode,
+				scoring:
+					scoringMode === "CUSTOM"
+						? {
+								result: scoreResult,
+								goal: scoreGoal,
+								exactBonus: scoreExactBonus,
+							}
+						: undefined,
 			});
 			toast.success("Liga criada!");
 			setOpen(false);
-			setName("");
-			setDescription("");
+			resetForm();
 			router.push(`/leagues/${id}`);
 		} catch (err) {
 			toast.error((err as Error).message ?? "Erro ao criar liga");
@@ -57,8 +91,8 @@ function CreateLeagueDialog() {
 	}
 
 	return (
-		<Dialog open={open} onOpenChange={setOpen}>
-			<DialogTrigger render={<Button variant="brand" size="lg" />}>
+		<Dialog open={open} onOpenChange={handleOpenChange}>
+			<DialogTrigger render={<Button variant="action" size="lg" />}>
 				<Plus className="h-4 w-4" />
 				Criar liga
 			</DialogTrigger>
@@ -71,71 +105,248 @@ function CreateLeagueDialog() {
 					</DialogTitle>
 				</DialogHeader>
 				<form onSubmit={handleSubmit} className="mt-3 space-y-5">
-					<div className="space-y-1.5">
-						<Label htmlFor="league-name">Nome</Label>
-						<Input
-							id="league-name"
-							placeholder="Ex: Família da Copa"
-							value={name}
-							onChange={(e) => setName(e.target.value)}
-						/>
-					</div>
-					<div className="space-y-1.5">
-						<Label htmlFor="league-desc">Descrição (opcional)</Label>
-						<Input
-							id="league-desc"
-							placeholder="Descrição da liga"
-							value={description}
-							onChange={(e) => setDescription(e.target.value)}
-						/>
-					</div>
-					<div className="space-y-1.5">
-						<Label>Tipo de entrada</Label>
-						<div className="grid grid-cols-2 gap-2">
-							{(["OPEN", "MODERATED"] as const).map((type) => (
-								<button
-									key={type}
-									type="button"
-									onClick={() => setJoinType(type)}
-									className={cn(
-										"rounded-2xl border p-3 text-left transition-[transform,background] duration-[var(--motion-fast)]",
-										"active:scale-[0.97]",
-										joinType === type
-											? "border-[var(--b-brand)] bg-[var(--b-brand-10)]"
-											: "border-[var(--b-border-md)] hover:bg-[var(--b-tint)]",
-									)}
-								>
-									<p
-										className={cn(
-											"font-bold font-display text-sm uppercase tracking-wide",
-											joinType === type
-												? "text-[var(--b-brand)]"
-												: "text-[var(--b-text)]",
-										)}
-									>
-										{type === "OPEN" ? "Aberta" : "Moderada"}
-									</p>
-									<p className="mt-0.5 text-[var(--b-text-3)] text-xs leading-relaxed">
-										{type === "OPEN"
-											? "Qualquer um com o código entra"
-											: "Você aprova cada membro"}
-									</p>
-								</button>
-							))}
+					<WizardProgress step={step} />
+
+					{step === 1 && (
+						<div className="space-y-4">
+							<div className="space-y-1.5">
+								<Label htmlFor="league-name">Nome</Label>
+								<Input
+									id="league-name"
+									placeholder="Ex: Família da Copa"
+									value={name}
+									onChange={(e) => setName(e.target.value)}
+								/>
+							</div>
+							<div className="space-y-1.5">
+								<Label htmlFor="league-desc">Descrição (opcional)</Label>
+								<Input
+									id="league-desc"
+									placeholder="Descrição da liga"
+									value={description}
+									onChange={(e) => setDescription(e.target.value)}
+								/>
+							</div>
+							<Button
+								type="button"
+								variant="action"
+								className="w-full"
+								size="lg"
+								disabled={name.trim().length < 3}
+								onClick={() => setStep(2)}
+							>
+								Continuar
+							</Button>
 						</div>
-					</div>
-					<Button
-						type="submit"
-						variant="brand"
-						className="w-full"
-						loading={loading}
-						size="lg"
-					>
-						Criar liga
-					</Button>
+					)}
+
+					{step === 2 && (
+						<div className="space-y-4">
+							<div className="space-y-1.5">
+								<Label>Tipo de entrada</Label>
+								<div className="grid grid-cols-2 gap-2">
+									{(["OPEN", "MODERATED"] as const).map((type) => (
+										<OptionCard
+											key={type}
+											selected={joinType === type}
+											title={type === "OPEN" ? "Aberta" : "Moderada"}
+											description={
+												type === "OPEN"
+													? "Qualquer um com o código entra"
+													: "Você aprova cada membro"
+											}
+											onClick={() => setJoinType(type)}
+										/>
+									))}
+								</div>
+							</div>
+							<div className="grid grid-cols-2 gap-2">
+								<Button
+									type="button"
+									variant="outline"
+									size="lg"
+									onClick={() => setStep(1)}
+								>
+									Voltar
+								</Button>
+								<Button
+									type="button"
+									variant="action"
+									size="lg"
+									onClick={() => setStep(3)}
+								>
+									Continuar
+								</Button>
+							</div>
+						</div>
+					)}
+
+					{step === 3 && (
+						<div className="space-y-4">
+							<div className="space-y-1.5">
+								<Label>Critério do ranking</Label>
+								<div className="grid grid-cols-2 gap-2">
+									<OptionCard
+										selected={rankingMode === "POINTS"}
+										title="Mais pontos"
+										description="Ranking pela soma de pontos de todos os palpites"
+										onClick={() => setRankingMode("POINTS")}
+									/>
+									<OptionCard
+										selected={rankingMode === "EXACTS"}
+										title="Mais cravadas"
+										description="Ranking por placares exatos; pontos desempatam"
+										onClick={() => setRankingMode("EXACTS")}
+									/>
+								</div>
+							</div>
+							<div className="space-y-1.5">
+								<Label>Pontuação</Label>
+								<div className="grid grid-cols-2 gap-2">
+									<OptionCard
+										selected={scoringMode === "DEFAULT"}
+										title="Padrão do site"
+										description="10 no exato, 5 no resultado e bônus por gols"
+										onClick={() => setScoringMode("DEFAULT")}
+									/>
+									<OptionCard
+										selected={scoringMode === "CUSTOM"}
+										title="Personalizada"
+										description="Você define quanto vale cada tipo de acerto"
+										onClick={() => setScoringMode("CUSTOM")}
+									/>
+								</div>
+							</div>
+							{scoringMode === "CUSTOM" && (
+								<div className="grid gap-2 sm:grid-cols-3">
+									<ScoringInput
+										id="score-result"
+										label="Resultado"
+										value={scoreResult}
+										onChange={setScoreResult}
+									/>
+									<ScoringInput
+										id="score-goal"
+										label="Gols/time"
+										value={scoreGoal}
+										onChange={setScoreGoal}
+									/>
+									<ScoringInput
+										id="score-exact"
+										label="Bônus exato"
+										value={scoreExactBonus}
+										onChange={setScoreExactBonus}
+									/>
+								</div>
+							)}
+							<div className="grid grid-cols-2 gap-2">
+								<Button
+									type="button"
+									variant="outline"
+									size="lg"
+									onClick={() => setStep(2)}
+								>
+									Voltar
+								</Button>
+								<Button
+									type="submit"
+									variant="action"
+									loading={loading}
+									size="lg"
+								>
+									Criar liga
+								</Button>
+							</div>
+						</div>
+					)}
 				</form>
 			</DialogContent>
 		</Dialog>
+	);
+}
+
+function WizardProgress({ step }: { step: 1 | 2 | 3 }) {
+	return (
+		<div className="space-y-2">
+			<span className="text-[var(--b-text-3)] text-eyebrow">
+				Passo {step} de 3
+			</span>
+			<div className="grid grid-cols-3 gap-2">
+				{[1, 2, 3].map((item) => (
+					<span
+						key={item}
+						className={cn(
+							"h-1.5 rounded-full transition-colors duration-[var(--motion-fast)]",
+							item <= step ? "bg-[var(--b-brand)]" : "bg-[var(--b-border-md)]",
+						)}
+					/>
+				))}
+			</div>
+		</div>
+	);
+}
+
+function OptionCard({
+	selected,
+	title,
+	description,
+	onClick,
+}: {
+	selected: boolean;
+	title: string;
+	description: string;
+	onClick: () => void;
+}) {
+	return (
+		<button
+			type="button"
+			onClick={onClick}
+			className={cn(
+				"rounded-2xl border p-3 text-left transition-[transform,background] duration-[var(--motion-fast)]",
+				"active:scale-[0.97]",
+				selected
+					? "border-[var(--b-brand)] bg-[var(--b-brand-10)]"
+					: "border-[var(--b-border-md)] hover:bg-[var(--b-tint)]",
+			)}
+		>
+			<p
+				className={cn(
+					"font-bold font-display text-sm uppercase tracking-wide",
+					selected ? "text-[var(--b-brand)]" : "text-[var(--b-text)]",
+				)}
+			>
+				{title}
+			</p>
+			<p className="mt-0.5 text-[var(--b-text-3)] text-xs leading-relaxed">
+				{description}
+			</p>
+		</button>
+	);
+}
+
+function ScoringInput({
+	id,
+	label,
+	value,
+	onChange,
+}: {
+	id: string;
+	label: string;
+	value: number;
+	onChange: (value: number) => void;
+}) {
+	return (
+		<div className="space-y-1.5">
+			<Label htmlFor={id}>{label}</Label>
+			<Input
+				id={id}
+				type="number"
+				min={0}
+				max={20}
+				value={value}
+				onChange={(e) => onChange(Number(e.target.value))}
+			/>
+		</div>
 	);
 }
 

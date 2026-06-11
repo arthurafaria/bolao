@@ -383,9 +383,9 @@ export function Scorecard({
 								onClick={handleSave}
 								disabled={saving}
 								className={cn(
-									"flex h-9 items-center gap-2 overflow-hidden rounded-full bg-[var(--b-brand)] px-4 font-bold text-[var(--b-brand-fg)] text-xs uppercase tracking-wider",
-									"transition-[transform,box-shadow,background-color] duration-[var(--motion-fast)]",
-									"hover:scale-[1.04] hover:shadow-[var(--b-shadow-brand-sm)] active:scale-[0.96] disabled:opacity-50",
+									"flex h-10 items-center gap-2 overflow-hidden rounded-full bg-[var(--b-action)] px-5 font-bold text-[var(--b-action-fg)] text-sm uppercase tracking-wider",
+									"shadow-[0_4px_0_oklch(0.55_0.14_95)] transition-[transform,box-shadow,filter] duration-[var(--motion-fast)]",
+									"hover:brightness-105 active:scale-[0.96] active:translate-y-[2px] active:shadow-none disabled:opacity-50",
 								)}
 							>
 								{saving ? "Salvando…" : "Salvar palpite"}

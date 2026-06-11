@@ -299,7 +299,7 @@ export default function SignUpPage() {
 					{({ canSubmit, isSubmitting }) => (
 						<Button
 							type="submit"
-							variant="brand"
+							variant="action"
 							size="lg"
 							className="mt-2 w-full text-sm uppercase tracking-[0.16em]"
 							disabled={!canSubmit}

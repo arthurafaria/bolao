@@ -4,7 +4,7 @@ export const buttonVariants = cva(
 	[
 		"group/button relative inline-flex shrink-0 select-none items-center justify-center",
 		"overflow-hidden whitespace-nowrap rounded-xl border border-transparent bg-clip-padding",
-		"font-semibold text-xs outline-none",
+		"font-bold text-xs uppercase tracking-wide outline-none",
 		"transition-[background-color,color,border-color,box-shadow,opacity,transform]",
 		"duration-[var(--motion-fast)] ease-[var(--ease-out-quart)]",
 		"focus-visible:outline-2 focus-visible:outline-[var(--b-brand)] focus-visible:outline-offset-2",
@@ -20,11 +20,13 @@ export const buttonVariants = cva(
 				default:
 					"bg-primary text-primary-foreground shadow-[var(--b-shadow-brand-sm)] hover:bg-primary/90 hover:shadow-[var(--b-shadow-brand-md)]",
 				brand:
-					"bg-[var(--b-brand)] text-[var(--b-brand-fg)] shadow-[var(--b-shadow-brand-sm)] hover:bg-[var(--b-brand-hi)] hover:shadow-[var(--b-shadow-brand-md)]",
-				accent:
-					"bg-[var(--b-accent)] text-[var(--b-accent-fg)] shadow-sm hover:bg-[var(--b-accent-hi)]",
+					"bg-[image:var(--g-brand-vert)] text-[var(--b-brand-fg)] shadow-[var(--b-shadow-brand-sm)] hover:shadow-[var(--b-shadow-brand-md)] hover:brightness-105",
+				action:
+					"bg-[var(--b-action)] text-[var(--b-action-fg)] shadow-[0_4px_0_oklch(0.55_0.14_95)] hover:brightness-105 active:shadow-none active:translate-y-[2px]",
+			accent:
+					"bg-[var(--b-accent)] text-[var(--b-accent-fg)] shadow-[0_2px_8px_oklch(0.78_0.16_85_/_0.35)] hover:bg-[var(--b-accent-hi)]",
 				outline:
-					"border-[var(--b-border-md)] bg-[var(--b-card)] text-[var(--b-text)] hover:border-[var(--b-border-lg)] hover:bg-[var(--b-surface)]",
+					"border-[var(--b-brand-25)] bg-[var(--b-card)] text-[var(--b-brand)] hover:bg-[var(--b-brand-5)]",
 				secondary:
 					"bg-secondary text-secondary-foreground hover:bg-secondary/80",
 				ghost:
@@ -40,8 +42,8 @@ export const buttonVariants = cva(
 				default: "h-9 gap-1.5 px-4",
 				xs: "h-7 gap-1 rounded-lg px-2.5 text-xs [&_svg:not([class*='size-'])]:size-3",
 				sm: "h-8 gap-1 rounded-lg px-3 [&_svg:not([class*='size-'])]:size-3.5",
-				lg: "h-11 gap-2 px-6 text-sm",
-				xl: "h-12 gap-2 px-8 text-sm",
+				lg: "h-11 gap-2 px-6 text-sm font-bold",
+				xl: "h-13 gap-2 px-8 text-base font-bold",
 				icon: "size-9 gap-0 rounded-xl",
 				"icon-xs":
 					"size-7 gap-0 rounded-lg [&_svg:not([class*='size-'])]:size-3.5",

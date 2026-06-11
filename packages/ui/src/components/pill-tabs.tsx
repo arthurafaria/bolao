@@ -63,7 +63,7 @@ export function PillTabs<T extends string>({
 			{pillStyle && (
 				<span
 					aria-hidden
-					className="pointer-events-none absolute top-1/2 z-0 -translate-y-1/2 rounded-full bg-[var(--b-card)] shadow-[var(--b-shadow-brand-sm)]"
+					className="pointer-events-none absolute top-1/2 z-0 -translate-y-1/2 rounded-full bg-[var(--b-action)] shadow-[0_2px_6px_oklch(0.55_0.14_95_/_0.4)]"
 					style={{
 						left: pillStyle.left,
 						width: pillStyle.width,
@@ -89,7 +89,7 @@ export function PillTabs<T extends string>({
 							"relative z-10 inline-flex items-center justify-center gap-1.5 rounded-full font-semibold uppercase tracking-wide transition-colors duration-[var(--motion-base)]",
 							buttonSize,
 							active
-								? "text-[var(--b-brand)]"
+								? "text-[var(--b-action-fg)] dark:text-[var(--b-action-fg)]"
 								: "text-[var(--b-text-3)] hover:text-[var(--b-text-2)]",
 						)}
 					>
@@ -100,7 +100,7 @@ export function PillTabs<T extends string>({
 								className={cn(
 									"ml-0.5 inline-flex h-4 min-w-4 items-center justify-center rounded-full px-1 font-bold text-[10px] tabular-nums",
 									active
-										? "bg-[var(--b-brand-12)] text-[var(--b-brand)]"
+										? "bg-[oklch(0.55_0.14_95_/_0.35)] text-[var(--b-action-fg)]"
 										: "bg-[var(--b-tint-md)] text-[var(--b-text-3)]",
 								)}
 							>
