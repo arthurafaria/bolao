@@ -12,6 +12,7 @@
 			"!**/.agents",
 			"!**/.claude",
 			"!**/.next",
+			"!**/.vercel",
 			"!**/dist",
 			"!**/.turbo",
 			"!**/.nx",

@@ -1,4 +1,4 @@
 {
 	"installCommand": "cd ../.. && bun install",
-	"buildCommand": "cd ../.. && bun run --filter web build"
+	"buildCommand": "next build"
 }
