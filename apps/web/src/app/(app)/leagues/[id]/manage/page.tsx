@@ -96,6 +96,27 @@ export default function ManageLeaguePage({
 		}
 	}
 
+	async function handleJoinTypeChange(joinType: "OPEN" | "MODERATED") {
+		if (league?.joinType === joinType) return;
+		try {
+			const result = await updateLeague({ leagueId, joinType });
+			if (joinType === "OPEN") {
+				const approved = result?.approvedRequests ?? 0;
+				toast.success(
+					approved > 0
+						? `Liga agora é aberta! ${approved} solicitação${approved === 1 ? "" : "ões"} pendente${approved === 1 ? "" : "s"} aprovada${approved === 1 ? "" : "s"}.`
+						: "Liga agora é aberta — quem tiver o link entra direto.",
+				);
+			} else {
+				toast.success(
+					"Liga agora é moderada — novas entradas precisam da sua aprovação.",
+				);
+			}
+		} catch (err) {
+			toast.error((err as Error).message);
+		}
+	}
+
 	async function handleRankingModeChange(rankingMode: "POINTS" | "EXACTS") {
 		try {
 			await updateLeague({ leagueId, rankingMode });
@@ -144,6 +165,36 @@ export default function ManageLeaguePage({
 					<p className="text-muted-foreground text-sm">{league.name}</p>
 				</div>
 			</div>
+
+			<Card>
+				<CardHeader className="pb-3">
+					<CardTitle className="text-base">Tipo de entrada</CardTitle>
+				</CardHeader>
+				<CardContent>
+					<div className="grid gap-2 sm:grid-cols-2">
+						<RankingModeCard
+							selected={league.joinType === "OPEN"}
+							title="Aberta"
+							description="Quem tiver o link ou o código entra na hora, sem aprovação"
+							onClick={() => handleJoinTypeChange("OPEN")}
+						/>
+						<RankingModeCard
+							selected={league.joinType === "MODERATED"}
+							title="Moderada"
+							description="Você aprova cada pedido de entrada antes da pessoa participar"
+							onClick={() => handleJoinTypeChange("MODERATED")}
+						/>
+					</div>
+					{league.joinType === "MODERATED" &&
+						pendingRequests &&
+						pendingRequests.length > 0 && (
+							<p className="mt-3 text-[var(--b-text-3)] text-xs leading-relaxed">
+								Ao mudar para aberta, as solicitações pendentes são aprovadas
+								automaticamente.
+							</p>
+						)}
+				</CardContent>
+			</Card>
 
 			<Card>
 				<CardHeader className="pb-3">

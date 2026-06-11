@@ -339,6 +339,59 @@ export const update = mutation({
 		else if (args.scoring) patch.scoring = args.scoring;
 
 		await ctx.db.patch(args.leagueId, patch);
+
+		// Liga moderada virou aberta: aprova quem já estava na fila (até o limite)
+		let approvedRequests = 0;
+		if (args.joinType === "OPEN" && league.joinType === "MODERATED") {
+			const pending = await ctx.db
+				.query("leagueJoinRequests")
+				.withIndex("by_league_status", (q) =>
+					q.eq("leagueId", args.leagueId).eq("status", "PENDING"),
+				)
+				.collect();
+
+			let memberCount = league.memberCount;
+			for (const request of pending) {
+				if (memberCount >= 50) break;
+
+				const existing = await ctx.db
+					.query("leagueMembers")
+					.withIndex("by_league_user", (q) =>
+						q.eq("leagueId", args.leagueId).eq("userId", request.userId),
+					)
+					.unique();
+
+				if (existing?.status === "ACTIVE") {
+					await ctx.db.patch(request._id, { status: "APPROVED" });
+					continue;
+				}
+
+				if (existing) {
+					await ctx.db.patch(existing._id, {
+						status: "ACTIVE",
+						joinedAt: Date.now(),
+					});
+				} else {
+					await ctx.db.insert("leagueMembers", {
+						leagueId: args.leagueId,
+						userId: request.userId,
+						totalPoints: 0,
+						exactScores: 0,
+						correctResults: 0,
+						status: "ACTIVE",
+						joinedAt: Date.now(),
+					});
+				}
+				await ctx.db.patch(request._id, { status: "APPROVED" });
+				memberCount++;
+				approvedRequests++;
+			}
+			if (approvedRequests > 0) {
+				await ctx.db.patch(args.leagueId, { memberCount });
+			}
+		}
+
+		return { approvedRequests };
 	},
 });
 
