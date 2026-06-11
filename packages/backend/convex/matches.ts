@@ -175,12 +175,15 @@ export const upsertMatch = internalMutation({
 			// idempotent (skips predictions already having calculatedAt set).
 			const alreadyFinishedWithScore =
 				wasFinished && args.homeScore != null && args.awayScore != null;
+			// Nunca apaga um placar já conhecido: a football-data.org às vezes
+			// devolve FINISHED com score null (atraso do tier free), e patch com
+			// undefined removeria placar lançado manualmente via admin.
 			await ctx.db.patch(existing._id, {
 				status: statusToSet,
-				homeScore: args.homeScore,
-				awayScore: args.awayScore,
+				homeScore: args.homeScore ?? existing.homeScore,
+				awayScore: args.awayScore ?? existing.awayScore,
 				utcDate: args.utcDate,
-				venue: args.venue,
+				venue: args.venue ?? existing.venue,
 			});
 			return {
 				id: existing._id,
