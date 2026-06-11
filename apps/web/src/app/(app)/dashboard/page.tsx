@@ -127,37 +127,28 @@ export default function DashboardPage() {
 				</div>
 			)}
 
-			{/* Stats — bento grid */}
+			{/* Stats — faixa horizontal */}
 			<section>
 				<SectionTitle eyebrow="Você no bolão" title="Seus números" />
-				<div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-					<StatTile
-						label="Pontos"
-						value={totalPoints}
-						icon={Trophy}
-						variant="accent"
-						footer={<span>Total acumulado</span>}
-					/>
-					<StatTile
-						label="Palpites"
-						value={totalPredictions}
-						icon={Target}
-						footer={<span>Jogos com placar dado</span>}
-					/>
-					<StatTile
-						label="Exatos"
-						value={exact}
-						icon={Crosshair}
-						variant={exact > 0 ? "gold" : "default"}
-						footer={<span>Cravadas (10 pts)</span>}
-					/>
-					<StatTile
-						label="Precisão"
-						value={accuracy}
-						suffix="%"
-						icon={Flame}
-						footer={<span>Palpites com pontos</span>}
-					/>
+				<div
+					className="grid grid-cols-2 divide-x divide-y divide-[var(--b-border-sm)] overflow-hidden rounded-[20px] border border-[var(--b-border-sm)] bg-[var(--b-card)] shadow-[var(--b-shadow-card-soft)] lg:grid-cols-4 lg:divide-y-0"
+				>
+					{[
+						{ label: "Pontos", value: totalPoints, suffix: undefined, color: "var(--b-brand)" },
+						{ label: "Palpites", value: totalPredictions, suffix: undefined, color: "var(--b-text)" },
+						{ label: "Exatos", value: exact, suffix: undefined, color: exact > 0 ? "var(--b-gold)" : "var(--b-text)" },
+						{ label: "Precisão", value: accuracy, suffix: "%", color: "var(--b-text)" },
+					].map(({ label, value, suffix, color }) => (
+						<div key={label} className="flex flex-col gap-1 px-5 py-4">
+							<span className="text-[var(--b-text-3)] text-eyebrow">{label}</span>
+							<span
+								className="score-display text-4xl leading-none tabular-nums sm:text-5xl"
+								style={{ color }}
+							>
+								{value}{suffix}
+							</span>
+						</div>
+					))}
 				</div>
 			</section>
 

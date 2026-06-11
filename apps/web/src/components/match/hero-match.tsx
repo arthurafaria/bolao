@@ -66,7 +66,7 @@ export function HeroMatch({
 		<div
 			ref={ref}
 			className={cn(
-				"group/hero relative isolate overflow-hidden rounded-[32px] text-[var(--b-text)] dark:text-white",
+				"field-texture group/hero relative isolate overflow-hidden rounded-[32px] text-[var(--b-text)] dark:text-white",
 				"[background:linear-gradient(180deg,color-mix(in_oklch,var(--b-brand)_14%,var(--b-card)),var(--b-card))] dark:[background:var(--g-hero-match)]",
 				"animate-fade-in shadow-[var(--b-shadow-brand-lg)]",
 				className,

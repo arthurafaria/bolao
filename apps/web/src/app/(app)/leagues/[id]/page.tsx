@@ -75,7 +75,7 @@ export default function LeagueDetailPage({
 					Talvez você não seja mais membro dessa liga.
 				</p>
 				<Link href="/leagues">
-					<Button variant="brand" size="default">
+					<Button variant="action" size="default">
 						<ArrowLeft className="h-4 w-4" />
 						Voltar pras minhas ligas
 					</Button>
@@ -85,6 +85,7 @@ export default function LeagueDetailPage({
 	}
 
 	const isOwner = currentUser?._id === league.ownerId;
+	const rankingMode = league.rankingMode ?? "POINTS";
 
 	return (
 		<div className="animate-fade-in space-y-7">
@@ -119,6 +120,16 @@ export default function LeagueDetailPage({
 							</span>{" "}
 							membros
 						</span>
+						<Tag variant={rankingMode === "POINTS" ? "brand" : "muted"}>
+							Ranking:{" "}
+							{rankingMode === "POINTS" ? "mais pontos" : "mais cravadas"}
+						</Tag>
+						{league.scoring ? (
+							<Tag variant="warning">
+								Pontuação personalizada: {league.scoring.result} /{" "}
+								{league.scoring.goal} / {league.scoring.exactBonus}
+							</Tag>
+						) : null}
 					</div>
 				</div>
 
@@ -166,9 +177,15 @@ export default function LeagueDetailPage({
 										Ranking
 									</h2>
 								</div>
-								<span className="font-mono text-[var(--b-text-3)] text-xs tabular-nums">
-									{ranking.length} {ranking.length === 1 ? "membro" : "membros"}
-								</span>
+								<div className="flex flex-wrap items-center justify-end gap-2">
+									<Tag variant={rankingMode === "POINTS" ? "brand" : "muted"}>
+										{rankingMode === "POINTS" ? "Mais pontos" : "Mais cravadas"}
+									</Tag>
+									<span className="font-mono text-[var(--b-text-3)] text-xs tabular-nums">
+										{ranking.length}{" "}
+										{ranking.length === 1 ? "membro" : "membros"}
+									</span>
+								</div>
 							</header>
 							<div
 								className="stagger-children flex flex-col gap-2"
@@ -250,7 +267,7 @@ function InviteSheet({
 
 	return (
 		<Sheet>
-			<SheetTrigger render={<Button variant="brand" size="default" />}>
+			<SheetTrigger render={<Button variant="action" size="default" />}>
 				<Share2 className="h-4 w-4" />
 				Convidar
 			</SheetTrigger>
@@ -292,7 +309,7 @@ function InviteSheet({
 								</>
 							)}
 						</Button>
-						<Button onClick={shareNative} variant="brand" size="lg">
+						<Button onClick={shareNative} variant="action" size="lg">
 							<Share2 className="h-4 w-4" />
 							Compartilhar
 						</Button>
