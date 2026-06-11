@@ -273,7 +273,7 @@ export default function LandingPage() {
 							}}
 						/>
 						<div
-							className="relative animate-float overflow-hidden rounded-[40px] p-5 sm:p-6"
+							className="field-texture relative animate-float overflow-hidden rounded-[40px] p-5 sm:p-6"
 							style={{
 								background:
 									"linear-gradient(180deg, color-mix(in oklch, var(--b-card) 94%, transparent), color-mix(in oklch, var(--b-inner) 92%, transparent))",

@@ -40,22 +40,12 @@ export default function AuthLayout({
 
 				{/* Painel esquerdo — branding (desktop only) */}
 				<div
-					className="relative hidden animate-fade-in flex-col justify-between overflow-hidden border-r p-12 lg:flex lg:w-[48%] xl:p-14"
+					className="field-texture relative hidden animate-fade-in flex-col justify-between overflow-hidden border-r p-12 lg:flex lg:w-[48%] xl:p-14"
 					style={{
 						background: "var(--b-auth-panel-bg)",
 						borderColor: "var(--b-border)",
 					}}
 				>
-					{/* Grid texture */}
-					<div
-						className="pointer-events-none absolute inset-0 opacity-[0.04]"
-						style={{
-							backgroundImage:
-								"linear-gradient(var(--b-brand) 1px, transparent 1px), linear-gradient(90deg, var(--b-brand) 1px, transparent 1px)",
-							backgroundSize: "64px 64px",
-						}}
-					/>
-
 					{/* Dot pattern decoration */}
 					<div
 						className="pointer-events-none absolute right-0 bottom-0 h-64 w-64 opacity-[0.04]"
