@@ -24,11 +24,13 @@ bolao/
 │           │   │   ├── dashboard/
 │           │   │   ├── leagues/[id]/
 │           │   │   │   ├── members/[userId]/   # Palpites públicos do membro
-│           │   │   │   └── manage/
+│           │   │   │   └── manage/    # Tipo de entrada, ranking, pontuação, membros
+│           │   │   ├── mata-mata/      # Bracket do mata-mata
 │           │   │   ├── predictions/
 │           │   │   ├── profile/        # Com editor de nome
 │           │   │   └── regras/
-│           │   └── (auth)/     # sign-in, sign-up
+│           │   ├── (auth)/     # sign-in, sign-up (aceitam ?redirect= sanitizado)
+│           │   └── convite/[code]/     # PÚBLICA: convite por link com preview da liga
 │           ├── components/
 │           │   └── match-card.tsx      # Card de partida (modo normal + readOnly)
 │           ├── contexts/
@@ -40,11 +42,12 @@ bolao/
 ├── packages/
 │   ├── backend/                # Convex: schema, funções, crons, auth
 │   │   └── convex/
-│   │       ├── footballData.ts # Sync WC2026 + BSA2026, admin wrappers
-│   │       ├── matches.ts      # upsertMatch + forceFinishStaleLive
+│   │       ├── footballData.ts # Sync WC2026 + BSA2026 + fallback ESPN, admin wrappers
+│   │       ├── matches.ts      # upsertMatch, forceFinishStaleLive, claimScoreAlert
 │   │       ├── predictions.ts  # Palpites, cálculo de pontos, recomputeAll
-│   │       ├── leagues.ts      # getRanking com nomes reais
-│   │       ├── crons.ts        # WC: 0 * * * * | BSA: */10 * * * *
+│   │       ├── leagues.ts      # join por código, getInvitePreview, getRanking
+│   │       ├── notifications.ts# Lembrete diário + alerta de placar pendente
+│   │       ├── crons.ts        # WC e BSA: */10 * * * *
 │   │       └── schema.ts
 │   └── ui/                     # Componentes shadcn/ui compartilhados
 ```
@@ -53,10 +56,10 @@ bolao/
 
 | Código | Torneio | Cron |
 |--------|---------|------|
-| `WC2026` | Copa do Mundo 2026 | hourly (`0 * * * *`) |
+| `WC2026` | Copa do Mundo 2026 | a cada 10 min (`*/10 * * * *`) |
 | `BSA2026` | Brasileirão Série A 2026 | a cada 10 min (`*/10 * * * *`) |
 
-A UI abre no **Brasileirão** por padrão (tem jogos em andamento agora). O usuário pode trocar pelo seletor de torneio — a preferência é salva em `localStorage`.
+A UI abre na **Copa** por padrão durante o torneio (ver `WC_DEFAULT_UNTIL_MS` em `tournament-context.tsx`). O usuário pode trocar pelo seletor de torneio — a preferência é salva em `localStorage`.
 
 ## Funcionalidades implementadas
 
@@ -76,8 +79,11 @@ A UI abre no **Brasileirão** por padrão (tem jogos em andamento agora). O usu�
 
 ### Ligas
 - Criar liga OPEN ou MODERATED (aprovação manual de membros)
-- Entrar por código de convite
-- Ranking em tempo real com **nomes reais** dos membros
+- **Convite por link**: `/convite/[code]` é rota pública com preview da liga (nome, dono, nº de membros) e entrada com 1 toque. O botão "Compartilhar" do InviteSheet envia o link (Web Share API); o código de 6 letras segue como alternativa
+- Visitante sem conta não perde o convite: as páginas de auth propagam `?redirect=` (sanitizado em `lib/safe-redirect.ts`, com fallback em `sessionStorage.pendingInvite`) e devolvem o usuário ao convite após cadastro/login/Google
+- A página de convite gera OG tags server-side (`generateMetadata` + `fetchQuery`) para o card do WhatsApp
+- No gerenciamento, o dono alterna a liga entre **aberta e moderada**; ao abrir uma liga moderada, pedidos pendentes são aprovados automaticamente (até o limite de 50 membros)
+- Ranking em tempo real com **nomes reais** dos membros; pontuação personalizada e ranking por exatos configuráveis
 - Clicar em um membro do ranking abre `/leagues/[id]/members/[userId]` com todos os **palpites bloqueados** daquele membro (visíveis só para membros ativos da liga)
 - Posição 1/2/3 com medalhas 🥇🥈🥉
 
@@ -99,9 +105,13 @@ Acessível apenas para o e-mail owner. Botões:
 - **Recompute pontos** — recalcula pontos de todos os jogos `FINISHED` com placar (idempotente)
 
 ### Robustez do cálculo de pontos
+- **Fallback ESPN** — a football-data.org (tier free) pode marcar `FINISHED` com placar `null` por horas (aconteceu na abertura da Copa). A cada sync, jogos encerrados (ou "ao vivo" há >1h45) sem placar são buscados no scoreboard público da ESPN (`site.api.espn.com`, sem chave), casando por sigla (TLA) + data, com fallback por nome normalizado. Achou encerrado com placar → aplica, marca `FINISHED` e computa pontos na mesma execução (≤10 min após o fim do jogo). Códigos ESPN em `ESPN_LEAGUE_CODES` (`fifa.world`, `bra.1`)
+- **Alerta de placar pendente** — se 2h30 após o início nenhuma fonte tiver o placar, o admin recebe e-mail via Resend (1x por jogo, flag `scoreAlertSentAt`); o sync continua tentando a cada 10 min
+- **Placar nunca regride** — `upsertMatch` preserva placar existente quando a API retorna `null` (protege placares lançados manualmente) e nunca rebaixa um jogo `FINISHED`
 - `shouldComputePoints` — captura transições perdidas (jogo que entrou como `FINISHED` com score `null` na primeira sync e recebeu o score na sync seguinte)
-- `forceFinishStaleLive` — varredura periódica: todo jogo com mais de 3h do início e placar preenchido, mas ainda `IN_PLAY`/`PAUSED`, vira `FINISHED`
+- `forceFinishStaleLive` — varredura periódica: todo jogo com mais de 4h do início e placar preenchido, mas ainda `IN_PLAY`/`PAUSED`, vira `FINISHED`
 - `recomputeAll` — ferramenta de emergência para reprocessar toda a base
+- `computeForMatch` é idempotente (pula palpites já com `calculatedAt`) — recomputar nunca duplica pontos
 
 ## Pré-requisitos
 
@@ -166,6 +176,8 @@ Acesse em [http://localhost:3001](http://localhost:3001).
 | `bun run dev` | Sobe web + backend Convex em paralelo |
 | `bun run dev:web` | Só o frontend |
 | `bun run dev:server` | Só o Convex |
+
+> **Atenção:** `CONVEX_DEPLOYMENT` em `packages/backend/.env.local` aponta para o deployment **de produção** (`prod:brazen-lemming-799`) — `bun run dev:server` publica as funções direto em prod a cada save. O frontend em prod sobe via push na `master` (Vercel).
 | `bun run build` | Build de todos os workspaces |
 | `bun run check-types` | TypeScript em todos os workspaces |
 | `bun run check` | Biome lint + format (com autofix) |
@@ -249,6 +261,11 @@ npx convex run predictions:recomputeAll '{}'
 
 # Forçar encerramento de jogos travados em IN_PLAY
 npx convex run matches:forceFinishStaleLive '{}'
+
+# Lançar placar manualmente (raro; também disponível na UI /admin)
+npx convex run matches:getMatchByTeamNames '{"homeShortName":"Mexico","awayShortName":"South Africa"}'  # pega o matchId
+npx convex run matches:patchMatchScore '{"matchId":"<id>","homeScore":2,"awayScore":0}'
+npx convex run predictions:computeForMatch '{"matchId":"<id>"}'
 
 # Ver logs em tempo real
 npx convex logs --tail
