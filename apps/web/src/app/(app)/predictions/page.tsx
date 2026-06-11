@@ -11,6 +11,7 @@ import { useMemo, useState } from "react";
 import { DayHeader } from "@/components/match/day-header";
 import { Scorecard } from "@/components/match/scorecard";
 import { useTournament } from "@/contexts/tournament-context";
+import { groupByGroup, roundLabel } from "@/lib/match-grouping";
 
 type Match = NonNullable<
 	FunctionReturnType<typeof api.matches.getAllByDate>[number]
@@ -132,6 +133,30 @@ export default function PredictionsPage() {
 		[sortedActive],
 	);
 
+	const showWorldCupGroups =
+		tournament === "WC2026" &&
+		tab === "upcoming" &&
+		sortedActive.length > 0 &&
+		sortedActive.every((m) => Boolean(m.group));
+
+	const groupedByGroup = useMemo(
+		() => (showWorldCupGroups ? groupByGroup(sortedActive) : []),
+		[showWorldCupGroups, sortedActive],
+	);
+
+	const roundTitle =
+		showWorldCupGroups && sortedActive[0] ? roundLabel(sortedActive[0]) : null;
+
+	const todayMatches = useMemo(() => {
+		if (tournament !== "WC2026" || tab !== "upcoming") return [];
+		const today = dayKey(new Date().toISOString());
+		return cleanedMatches
+			.filter((m) => dayKey(m.utcDate) === today && m.status !== "FINISHED")
+			.sort(
+				(a, b) => new Date(a.utcDate).getTime() - new Date(b.utcDate).getTime(),
+			);
+	}, [cleanedMatches, tab, tournament]);
+
 	const isLoading = matches === undefined || predMap === undefined;
 
 	return (
@@ -189,8 +214,94 @@ export default function PredictionsPage() {
 						</div>
 					))}
 				</div>
-			) : grouped.length === 0 ? (
+			) : sortedActive.length === 0 ? (
 				<EmptyByTab tab={tab} />
+			) : showWorldCupGroups ? (
+				<div className="space-y-8">
+					{todayMatches.length > 0 ? (
+						<section className="space-y-3">
+							<div className="flex flex-wrap items-end justify-between gap-3">
+								<div className="flex flex-col">
+									<span className="text-[var(--b-brand)] text-eyebrow">
+										Hoje no gramado
+									</span>
+									<h2 className="text-balance font-black font-display text-2xl text-[var(--b-text)] uppercase leading-none tracking-tight sm:text-3xl">
+										Jogos do dia
+									</h2>
+								</div>
+								<span className="font-mono font-semibold text-[var(--b-text-3)] text-xs tabular-nums">
+									{todayMatches.length} jogos
+								</span>
+							</div>
+							<div
+								className="field-texture rounded-[28px] p-4 shadow-[0_18px_40px_-24px_rgba(0,0,0,0.45)]"
+								style={{ background: "var(--g-hero-match)" }}
+							>
+								<div
+									className="stagger-children space-y-3"
+									style={{ ["--d" as string]: "60ms" }}
+								>
+									{todayMatches.map((m, i) => (
+										<div key={m._id} style={{ ["--i" as string]: i }}>
+											<Scorecard
+												match={m}
+												prediction={
+													predMap ? (predMap.get(m._id) ?? null) : undefined
+												}
+											/>
+										</div>
+									))}
+								</div>
+							</div>
+						</section>
+					) : null}
+
+					<div className="flex flex-wrap items-end justify-between gap-3">
+						<div className="flex flex-col">
+							<span className="text-[var(--b-brand)] text-eyebrow">
+								Fase de grupos
+							</span>
+							<h2 className="text-balance font-black font-display text-2xl text-[var(--b-text)] uppercase leading-none tracking-tight sm:text-3xl">
+								{roundTitle}
+							</h2>
+						</div>
+						<span className="font-mono font-semibold text-[var(--b-text-3)] text-xs tabular-nums">
+							{sortedActive.length} jogos
+						</span>
+					</div>
+
+					<div className="space-y-6">
+						{groupedByGroup.map(([group, groupMatches]) => {
+							const predictedCount = groupMatches.filter((m) =>
+								predMap?.has(m._id),
+							).length;
+							return (
+								<section key={group} className="space-y-3">
+									<GroupHeader
+										group={group}
+										totalMatches={groupMatches.length}
+										predictedMatches={predictedCount}
+									/>
+									<div
+										className="stagger-children space-y-3"
+										style={{ ["--d" as string]: "60ms" }}
+									>
+										{groupMatches.map((m, i) => (
+											<div key={m._id} style={{ ["--i" as string]: i }}>
+												<Scorecard
+													match={m}
+													prediction={
+														predMap ? (predMap.get(m._id) ?? null) : undefined
+													}
+												/>
+											</div>
+										))}
+									</div>
+								</section>
+							);
+						})}
+					</div>
+				</div>
 			) : (
 				<div className="space-y-8">
 					{grouped.map(([key, date, dayMatches]) => {
@@ -225,6 +336,74 @@ export default function PredictionsPage() {
 					})}
 				</div>
 			)}
+		</div>
+	);
+}
+
+function GroupHeader({
+	group,
+	totalMatches,
+	predictedMatches,
+}: {
+	group: string;
+	totalMatches: number;
+	predictedMatches: number;
+}) {
+	const allDone = predictedMatches >= totalMatches;
+	const anyDone = predictedMatches > 0;
+	const pct = totalMatches > 0 ? (predictedMatches / totalMatches) * 100 : 0;
+
+	return (
+		<div className="relative flex flex-col gap-2 overflow-hidden rounded-[20px] bg-[var(--b-card)] px-4 py-3 shadow-[0_14px_34px_-28px_rgba(0,0,0,0.35)]">
+			{/* Marca d'água do grupo */}
+			<span
+				aria-hidden
+				className="pointer-events-none absolute -right-3 -top-2 font-black font-display leading-none uppercase select-none"
+				style={{
+					fontSize: "clamp(3rem, 10vw, 4.5rem)",
+					color: "var(--b-text)",
+					opacity: 0.04,
+					letterSpacing: "-0.04em",
+				}}
+			>
+				{group}
+			</span>
+			<div className="flex items-end justify-between gap-3">
+				<div className="flex items-baseline gap-2">
+					<span className="text-[var(--b-brand)] text-eyebrow">Grupo</span>
+					<span className="font-black font-display text-3xl text-[var(--b-text)] uppercase leading-none tracking-tight">
+						{group}
+					</span>
+				</div>
+				<span
+					className={[
+						"font-mono font-semibold text-xs tabular-nums",
+						allDone
+							? "text-[var(--b-success)]"
+							: anyDone
+								? "text-[var(--b-warning-fg)]"
+								: "text-[var(--b-text-3)]",
+					].join(" ")}
+				>
+					{predictedMatches}/{totalMatches} palpitados
+				</span>
+			</div>
+			<div
+				aria-hidden
+				className="h-0.5 w-full overflow-hidden rounded-full bg-[var(--b-tint-md)]"
+			>
+				<div
+					className="h-full rounded-full transition-[width] duration-[var(--motion-medium)] ease-[var(--ease-out-expo)]"
+					style={{
+						width: `${pct}%`,
+						background: allDone
+							? "var(--b-success)"
+							: anyDone
+								? "var(--b-warning)"
+								: "var(--b-brand)",
+					}}
+				/>
+			</div>
 		</div>
 	);
 }

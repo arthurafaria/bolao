@@ -63,7 +63,13 @@ function TeamCrest({
 				height={size}
 				unoptimized
 				className="object-contain drop-shadow-md"
-				style={{ width: size, height: size }}
+				style={{
+					width: size,
+					height: size,
+					borderRadius: 4,
+				}}
+				// outline aplicado via CSS para responder ao dark mode
+				data-crest="true"
 				onError={() => setErrored(true)}
 			/>
 		);
@@ -120,7 +126,7 @@ function ScoreInput({
 				type="button"
 				disabled={disabled || value <= 0}
 				onClick={() => onChange(Math.max(0, value - 1))}
-				className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[var(--b-border-md)] bg-[var(--b-tint-md)] font-bold text-[var(--b-brand)] text-lg leading-none transition-[transform,background-color] duration-[var(--motion-fast)] hover:bg-[var(--b-brand-12)] active:scale-[0.96] disabled:opacity-25"
+				className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-[var(--b-border-md)] bg-[var(--b-tint-md)] font-bold text-[var(--b-brand)] text-xl leading-none transition-[transform,background-color] duration-[var(--motion-fast)] hover:bg-[var(--b-brand-12)] active:scale-[0.96] disabled:opacity-25"
 				aria-label="Diminuir placar"
 			>
 				−
@@ -134,7 +140,7 @@ function ScoreInput({
 				onBlur={handleBlur}
 				disabled={disabled}
 				className={cn(
-					"w-12 bg-transparent text-center font-black font-display text-4xl tabular-nums leading-none outline-none disabled:opacity-40",
+					"score-display w-14 bg-transparent text-center text-5xl leading-none outline-none disabled:opacity-40",
 					"text-[var(--b-text)]",
 					"animate-number-pop",
 				)}
@@ -145,7 +151,7 @@ function ScoreInput({
 				type="button"
 				disabled={disabled}
 				onClick={() => onChange(Math.min(20, value + 1))}
-				className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[var(--b-border-md)] bg-[var(--b-tint-md)] font-bold text-[var(--b-brand)] text-lg leading-none transition-[transform,background-color] duration-[var(--motion-fast)] hover:bg-[var(--b-brand-12)] active:scale-[0.96] disabled:opacity-25"
+				className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-[var(--b-border-md)] bg-[var(--b-tint-md)] font-bold text-[var(--b-brand)] text-xl leading-none transition-[transform,background-color] duration-[var(--motion-fast)] hover:bg-[var(--b-brand-12)] active:scale-[0.96] disabled:opacity-25"
 				aria-label="Aumentar placar"
 			>
 				+
@@ -245,8 +251,9 @@ export function Scorecard({
 			data-just-saved={justSaved || undefined}
 			className={cn(
 				"group/card relative overflow-hidden rounded-[24px] border border-[var(--b-border-sm)] bg-[var(--b-card)] shadow-[var(--b-shadow-card-soft)]",
-				"transition-[transform,box-shadow] duration-[var(--motion-base)] ease-[var(--ease-out-quart)]",
-				"hover:-translate-y-0.5 hover:shadow-[var(--b-shadow-brand-md)]",
+				"transition-[transform,box-shadow,filter,opacity] duration-[var(--motion-base)] ease-[var(--ease-out-quart)]",
+				!isLocked && "hover:-translate-y-0.5 hover:shadow-[var(--b-shadow-brand-md)]",
+				isLocked && !isFinished && "opacity-75 saturate-50",
 				"data-[just-saved=true]:animate-ring-success",
 				className,
 			)}
@@ -385,7 +392,7 @@ export function Scorecard({
 								className={cn(
 									"flex h-10 items-center gap-2 overflow-hidden rounded-full bg-[var(--b-action)] px-5 font-bold text-[var(--b-action-fg)] text-sm uppercase tracking-wider",
 									"shadow-[0_4px_0_oklch(0.55_0.14_95)] transition-[transform,box-shadow,filter] duration-[var(--motion-fast)]",
-									"hover:brightness-105 active:scale-[0.96] active:translate-y-[2px] active:shadow-none disabled:opacity-50",
+									"hover:brightness-105 active:translate-y-[2px] active:scale-[0.96] active:shadow-none disabled:opacity-50",
 								)}
 							>
 								{saving ? "Salvando…" : "Salvar palpite"}
