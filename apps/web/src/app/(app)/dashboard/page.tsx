@@ -10,21 +10,10 @@ import {
 } from "@bolao/ui/components/bento-tile";
 import { Skeleton } from "@bolao/ui/components/skeleton";
 import { useQuery } from "convex/react";
-import {
-	ArrowRight,
-	CalendarClock,
-	Crosshair,
-	Flame,
-	Shield,
-	Target,
-	Trophy,
-	Users,
-} from "lucide-react";
+import { ArrowRight, CalendarClock, Shield, Trophy, Users } from "lucide-react";
 import type { Route } from "next";
 import Link from "next/link";
 import { useMemo } from "react";
-
-import { StatTile } from "@/components/dashboard/stat-tile";
 import { HeroMatch } from "@/components/match/hero-match";
 import { Scorecard } from "@/components/match/scorecard";
 import { COMPETITIONS, useTournament } from "@/contexts/tournament-context";
@@ -130,22 +119,43 @@ export default function DashboardPage() {
 			{/* Stats — faixa horizontal */}
 			<section>
 				<SectionTitle eyebrow="Você no bolão" title="Seus números" />
-				<div
-					className="grid grid-cols-2 divide-x divide-y divide-[var(--b-border-sm)] overflow-hidden rounded-[20px] border border-[var(--b-border-sm)] bg-[var(--b-card)] shadow-[var(--b-shadow-card-soft)] lg:grid-cols-4 lg:divide-y-0"
-				>
+				<div className="grid grid-cols-2 divide-x divide-y divide-[var(--b-border-sm)] overflow-hidden rounded-[20px] border border-[var(--b-border-sm)] bg-[var(--b-card)] shadow-[var(--b-shadow-card-soft)] lg:grid-cols-4 lg:divide-y-0">
 					{[
-						{ label: "Pontos", value: totalPoints, suffix: undefined, color: "var(--b-brand)" },
-						{ label: "Palpites", value: totalPredictions, suffix: undefined, color: "var(--b-text)" },
-						{ label: "Exatos", value: exact, suffix: undefined, color: exact > 0 ? "var(--b-gold)" : "var(--b-text)" },
-						{ label: "Precisão", value: accuracy, suffix: "%", color: "var(--b-text)" },
+						{
+							label: "Pontos",
+							value: totalPoints,
+							suffix: undefined,
+							color: "var(--b-brand)",
+						},
+						{
+							label: "Palpites",
+							value: totalPredictions,
+							suffix: undefined,
+							color: "var(--b-text)",
+						},
+						{
+							label: "Exatos",
+							value: exact,
+							suffix: undefined,
+							color: exact > 0 ? "var(--b-gold)" : "var(--b-text)",
+						},
+						{
+							label: "Precisão",
+							value: accuracy,
+							suffix: "%",
+							color: "var(--b-text)",
+						},
 					].map(({ label, value, suffix, color }) => (
 						<div key={label} className="flex flex-col gap-1 px-5 py-4">
-							<span className="text-[var(--b-text-3)] text-eyebrow">{label}</span>
+							<span className="text-[var(--b-text-3)] text-eyebrow">
+								{label}
+							</span>
 							<span
-								className="score-display text-4xl leading-none tabular-nums sm:text-5xl"
+								className="score-display text-4xl tabular-nums leading-none sm:text-5xl"
 								style={{ color }}
 							>
-								{value}{suffix}
+								{value}
+								{suffix}
 							</span>
 						</div>
 					))}

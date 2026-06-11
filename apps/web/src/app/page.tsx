@@ -293,7 +293,7 @@ export default function LandingPage() {
 
 							{/* Header do card */}
 							<div
-								className="relative flex items-center justify-between rounded-[24px] px-4 py-3.5"
+								className="relative flex items-center justify-between rounded-[20px] px-4 py-3.5"
 								style={{ background: "var(--b-tint)" }}
 							>
 								<div>
@@ -319,7 +319,7 @@ export default function LandingPage() {
 							<div className="relative mt-4 grid gap-3 sm:grid-cols-[1.05fr_0.95fr]">
 								{/* Pontuação */}
 								<div
-									className="rounded-[28px] p-5"
+									className="rounded-[20px] p-5"
 									style={{
 										background: "var(--b-card)",
 										boxShadow: "var(--b-shadow-card)",
@@ -369,7 +369,7 @@ export default function LandingPage() {
 								<div className="space-y-3">
 									{/* Insight */}
 									<div
-										className="rounded-[28px] p-4"
+										className="rounded-[20px] p-4"
 										style={{
 											background:
 												"linear-gradient(180deg, var(--b-brand-12), color-mix(in oklch, var(--b-card) 90%, transparent))",
@@ -394,7 +394,7 @@ export default function LandingPage() {
 
 									{/* Ranking */}
 									<div
-										className="rounded-[28px] p-4"
+										className="rounded-[20px] p-4"
 										style={{
 											background: "var(--b-card)",
 											boxShadow: "var(--b-shadow-card)",
@@ -416,7 +416,7 @@ export default function LandingPage() {
 											).map(({ name, pts, isYou }) => (
 												<div
 													key={name}
-													className="flex items-center justify-between rounded-[18px] px-3 py-2"
+													className="flex items-center justify-between rounded-lg px-3 py-2"
 													style={{
 														background: isYou
 															? "var(--b-brand-10)"

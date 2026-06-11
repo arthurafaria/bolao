@@ -50,7 +50,7 @@ function PasswordStrength({ password }: { password: string }) {
 				{[0, 1, 2].map((i) => (
 					<div
 						key={i}
-						className="h-1 flex-1 rounded-full transition-all duration-[var(--motion-medium)]"
+						className="h-1 flex-1 rounded-full transition-[background-color] duration-[var(--motion-medium)]"
 						style={{
 							background: i < score ? colors[score - 1] : "var(--b-border-md)",
 						}}
