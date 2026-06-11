@@ -15,13 +15,22 @@ import {
 	BookOpen,
 	Check,
 	ChevronDown,
+	GitBranch,
 	LayoutDashboard,
 	LogOut,
 	Settings2,
 	Shield,
 	Trophy,
 	User,
+	Zap,
 } from "lucide-react";
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuSeparator,
+	DropdownMenuTrigger,
+} from "@bolao/ui/components/dropdown-menu";
 import type { Route } from "next";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -34,15 +43,21 @@ import {
 	useTournament,
 } from "@/contexts/tournament-context";
 
-const navItems: {
-	href: "/dashboard" | "/predictions" | "/leagues" | "/regras";
-	label: string;
-	icon: React.ComponentType<{ className?: string }>;
-}[] = [
+type NavHref = "/dashboard" | "/predictions" | "/leagues" | "/mata-mata" | "/regras";
+const navItems: { href: NavHref; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
 	{ href: "/dashboard", label: "Início", icon: LayoutDashboard },
 	{ href: "/predictions", label: "Palpites", icon: Shield },
 	{ href: "/leagues", label: "Ligas", icon: Trophy },
+	{ href: "/mata-mata", label: "Mata-mata", icon: GitBranch },
 	{ href: "/regras", label: "Regras", icon: BookOpen },
+];
+
+// Mobile bottom-nav: 4 itens flanqueando o FAB central (Regras fica só no sidebar)
+const mobileNavItems: { href: NavHref; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
+	{ href: "/dashboard", label: "Início", icon: LayoutDashboard },
+	{ href: "/predictions", label: "Palpites", icon: Shield },
+	{ href: "/leagues", label: "Ligas", icon: Trophy },
+	{ href: "/mata-mata", label: "Mata-mata", icon: GitBranch },
 ];
 
 const ADMIN_EMAIL = "arthurdearaujofaria@gmail.com";
@@ -112,17 +127,17 @@ function AppNav() {
 										className="group relative flex min-h-10 items-center gap-3 rounded-xl px-3 py-2.5 font-medium text-sm transition-[background-color,color] duration-[var(--motion-fast)] ease-[var(--ease-out-quart)] active:scale-[0.97]"
 										style={{
 											background: active
-												? "linear-gradient(135deg, var(--b-brand-12), color-mix(in oklch, var(--b-brand) 16%, transparent))"
+												? "var(--b-action)"
 												: "transparent",
-											color: active ? "var(--b-brand-hi)" : "var(--b-text-3)",
-											boxShadow: active ? "var(--b-shadow-brand-sm)" : "none",
+											color: active ? "var(--b-action-fg)" : "var(--b-text-3)",
+											boxShadow: active ? "0 2px 8px oklch(0.55 0.14 95 / 0.35)" : "none",
 										}}
 									>
 										{/* Barra indicadora esquerda */}
 										<span
-											className="absolute top-1/2 left-0 w-[3px] -translate-y-1/2 rounded-r-full transition-all duration-[var(--motion-medium)] ease-[var(--ease-out-back)]"
+											className="absolute top-1/2 left-0 w-[3px] -translate-y-1/2 rounded-r-full transition-[height,opacity] duration-[var(--motion-medium)] ease-[var(--ease-out-back)]"
 											style={{
-												background: "var(--b-brand)",
+												background: "var(--b-action-fg)",
 												height: active ? "60%" : "0%",
 												opacity: active ? 1 : 0,
 											}}
@@ -143,12 +158,9 @@ function AppNav() {
 									href="/admin"
 									className="flex min-h-10 items-center gap-3 rounded-xl px-3 py-2.5 font-medium text-sm transition-[background-color,color] duration-[var(--motion-fast)]"
 									style={{
-										background: isActive("/admin")
-											? "linear-gradient(135deg, var(--b-brand-12), color-mix(in oklch, var(--b-brand) 16%, transparent))"
-											: "transparent",
-										color: isActive("/admin")
-											? "var(--b-brand-hi)"
-											: "var(--b-text-3)",
+										background: isActive("/admin") ? "var(--b-action)" : "transparent",
+										color: isActive("/admin") ? "var(--b-action-fg)" : "var(--b-text-3)",
+										boxShadow: isActive("/admin") ? "0 2px 8px oklch(0.55 0.14 95 / 0.35)" : "none",
 									}}
 								>
 									<Settings2 className="h-4 w-4 shrink-0" />
@@ -230,6 +242,7 @@ function AppNav() {
 			</aside>
 
 			{/* ── Mobile bottom nav ──────────────────────────────────── */}
+			{/* ── Mobile bottom nav — 5 slots com FAB central ──────── */}
 			<nav
 				className="fixed right-0 bottom-0 left-0 z-50 md:hidden"
 				style={{
@@ -240,84 +253,81 @@ function AppNav() {
 					paddingBottom: "env(safe-area-inset-bottom, 0px)",
 				}}
 			>
-				<ul className="flex justify-around px-1 pt-2 pb-2">
-					{navItems.map(({ href, label, icon: Icon }) => {
+				<ul className="relative flex items-end justify-around px-1 pt-3 pb-2">
+					{/* Itens esquerdos (2) */}
+					{mobileNavItems.slice(0, 2).map(({ href, label, icon: Icon }) => {
 						const active = isActive(href);
 						return (
 							<li key={href}>
 								<Link
 									href={href as Route}
 									className="relative flex flex-col items-center gap-1 rounded-xl px-4 py-1.5 font-medium text-xs transition-[color,transform] duration-[var(--motion-fast)] active:scale-[0.93]"
-									style={{
-										color: active ? "var(--b-brand-hi)" : "var(--b-text-3)",
-									}}
+									style={{ color: active ? "var(--b-action)" : "var(--b-text-3)" }}
 								>
 									{active && (
 										<span
 											className="absolute inset-0 rounded-xl"
-											style={{
-												background: "var(--b-brand-10)",
-												animation:
-													"scale-in var(--motion-fast) var(--ease-out-back)",
-											}}
+											style={{ background: "color-mix(in oklch, var(--b-action) 12%, transparent)", animation: "scale-in var(--motion-fast) var(--ease-out-back)" }}
 										/>
 									)}
-									<Icon
-										className={`relative h-5 w-5 transition-transform duration-[var(--motion-fast)] ${active ? "scale-[1.08]" : ""}`}
-									/>
+									<Icon className={`relative h-5 w-5 transition-transform duration-[var(--motion-fast)] ${active ? "scale-[1.08]" : ""}`} />
 									<span className="relative">{label}</span>
 								</Link>
 							</li>
 						);
 					})}
-					<li>
+
+					{/* FAB central elevado */}
+					<li className="relative -mt-5 flex flex-col items-center">
 						<Link
-							href="/profile"
-							className="relative flex flex-col items-center gap-1 rounded-xl px-4 py-1.5 font-medium text-xs transition-[color,transform] duration-[var(--motion-fast)] active:scale-[0.93]"
+							href="/predictions"
+							className="flex h-14 w-14 items-center justify-center rounded-full active:scale-[0.96] transition-[transform,box-shadow] duration-[var(--motion-fast)]"
 							style={{
-								color: isActive("/profile")
-									? "var(--b-brand-hi)"
-									: "var(--b-text-3)",
+								background: "var(--b-action)",
+								boxShadow: "0 4px 0 oklch(0.55 0.14 95), 0 8px 24px oklch(0.55 0.14 95 / 0.45)",
+								color: "var(--b-action-fg)",
 							}}
 						>
-							{isActive("/profile") && (
-								<span
-									className="absolute inset-0 rounded-xl"
-									style={{ background: "var(--b-brand-10)" }}
-								/>
-							)}
-							<User className="relative h-5 w-5" />
-							<span className="relative">Perfil</span>
+							<Zap className="h-6 w-6" strokeWidth={2.5} />
 						</Link>
+						<span className="mt-1 font-medium text-[10px]" style={{ color: "var(--b-text-4)" }}>
+							Palpitar
+						</span>
 					</li>
-					{isAdmin && (
-						<li>
-							<Link
-								href="/admin"
-								className="flex flex-col items-center gap-1 rounded-xl px-4 py-1.5 font-medium text-xs transition-colors"
-								style={{
-									color: isActive("/admin")
-										? "var(--b-brand-hi)"
-										: "var(--b-text-3)",
-								}}
-							>
-								<Settings2 className="h-5 w-5" />
-								Admin
-							</Link>
-						</li>
-					)}
-					<li>
-						<MobileSignOut />
-					</li>
+
+					{/* Itens direitos (2) */}
+					{mobileNavItems.slice(2, 4).map(({ href, label, icon: Icon }) => {
+						const active = isActive(href);
+						return (
+							<li key={href}>
+								<Link
+									href={href as Route}
+									className="relative flex flex-col items-center gap-1 rounded-xl px-4 py-1.5 font-medium text-xs transition-[color,transform] duration-[var(--motion-fast)] active:scale-[0.93]"
+									style={{ color: active ? "var(--b-action)" : "var(--b-text-3)" }}
+								>
+									{active && (
+										<span
+											className="absolute inset-0 rounded-xl"
+											style={{ background: "color-mix(in oklch, var(--b-action) 12%, transparent)", animation: "scale-in var(--motion-fast) var(--ease-out-back)" }}
+										/>
+									)}
+									<Icon className={`relative h-5 w-5 transition-transform duration-[var(--motion-fast)] ${active ? "scale-[1.08]" : ""}`} />
+									<span className="relative">{label}</span>
+								</Link>
+							</li>
+						);
+					})}
 				</ul>
 			</nav>
 		</>
 	);
 }
 
-function MobileSignOut() {
+function HeaderAvatar() {
 	const router = useRouter();
 	const { signOut } = useAuthActions();
+	const currentUser = useQuery(api.auth.getCurrentUser);
+	const isAdmin = currentUser?.email === ADMIN_EMAIL;
 	const [isSigningOut, setIsSigningOut] = useState(false);
 
 	async function handleSignOut() {
@@ -326,17 +336,39 @@ function MobileSignOut() {
 		router.push("/");
 	}
 
+	const initial = (currentUser?.name ?? currentUser?.email)?.[0]?.toUpperCase() ?? "?";
+
 	return (
-		<button
-			type="button"
-			onClick={() => void handleSignOut()}
-			disabled={isSigningOut}
-			className="flex flex-col items-center gap-1 rounded-xl px-4 py-1.5 font-medium text-xs transition-[color,transform] active:scale-[0.93] disabled:opacity-60"
-			style={{ color: "var(--b-text-3)" }}
-		>
-			{isSigningOut ? <Spinner size="xs" /> : <LogOut className="h-5 w-5" />}
-			Sair
-		</button>
+		<DropdownMenu>
+			<DropdownMenuTrigger
+				className="flex h-8 w-8 items-center justify-center rounded-full font-bold text-xs transition-[transform,opacity] duration-[var(--motion-fast)] hover:opacity-80 active:scale-[0.96] outline-none"
+				style={{ background: "var(--b-action)", color: "var(--b-action-fg)" }}
+			>
+				{currentUser === undefined ? <Spinner size="xs" /> : initial}
+			</DropdownMenuTrigger>
+			<DropdownMenuContent align="end" className="w-48">
+				<DropdownMenuItem onClick={() => router.push("/profile")} className="flex cursor-pointer items-center gap-2">
+					<User className="h-4 w-4" />
+					Perfil
+				</DropdownMenuItem>
+				{isAdmin && (
+					<DropdownMenuItem onClick={() => router.push("/admin")} className="flex cursor-pointer items-center gap-2">
+						<Settings2 className="h-4 w-4" />
+						Admin
+					</DropdownMenuItem>
+				)}
+				<DropdownMenuSeparator />
+				<DropdownMenuItem
+					onClick={() => void handleSignOut()}
+					disabled={isSigningOut}
+					className="flex cursor-pointer items-center gap-2"
+					style={{ color: "var(--b-danger)" }}
+				>
+					{isSigningOut ? <Spinner size="xs" /> : <LogOut className="h-4 w-4" />}
+					Sair
+				</DropdownMenuItem>
+			</DropdownMenuContent>
+		</DropdownMenu>
 	);
 }
 
@@ -346,6 +378,32 @@ function RedirectToSignIn() {
 		router.push("/sign-in");
 	}, [router]);
 	return null;
+}
+
+function WcFlag({ size }: { size: number }) {
+	return (
+		<svg
+			viewBox="0 0 20 20"
+			width={size}
+			height={size}
+			aria-hidden
+			role="img"
+			aria-label="Copa do Mundo"
+			style={{ flexShrink: 0, display: "block" }}
+		>
+			<title>Copa do Mundo</title>
+			{/* Globo */}
+			<circle cx="10" cy="10" r="8" fill="currentColor" opacity="0.15" />
+			<circle cx="10" cy="10" r="8" fill="none" stroke="currentColor" strokeWidth="1.5" />
+			{/* Meridianos */}
+			<ellipse cx="10" cy="10" rx="3.5" ry="8" fill="none" stroke="currentColor" strokeWidth="1" opacity="0.6" />
+			<line x1="2" y1="10" x2="18" y2="10" stroke="currentColor" strokeWidth="1" opacity="0.6" />
+			{/* Taça estilizada */}
+			<path d="M7.5 4.5 L12.5 4.5 L11.5 7.5 Q10 9 8.5 7.5 Z" fill="var(--b-action)" />
+			<rect x="9.2" y="7.5" width="1.6" height="2" fill="var(--b-action)" />
+			<rect x="8" y="9.5" width="4" height="1" rx="0.4" fill="var(--b-action)" />
+		</svg>
+	);
 }
 
 function BrazilFlag({ size }: { size: number }) {
@@ -376,15 +434,14 @@ function BrazilFlag({ size }: { size: number }) {
 
 function CompetitionFlag({
 	code,
-	flag,
 	size,
 }: {
 	code: string;
-	flag: string;
+	flag?: string;
 	size: number;
 }) {
 	if (code === "BSA2026") return <BrazilFlag size={size} />;
-	return <span style={{ fontSize: size * 0.9, lineHeight: 1 }}>{flag}</span>;
+	return <WcFlag size={size} />;
 }
 
 function CompetitionSwitcher() {
@@ -417,7 +474,7 @@ function CompetitionSwitcher() {
 				className="flex cursor-pointer items-center gap-2 rounded-xl px-3.5 py-2 font-semibold text-sm transition-[opacity,scale] duration-[var(--motion-fast)] hover:opacity-85 active:scale-[0.96]"
 				style={{ background: "var(--b-brand-10)", color: "var(--b-brand)" }}
 			>
-				<CompetitionFlag code={current.code} flag={current.flag} size={20} />
+				<CompetitionFlag code={current.code} size={20} />
 				<span className="hidden sm:inline">{current.label}</span>
 				<span className="sm:hidden">{current.sublabel}</span>
 				<ChevronDown
@@ -452,7 +509,7 @@ function CompetitionSwitcher() {
 										: "text-[var(--b-text)] hover:bg-[var(--b-brand-10)]/50"
 								}`}
 							>
-								<CompetitionFlag code={comp.code} flag={comp.flag} size={22} />
+								<CompetitionFlag code={comp.code} size={22} />
 								<div className="flex-1 text-left">
 									<p className="font-medium leading-tight">{comp.label}</p>
 									<p
@@ -527,6 +584,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 							<div className="flex items-center gap-2">
 								<ThemeSwitch className="text-[var(--b-text-3)]" />
 								<CompetitionSwitcher />
+								<HeaderAvatar />
 							</div>
 						</header>
 
