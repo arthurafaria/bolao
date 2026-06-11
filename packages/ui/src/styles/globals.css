@@ -170,4 +170,33 @@
 	.bg-auth-panel {
 		background: var(--b-auth-panel-bg);
 	}
+
+	/* Textura de campo — use em superfícies herói estáticas (não em containers que rolam) */
+	.field-texture {
+		position: relative;
+	}
+	.field-texture::before {
+		content: "";
+		position: absolute;
+		inset: 0;
+		pointer-events: none;
+		border-radius: inherit;
+		background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60'%3E%3Crect width='60' height='8' y='0' fill='white' opacity='0.018'/%3E%3Crect width='60' height='8' y='16' fill='white' opacity='0.018'/%3E%3Crect width='60' height='8' y='32' fill='white' opacity='0.018'/%3E%3Crect width='60' height='8' y='48' fill='white' opacity='0.018'/%3E%3C/svg%3E");
+		background-size: 60px 60px;
+		opacity: 1;
+	}
+
+	/* Placar de estádio — números herói */
+	.score-display {
+		font-family: var(--font-display);
+		font-weight: 800;
+		font-variant-numeric: tabular-nums;
+		line-height: 1;
+		letter-spacing: -0.02em;
+	}
+
+	/* Números tabulares padrão */
+	.tabular-nums {
+		font-variant-numeric: tabular-nums;
+	}
 }

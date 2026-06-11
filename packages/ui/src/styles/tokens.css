@@ -77,9 +77,9 @@
 /* ── Bolão semantic tokens (light) ───────────────────────────────── */
 :root {
 	/* Surfaces */
-	--b-bg: oklch(0.975 0.006 145);
-	--b-surface: oklch(0.945 0.008 145);
-	--b-card: oklch(0.992 0.003 145);
+	--b-bg: oklch(0.965 0.018 140);
+	--b-surface: oklch(0.93 0.025 140);
+	--b-card: oklch(0.99 0.006 140);
 	--b-card-hi: oklch(0.99 0.004 145);
 	--b-inner: oklch(0.955 0.006 145);
 	--b-input-bg: oklch(0.985 0.004 145);
@@ -138,6 +138,10 @@
 	--b-accent-50: oklch(0.97 0.05 85);
 	--b-accent-fg: oklch(0.18 0.1 85);
 
+	/* Ação (CTA canônico — amarelo sobre escuro) */
+	--b-action: oklch(0.75 0.16 90);
+	--b-action-fg: oklch(0.12 0.08 90);
+
 	/* Status */
 	--b-success: oklch(0.58 0.18 150);
 	--b-success-bg: oklch(0.95 0.04 150);
@@ -180,8 +184,13 @@
 		),
 		radial-gradient(
 			ellipse 50% 40% at 85% 5%,
-			oklch(0.82 0.12 90 / 0.08) 0%,
+			oklch(0.82 0.12 90 / 0.14) 0%,
 			transparent 50%
+		),
+		radial-gradient(
+			ellipse 55% 45% at 100% 72%,
+			oklch(0.56 0.16 250 / 0.06) 0%,
+			transparent 52%
 		),
 		var(--b-bg);
 
@@ -243,12 +252,12 @@
 /* ── Bolão semantic tokens (dark) ────────────────────────────────── */
 .dark {
 	/* Surfaces */
-	--b-bg: oklch(0.085 0.025 145);
-	--b-surface: oklch(0.105 0.028 145);
-	--b-card: oklch(0.135 0.03 145);
-	--b-card-hi: oklch(0.155 0.032 145);
-	--b-inner: oklch(0.115 0.026 145);
-	--b-input-bg: oklch(0.16 0.03 145);
+	--b-bg: oklch(0.13 0.05 150);
+	--b-surface: oklch(0.16 0.055 150);
+	--b-card: oklch(0.19 0.06 150);
+	--b-card-hi: oklch(0.21 0.055 150);
+	--b-inner: oklch(0.145 0.04 150);
+	--b-input-bg: oklch(0.2 0.05 150);
 
 	/* Shadows */
 	--b-shadow-soft:
@@ -298,10 +307,14 @@
 	--b-brand-40: color-mix(in oklch, var(--b-brand) 40%, transparent);
 
 	/* Accent (amarelo hue 90) */
-	--b-accent: oklch(0.84 0.2 90);
-	--b-accent-hi: oklch(0.9 0.2 90);
-	--b-accent-50: oklch(0.2 0.08 90);
-	--b-accent-fg: oklch(0.1 0.06 90);
+	--b-accent: oklch(0.86 0.19 95);
+	--b-accent-hi: oklch(0.91 0.18 95);
+	--b-accent-50: oklch(0.22 0.08 95);
+	--b-accent-fg: oklch(0.1 0.06 95);
+
+	/* Ação (CTA canônico — amarelo sobre escuro) */
+	--b-action: oklch(0.86 0.19 95);
+	--b-action-fg: oklch(0.17 0.08 95);
 
 	/* Status */
 	--b-success: oklch(0.74 0.2 150);
