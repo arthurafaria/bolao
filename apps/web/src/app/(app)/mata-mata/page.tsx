@@ -100,14 +100,19 @@ export default function MataMataPage() {
 							return (
 								<section key={phase.key} className="w-64 shrink-0 space-y-3">
 									<div
-									className="sticky left-0 z-10 rounded-[16px] px-3 py-2.5"
-									style={{ background: "var(--b-surface)", border: "1px solid var(--b-border-sm)" }}
-								>
-									<span className="text-[var(--b-brand)] text-eyebrow text-[10px]">Fase</span>
-									<h2 className="font-black font-display text-[var(--b-text)] text-2xl uppercase leading-none tracking-tight">
-										{STAGE_LABELS[phase.labelStage]}
-									</h2>
-								</div>
+										className="sticky left-0 z-10 rounded-[16px] px-3 py-2.5"
+										style={{
+											background: "var(--b-surface)",
+											border: "1px solid var(--b-border-sm)",
+										}}
+									>
+										<span className="text-[10px] text-[var(--b-brand)] text-eyebrow">
+											Fase
+										</span>
+										<h2 className="font-black font-display text-2xl text-[var(--b-text)] uppercase leading-none tracking-tight">
+											{STAGE_LABELS[phase.labelStage]}
+										</h2>
+									</div>
 									<div className={`flex flex-col ${phase.gap}`}>
 										{phaseMatches.map((match) => (
 											<BracketMatch key={match._id} match={match} />

@@ -10,6 +10,7 @@ export default defineSchema({
 		shortName: v.string(),
 		crest: v.string(),
 		nationality: v.string(),
+		tla: v.optional(v.string()),
 		apiId: v.number(),
 	}).index("by_apiId", ["apiId"]),
 
@@ -50,6 +51,13 @@ export default defineSchema({
 		predictedAway: v.number(),
 		points: v.optional(v.number()),
 		calculatedAt: v.optional(v.number()),
+		components: v.optional(
+			v.object({
+				result: v.boolean(),
+				homeGoals: v.boolean(),
+				awayGoals: v.boolean(),
+			}),
+		),
 	})
 		.index("by_user", ["userId"])
 		.index("by_match", ["matchId"])
@@ -60,6 +68,14 @@ export default defineSchema({
 		description: v.optional(v.string()),
 		ownerId: v.string(),
 		joinType: v.union(v.literal("OPEN"), v.literal("MODERATED")),
+		rankingMode: v.optional(v.union(v.literal("POINTS"), v.literal("EXACTS"))),
+		scoring: v.optional(
+			v.object({
+				result: v.number(),
+				goal: v.number(),
+				exactBonus: v.number(),
+			}),
+		),
 		inviteCode: v.string(),
 		memberCount: v.number(),
 	})

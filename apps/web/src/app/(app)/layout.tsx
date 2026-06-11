@@ -1,6 +1,13 @@
 "use client";
 
 import { api } from "@bolao/backend/convex/_generated/api";
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuSeparator,
+	DropdownMenuTrigger,
+} from "@bolao/ui/components/dropdown-menu";
 import { Skeleton } from "@bolao/ui/components/skeleton";
 import { Spinner } from "@bolao/ui/components/spinner";
 import { ThemeSwitch } from "@bolao/ui/components/theme-switch-button";
@@ -24,13 +31,6 @@ import {
 	User,
 	Zap,
 } from "lucide-react";
-import {
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuItem,
-	DropdownMenuSeparator,
-	DropdownMenuTrigger,
-} from "@bolao/ui/components/dropdown-menu";
 import type { Route } from "next";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -43,8 +43,17 @@ import {
 	useTournament,
 } from "@/contexts/tournament-context";
 
-type NavHref = "/dashboard" | "/predictions" | "/leagues" | "/mata-mata" | "/regras";
-const navItems: { href: NavHref; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
+type NavHref =
+	| "/dashboard"
+	| "/predictions"
+	| "/leagues"
+	| "/mata-mata"
+	| "/regras";
+const navItems: {
+	href: NavHref;
+	label: string;
+	icon: React.ComponentType<{ className?: string }>;
+}[] = [
 	{ href: "/dashboard", label: "Início", icon: LayoutDashboard },
 	{ href: "/predictions", label: "Palpites", icon: Shield },
 	{ href: "/leagues", label: "Ligas", icon: Trophy },
@@ -53,7 +62,11 @@ const navItems: { href: NavHref; label: string; icon: React.ComponentType<{ clas
 ];
 
 // Mobile bottom-nav: 4 itens flanqueando o FAB central (Regras fica só no sidebar)
-const mobileNavItems: { href: NavHref; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
+const mobileNavItems: {
+	href: NavHref;
+	label: string;
+	icon: React.ComponentType<{ className?: string }>;
+}[] = [
 	{ href: "/dashboard", label: "Início", icon: LayoutDashboard },
 	{ href: "/predictions", label: "Palpites", icon: Shield },
 	{ href: "/leagues", label: "Ligas", icon: Trophy },
@@ -126,11 +139,11 @@ function AppNav() {
 										href={href as Route}
 										className="group relative flex min-h-10 items-center gap-3 rounded-xl px-3 py-2.5 font-medium text-sm transition-[background-color,color] duration-[var(--motion-fast)] ease-[var(--ease-out-quart)] active:scale-[0.97]"
 										style={{
-											background: active
-												? "var(--b-action)"
-												: "transparent",
+											background: active ? "var(--b-action)" : "transparent",
 											color: active ? "var(--b-action-fg)" : "var(--b-text-3)",
-											boxShadow: active ? "0 2px 8px oklch(0.55 0.14 95 / 0.35)" : "none",
+											boxShadow: active
+												? "0 2px 8px oklch(0.55 0.14 95 / 0.35)"
+												: "none",
 										}}
 									>
 										{/* Barra indicadora esquerda */}
@@ -158,9 +171,15 @@ function AppNav() {
 									href="/admin"
 									className="flex min-h-10 items-center gap-3 rounded-xl px-3 py-2.5 font-medium text-sm transition-[background-color,color] duration-[var(--motion-fast)]"
 									style={{
-										background: isActive("/admin") ? "var(--b-action)" : "transparent",
-										color: isActive("/admin") ? "var(--b-action-fg)" : "var(--b-text-3)",
-										boxShadow: isActive("/admin") ? "0 2px 8px oklch(0.55 0.14 95 / 0.35)" : "none",
+										background: isActive("/admin")
+											? "var(--b-action)"
+											: "transparent",
+										color: isActive("/admin")
+											? "var(--b-action-fg)"
+											: "var(--b-text-3)",
+										boxShadow: isActive("/admin")
+											? "0 2px 8px oklch(0.55 0.14 95 / 0.35)"
+											: "none",
 									}}
 								>
 									<Settings2 className="h-4 w-4 shrink-0" />
@@ -262,15 +281,24 @@ function AppNav() {
 								<Link
 									href={href as Route}
 									className="relative flex flex-col items-center gap-1 rounded-xl px-4 py-1.5 font-medium text-xs transition-[color,transform] duration-[var(--motion-fast)] active:scale-[0.93]"
-									style={{ color: active ? "var(--b-action)" : "var(--b-text-3)" }}
+									style={{
+										color: active ? "var(--b-action)" : "var(--b-text-3)",
+									}}
 								>
 									{active && (
 										<span
 											className="absolute inset-0 rounded-xl"
-											style={{ background: "color-mix(in oklch, var(--b-action) 12%, transparent)", animation: "scale-in var(--motion-fast) var(--ease-out-back)" }}
+											style={{
+												background:
+													"color-mix(in oklch, var(--b-action) 12%, transparent)",
+												animation:
+													"scale-in var(--motion-fast) var(--ease-out-back)",
+											}}
 										/>
 									)}
-									<Icon className={`relative h-5 w-5 transition-transform duration-[var(--motion-fast)] ${active ? "scale-[1.08]" : ""}`} />
+									<Icon
+										className={`relative h-5 w-5 transition-transform duration-[var(--motion-fast)] ${active ? "scale-[1.08]" : ""}`}
+									/>
 									<span className="relative">{label}</span>
 								</Link>
 							</li>
@@ -281,16 +309,20 @@ function AppNav() {
 					<li className="relative -mt-5 flex flex-col items-center">
 						<Link
 							href="/predictions"
-							className="flex h-14 w-14 items-center justify-center rounded-full active:scale-[0.96] transition-[transform,box-shadow] duration-[var(--motion-fast)]"
+							className="flex h-14 w-14 items-center justify-center rounded-full transition-[transform,box-shadow] duration-[var(--motion-fast)] active:scale-[0.96]"
 							style={{
 								background: "var(--b-action)",
-								boxShadow: "0 4px 0 oklch(0.55 0.14 95), 0 8px 24px oklch(0.55 0.14 95 / 0.45)",
+								boxShadow:
+									"0 4px 0 oklch(0.55 0.14 95), 0 8px 24px oklch(0.55 0.14 95 / 0.45)",
 								color: "var(--b-action-fg)",
 							}}
 						>
 							<Zap className="h-6 w-6" strokeWidth={2.5} />
 						</Link>
-						<span className="mt-1 font-medium text-[10px]" style={{ color: "var(--b-text-4)" }}>
+						<span
+							className="mt-1 font-medium text-[10px]"
+							style={{ color: "var(--b-text-4)" }}
+						>
 							Palpitar
 						</span>
 					</li>
@@ -303,15 +335,24 @@ function AppNav() {
 								<Link
 									href={href as Route}
 									className="relative flex flex-col items-center gap-1 rounded-xl px-4 py-1.5 font-medium text-xs transition-[color,transform] duration-[var(--motion-fast)] active:scale-[0.93]"
-									style={{ color: active ? "var(--b-action)" : "var(--b-text-3)" }}
+									style={{
+										color: active ? "var(--b-action)" : "var(--b-text-3)",
+									}}
 								>
 									{active && (
 										<span
 											className="absolute inset-0 rounded-xl"
-											style={{ background: "color-mix(in oklch, var(--b-action) 12%, transparent)", animation: "scale-in var(--motion-fast) var(--ease-out-back)" }}
+											style={{
+												background:
+													"color-mix(in oklch, var(--b-action) 12%, transparent)",
+												animation:
+													"scale-in var(--motion-fast) var(--ease-out-back)",
+											}}
 										/>
 									)}
-									<Icon className={`relative h-5 w-5 transition-transform duration-[var(--motion-fast)] ${active ? "scale-[1.08]" : ""}`} />
+									<Icon
+										className={`relative h-5 w-5 transition-transform duration-[var(--motion-fast)] ${active ? "scale-[1.08]" : ""}`}
+									/>
 									<span className="relative">{label}</span>
 								</Link>
 							</li>
@@ -336,23 +377,30 @@ function HeaderAvatar() {
 		router.push("/");
 	}
 
-	const initial = (currentUser?.name ?? currentUser?.email)?.[0]?.toUpperCase() ?? "?";
+	const initial =
+		(currentUser?.name ?? currentUser?.email)?.[0]?.toUpperCase() ?? "?";
 
 	return (
 		<DropdownMenu>
 			<DropdownMenuTrigger
-				className="flex h-8 w-8 items-center justify-center rounded-full font-bold text-xs transition-[transform,opacity] duration-[var(--motion-fast)] hover:opacity-80 active:scale-[0.96] outline-none"
+				className="flex h-8 w-8 items-center justify-center rounded-full font-bold text-xs outline-none transition-[transform,opacity] duration-[var(--motion-fast)] hover:opacity-80 active:scale-[0.96]"
 				style={{ background: "var(--b-action)", color: "var(--b-action-fg)" }}
 			>
 				{currentUser === undefined ? <Spinner size="xs" /> : initial}
 			</DropdownMenuTrigger>
 			<DropdownMenuContent align="end" className="w-48">
-				<DropdownMenuItem onClick={() => router.push("/profile")} className="flex cursor-pointer items-center gap-2">
+				<DropdownMenuItem
+					onClick={() => router.push("/profile")}
+					className="flex cursor-pointer items-center gap-2"
+				>
 					<User className="h-4 w-4" />
 					Perfil
 				</DropdownMenuItem>
 				{isAdmin && (
-					<DropdownMenuItem onClick={() => router.push("/admin")} className="flex cursor-pointer items-center gap-2">
+					<DropdownMenuItem
+						onClick={() => router.push("/admin")}
+						className="flex cursor-pointer items-center gap-2"
+					>
 						<Settings2 className="h-4 w-4" />
 						Admin
 					</DropdownMenuItem>
@@ -364,7 +412,11 @@ function HeaderAvatar() {
 					className="flex cursor-pointer items-center gap-2"
 					style={{ color: "var(--b-danger)" }}
 				>
-					{isSigningOut ? <Spinner size="xs" /> : <LogOut className="h-4 w-4" />}
+					{isSigningOut ? (
+						<Spinner size="xs" />
+					) : (
+						<LogOut className="h-4 w-4" />
+					)}
 					Sair
 				</DropdownMenuItem>
 			</DropdownMenuContent>
@@ -394,14 +446,48 @@ function WcFlag({ size }: { size: number }) {
 			<title>Copa do Mundo</title>
 			{/* Globo */}
 			<circle cx="10" cy="10" r="8" fill="currentColor" opacity="0.15" />
-			<circle cx="10" cy="10" r="8" fill="none" stroke="currentColor" strokeWidth="1.5" />
+			<circle
+				cx="10"
+				cy="10"
+				r="8"
+				fill="none"
+				stroke="currentColor"
+				strokeWidth="1.5"
+			/>
 			{/* Meridianos */}
-			<ellipse cx="10" cy="10" rx="3.5" ry="8" fill="none" stroke="currentColor" strokeWidth="1" opacity="0.6" />
-			<line x1="2" y1="10" x2="18" y2="10" stroke="currentColor" strokeWidth="1" opacity="0.6" />
+			<ellipse
+				cx="10"
+				cy="10"
+				rx="3.5"
+				ry="8"
+				fill="none"
+				stroke="currentColor"
+				strokeWidth="1"
+				opacity="0.6"
+			/>
+			<line
+				x1="2"
+				y1="10"
+				x2="18"
+				y2="10"
+				stroke="currentColor"
+				strokeWidth="1"
+				opacity="0.6"
+			/>
 			{/* Taça estilizada */}
-			<path d="M7.5 4.5 L12.5 4.5 L11.5 7.5 Q10 9 8.5 7.5 Z" fill="var(--b-action)" />
+			<path
+				d="M7.5 4.5 L12.5 4.5 L11.5 7.5 Q10 9 8.5 7.5 Z"
+				fill="var(--b-action)"
+			/>
 			<rect x="9.2" y="7.5" width="1.6" height="2" fill="var(--b-action)" />
-			<rect x="8" y="9.5" width="4" height="1" rx="0.4" fill="var(--b-action)" />
+			<rect
+				x="8"
+				y="9.5"
+				width="4"
+				height="1"
+				rx="0.4"
+				fill="var(--b-action)"
+			/>
 		</svg>
 	);
 }

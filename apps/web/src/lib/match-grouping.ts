@@ -1,9 +1,14 @@
 export const STAGE_LABELS: Record<string, string> = {
+	GROUP_STAGE: "Fase de Grupos",
+	LAST_32: "Pré-oitavas",
+	ROUND_OF_32: "Pré-oitavas",
+	PLAYOFF_ROUND_OF_32: "Pré-oitavas",
+	LAST_16: "Oitavas de Final",
 	ROUND_OF_16: "Oitavas de Final",
 	QUARTER_FINALS: "Quartas de Final",
 	SEMI_FINALS: "Semifinais",
+	THIRD_PLACE: "Disputa de 3º lugar",
 	FINAL: "Final",
-	GROUP_STAGE: "Fase de Grupos",
 };
 
 type RoundableMatch = {
@@ -24,6 +29,20 @@ export function roundLabel(match: RoundableMatch): string {
 	if (groupLetter) return `Grupo ${groupLetter}`;
 	if (match.matchday != null) return `Rodada ${match.matchday}`;
 	return STAGE_LABELS[match.stage] ?? match.stage.replace(/_/g, " ");
+}
+
+/** Agrupa jogos da fase de grupos por grupo (A→L), preservando ordem de data dentro do grupo. */
+export function groupByGroup<T extends RoundableMatch>(
+	matches: T[],
+): [string, T[]][] {
+	const map = new Map<string, T[]>();
+	for (const m of matches) {
+		const letter = m.group?.replace(/^(?:GRUPO|GROUP)[_\s]+/, "") ?? "?";
+		const list = map.get(letter) ?? [];
+		list.push(m);
+		map.set(letter, list);
+	}
+	return Array.from(map.entries()).sort(([a], [b]) => a.localeCompare(b));
 }
 
 export function groupByRound<T extends RoundableMatch>(

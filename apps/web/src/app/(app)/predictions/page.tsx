@@ -358,7 +358,7 @@ function GroupHeader({
 			{/* Marca d'água do grupo */}
 			<span
 				aria-hidden
-				className="pointer-events-none absolute -right-3 -top-2 font-black font-display leading-none uppercase select-none"
+				className="pointer-events-none absolute -top-2 -right-3 select-none font-black font-display uppercase leading-none"
 				style={{
 					fontSize: "clamp(3rem, 10vw, 4.5rem)",
 					color: "var(--b-text)",

@@ -1,5 +1,5 @@
-import { Resend } from "resend";
 import { v } from "convex/values";
+import { Resend } from "resend";
 import { api, internal } from "./_generated/api";
 import { internalAction } from "./_generated/server";
 
@@ -108,9 +108,7 @@ export const sendFirstMatchReminder = internalAction({
 			`[sendFirstMatchReminder] ${users.length - failed}/${users.length} emails enviados para ${homeName} x ${awayName}`,
 		);
 		if (failed > 0) {
-			console.error(
-				`[sendFirstMatchReminder] ${failed} emails falharam`,
-			);
+			console.error(`[sendFirstMatchReminder] ${failed} emails falharam`);
 		}
 	},
 });

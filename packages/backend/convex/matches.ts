@@ -106,6 +106,7 @@ export const upsertTeam = internalMutation({
 		shortName: v.string(),
 		crest: v.string(),
 		nationality: v.string(),
+		tla: v.optional(v.string()),
 	},
 	handler: async (ctx, args) => {
 		const existing = await ctx.db
@@ -119,6 +120,7 @@ export const upsertTeam = internalMutation({
 				shortName: args.shortName,
 				crest: args.crest,
 				nationality: args.nationality,
+				...(args.tla ? { tla: args.tla } : {}),
 			});
 			return existing._id;
 		}

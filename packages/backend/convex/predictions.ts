@@ -12,35 +12,59 @@ import { auth, requireUserId } from "./auth";
 
 const LOCK_WINDOW_MS = 60 * 60 * 1000; // 1 hour before match
 
+type ScoreComponents = {
+	result: boolean;
+	homeGoals: boolean;
+	awayGoals: boolean;
+};
+type Scoring = { result: number; goal: number; exactBonus: number };
+
+const DEFAULT_SCORING: Scoring = { result: 5, goal: 2, exactBonus: 1 };
+
+function calcComponents(
+	predHome: number,
+	predAway: number,
+	actualHome: number,
+	actualAway: number,
+): ScoreComponents {
+	return {
+		result:
+			Math.sign(predHome - predAway) === Math.sign(actualHome - actualAway),
+		homeGoals: predHome === actualHome,
+		awayGoals: predAway === actualAway,
+	};
+}
+
+function pointsFrom(c: ScoreComponents | undefined, s: Scoring): number {
+	if (!c) return 0;
+	const exact = c.result && c.homeGoals && c.awayGoals;
+	return (
+		(c.result ? s.result : 0) +
+		(c.homeGoals ? s.goal : 0) +
+		(c.awayGoals ? s.goal : 0) +
+		(exact ? s.exactBonus : 0)
+	);
+}
+
 function calcPoints(
 	predHome: number,
 	predAway: number,
 	actualHome: number,
 	actualAway: number,
-): { points: number; isExact: boolean; isCorrectResult: boolean } {
-	if (predHome === actualHome && predAway === actualAway) {
-		return { points: 10, isExact: true, isCorrectResult: true };
-	}
-
-	const isCorrectResult =
-		Math.sign(predHome - predAway) === Math.sign(actualHome - actualAway);
-
-	// +2 for each team's exact goal count, regardless of result
-	const homeBonus = predHome === actualHome ? 2 : 0;
-	const awayBonus = predAway === actualAway ? 2 : 0;
-
-	if (isCorrectResult) {
-		return {
-			points: 5 + homeBonus + awayBonus,
-			isExact: false,
-			isCorrectResult: true,
-		};
-	}
-
+): {
+	points: number;
+	isExact: boolean;
+	isCorrectResult: boolean;
+	components: ScoreComponents;
+} {
+	const components = calcComponents(predHome, predAway, actualHome, actualAway);
+	const isExact =
+		components.result && components.homeGoals && components.awayGoals;
 	return {
-		points: homeBonus + awayBonus,
-		isExact: false,
-		isCorrectResult: false,
+		points: pointsFrom(components, DEFAULT_SCORING),
+		isExact,
+		isCorrectResult: components.result,
+		components,
 	};
 }
 
@@ -78,6 +102,7 @@ export const upsert = mutation({
 				predictedAway: args.predictedAway,
 				points: undefined,
 				calculatedAt: undefined,
+				components: undefined,
 			});
 			return existing._id;
 		}
@@ -178,23 +203,27 @@ export const computeForMatch = internalMutation({
 		const now = Date.now();
 
 		for (const pred of predictions) {
-			const { points, isExact, isCorrectResult } = calcPoints(
+			const { points, isExact, isCorrectResult, components } = calcPoints(
 				pred.predictedHome,
 				pred.predictedAway,
 				match.homeScore,
 				match.awayScore,
 			);
+			const oldComponents = pred.components;
 			const previousPoints = pred.points ?? 0;
-			const pointsDelta = points - previousPoints;
-			const exactDelta = (isExact ? 1 : 0) - (pred.points === 10 ? 1 : 0);
+			const oldExact = oldComponents
+				? oldComponents.result &&
+					oldComponents.homeGoals &&
+					oldComponents.awayGoals
+				: pred.points === 10;
+			const oldCorrectResult = oldComponents
+				? oldComponents.result
+				: previousPoints >= 5;
+			const exactDelta = (isExact ? 1 : 0) - (oldExact ? 1 : 0);
 			const correctResultDelta =
-				(isCorrectResult ? 1 : 0) - (previousPoints >= 5 ? 1 : 0);
+				(isCorrectResult ? 1 : 0) - (oldCorrectResult ? 1 : 0);
 
-			await ctx.db.patch(pred._id, { points, calculatedAt: now });
-
-			if (pointsDelta === 0 && exactDelta === 0 && correctResultDelta === 0) {
-				continue;
-			}
+			await ctx.db.patch(pred._id, { points, calculatedAt: now, components });
 
 			const memberships = await ctx.db
 				.query("leagueMembers")
@@ -203,8 +232,18 @@ export const computeForMatch = internalMutation({
 				.collect();
 
 			for (const membership of memberships) {
+				const league = await ctx.db.get(membership.leagueId);
+				const scoring = league?.scoring ?? DEFAULT_SCORING;
+				const oldPts = oldComponents
+					? pointsFrom(oldComponents, scoring)
+					: previousPoints;
+				const newPts = pointsFrom(components, scoring);
+				const leagueDelta = newPts - oldPts;
+				if (leagueDelta === 0 && exactDelta === 0 && correctResultDelta === 0) {
+					continue;
+				}
 				await ctx.db.patch(membership._id, {
-					totalPoints: membership.totalPoints + pointsDelta,
+					totalPoints: membership.totalPoints + leagueDelta,
 					exactScores: membership.exactScores + exactDelta,
 					correctResults: membership.correctResults + correctResultDelta,
 				});
@@ -233,6 +272,7 @@ export const resetComputedPoints = internalMutation({
 			await ctx.db.patch(prediction._id, {
 				points: undefined,
 				calculatedAt: undefined,
+				components: undefined,
 			});
 		}
 

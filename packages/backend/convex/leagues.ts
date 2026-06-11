@@ -29,11 +29,34 @@ function generateInviteCode(): string {
 	return code;
 }
 
+function validateScoring(scoring: {
+	result: number;
+	goal: number;
+	exactBonus: number;
+}) {
+	const values = [scoring.result, scoring.goal, scoring.exactBonus];
+	if (
+		!values.every(
+			(value) => Number.isInteger(value) && value >= 0 && value <= 20,
+		)
+	) {
+		throw new ConvexError("Pesos devem ser inteiros entre 0 e 20");
+	}
+}
+
 export const create = mutation({
 	args: {
 		name: v.string(),
 		description: v.optional(v.string()),
 		joinType: v.union(v.literal("OPEN"), v.literal("MODERATED")),
+		rankingMode: v.optional(v.union(v.literal("POINTS"), v.literal("EXACTS"))),
+		scoring: v.optional(
+			v.object({
+				result: v.number(),
+				goal: v.number(),
+				exactBonus: v.number(),
+			}),
+		),
 	},
 	handler: async (ctx, args) => {
 		const userId = await requireUserId(ctx);
@@ -41,6 +64,7 @@ export const create = mutation({
 		if (args.name.trim().length < 3) {
 			throw new ConvexError("League name must be at least 3 characters");
 		}
+		if (args.scoring) validateScoring(args.scoring);
 
 		let inviteCode: string;
 		let attempts = 0;
@@ -59,6 +83,8 @@ export const create = mutation({
 			description: args.description,
 			ownerId: userId,
 			joinType: args.joinType,
+			rankingMode: args.rankingMode ?? "POINTS",
+			scoring: args.scoring,
 			inviteCode: inviteCode!,
 			memberCount: 1,
 		});
@@ -283,6 +309,17 @@ export const update = mutation({
 		name: v.optional(v.string()),
 		description: v.optional(v.string()),
 		joinType: v.optional(v.union(v.literal("OPEN"), v.literal("MODERATED"))),
+		rankingMode: v.optional(v.union(v.literal("POINTS"), v.literal("EXACTS"))),
+		scoring: v.optional(
+			v.union(
+				v.null(),
+				v.object({
+					result: v.number(),
+					goal: v.number(),
+					exactBonus: v.number(),
+				}),
+			),
+		),
 	},
 	handler: async (ctx, args) => {
 		const userId = await requireUserId(ctx);
@@ -293,9 +330,13 @@ export const update = mutation({
 		}
 
 		const patch: Record<string, unknown> = {};
+		if (args.scoring) validateScoring(args.scoring);
 		if (args.name) patch.name = args.name.trim();
 		if (args.description !== undefined) patch.description = args.description;
 		if (args.joinType) patch.joinType = args.joinType;
+		if (args.rankingMode) patch.rankingMode = args.rankingMode;
+		if (args.scoring === null) patch.scoring = undefined;
+		else if (args.scoring) patch.scoring = args.scoring;
 
 		await ctx.db.patch(args.leagueId, patch);
 	},
@@ -338,6 +379,18 @@ export const getRanking = query({
 			.order("desc")
 			.filter((q) => q.eq(q.field("status"), "ACTIVE"))
 			.collect();
+
+		const league = await ctx.db.get(args.leagueId);
+		const mode = league?.rankingMode ?? "POINTS";
+		members.sort((a, b) =>
+			mode === "EXACTS"
+				? b.exactScores - a.exactScores ||
+					b.totalPoints - a.totalPoints ||
+					b.correctResults - a.correctResults
+				: b.totalPoints - a.totalPoints ||
+					b.exactScores - a.exactScores ||
+					b.correctResults - a.correctResults,
+		);
 
 		return Promise.all(
 			members.map(async (member) => {

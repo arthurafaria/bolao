@@ -252,7 +252,8 @@ export function Scorecard({
 			className={cn(
 				"group/card relative overflow-hidden rounded-[24px] border border-[var(--b-border-sm)] bg-[var(--b-card)] shadow-[var(--b-shadow-card-soft)]",
 				"transition-[transform,box-shadow,filter,opacity] duration-[var(--motion-base)] ease-[var(--ease-out-quart)]",
-				!isLocked && "hover:-translate-y-0.5 hover:shadow-[var(--b-shadow-brand-md)]",
+				!isLocked &&
+					"hover:-translate-y-0.5 hover:shadow-[var(--b-shadow-brand-md)]",
 				isLocked && !isFinished && "opacity-75 saturate-50",
 				"data-[just-saved=true]:animate-ring-success",
 				className,

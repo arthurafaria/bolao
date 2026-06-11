@@ -21,19 +21,29 @@ export type TournamentCode = keyof typeof COMPETITIONS;
 
 const STORAGE_KEY = "bolao_tournament";
 
+// Até o fim da final da Copa (19/07/2026), toda sessão abre no modo Copa.
+const WC_DEFAULT_UNTIL_MS = Date.UTC(2026, 6, 19, 23, 59, 59);
+
+function defaultTournament(): TournamentCode {
+	return Date.now() <= WC_DEFAULT_UNTIL_MS ? "WC2026" : "BSA2026";
+}
+
 const TournamentContext = createContext<{
 	tournament: TournamentCode;
 	setTournament: (t: TournamentCode) => void;
-}>({ tournament: "BSA2026", setTournament: () => {} });
+}>({ tournament: "WC2026", setTournament: () => {} });
 
 export function TournamentProvider({
 	children,
 }: {
 	children: React.ReactNode;
 }) {
-	const [tournament, setTournamentState] = useState<TournamentCode>("BSA2026");
+	const [tournament, setTournamentState] =
+		useState<TournamentCode>(defaultTournament);
 
 	useEffect(() => {
+		if (Date.now() <= WC_DEFAULT_UNTIL_MS) return;
+
 		const saved = localStorage.getItem(STORAGE_KEY) as TournamentCode | null;
 		if (saved && saved in COMPETITIONS) {
 			setTournamentState(saved);

@@ -77,6 +77,7 @@ interface ApiTeam {
 	name: string;
 	shortName: string;
 	crest: string;
+	tla?: string;
 	area?: { name: string };
 }
 
@@ -260,6 +261,7 @@ async function doSync(
 			shortName: match.homeTeam.shortName ?? match.homeTeam.name,
 			crest: match.homeTeam.crest ?? "",
 			nationality: match.homeTeam.area?.name ?? "",
+			tla: match.homeTeam.tla,
 		});
 
 		const awayTeamId = await ctx.runMutation(internal.matches.upsertTeam, {
@@ -268,6 +270,7 @@ async function doSync(
 			shortName: match.awayTeam.shortName ?? match.awayTeam.name,
 			crest: match.awayTeam.crest ?? "",
 			nationality: match.awayTeam.area?.name ?? "",
+			tla: match.awayTeam.tla,
 		});
 
 		const status = normalizeStatus(match.status) as

@@ -257,5 +257,5 @@ npx convex logs --tail
 ## Documentação
 
 - [SPEC.md](SPEC.md) — regras de negócio, pontuação, ligas, integração de dados
-- [IMPLEMENTATION.md](IMPLEMENTATION.md) — plano de implementação e checklist de progresso
+- [IMPLEMENTATION.md](docs/archive/IMPLEMENTATION.md) — plano de implementação e checklist de progresso
 - [DEPLOY.md](DEPLOY.md) — guia de deploy Vercel + Convex Cloud

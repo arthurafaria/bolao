@@ -22,8 +22,8 @@ export const buttonVariants = cva(
 				brand:
 					"bg-[image:var(--g-brand-vert)] text-[var(--b-brand-fg)] shadow-[var(--b-shadow-brand-sm)] hover:shadow-[var(--b-shadow-brand-md)] hover:brightness-105",
 				action:
-					"bg-[var(--b-action)] text-[var(--b-action-fg)] shadow-[0_4px_0_oklch(0.55_0.14_95)] hover:brightness-105 active:shadow-none active:translate-y-[2px]",
-			accent:
+					"bg-[var(--b-action)] text-[var(--b-action-fg)] shadow-[0_4px_0_oklch(0.55_0.14_95)] hover:brightness-105 active:translate-y-[2px] active:shadow-none",
+				accent:
 					"bg-[var(--b-accent)] text-[var(--b-accent-fg)] shadow-[0_2px_8px_oklch(0.78_0.16_85_/_0.35)] hover:bg-[var(--b-accent-hi)]",
 				outline:
 					"border-[var(--b-brand-25)] bg-[var(--b-card)] text-[var(--b-brand)] hover:bg-[var(--b-brand-5)]",
@@ -42,8 +42,8 @@ export const buttonVariants = cva(
 				default: "h-9 gap-1.5 px-4",
 				xs: "h-7 gap-1 rounded-lg px-2.5 text-xs [&_svg:not([class*='size-'])]:size-3",
 				sm: "h-8 gap-1 rounded-lg px-3 [&_svg:not([class*='size-'])]:size-3.5",
-				lg: "h-11 gap-2 px-6 text-sm font-bold",
-				xl: "h-13 gap-2 px-8 text-base font-bold",
+				lg: "h-11 gap-2 px-6 font-bold text-sm",
+				xl: "h-13 gap-2 px-8 font-bold text-base",
 				icon: "size-9 gap-0 rounded-xl",
 				"icon-xs":
 					"size-7 gap-0 rounded-lg [&_svg:not([class*='size-'])]:size-3.5",

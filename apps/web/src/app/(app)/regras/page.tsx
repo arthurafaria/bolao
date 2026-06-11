@@ -1,12 +1,21 @@
 "use client";
 
 import { cn } from "@bolao/ui/lib/utils";
-import { CheckCircle2, Clock, Trophy, XCircle } from "lucide-react";
+import {
+	CheckCircle2,
+	ChevronRight,
+	Clock,
+	Trophy,
+	XCircle,
+} from "lucide-react";
+import Link from "next/link";
 import { PointsMeter } from "@/components/regras/points-meter";
 import { RuleToc } from "@/components/regras/rule-toc";
 
 const TOC = [
 	{ id: "pontuacao", label: "Sistema de pontuação" },
+	{ id: "seu-jeito", label: "Jogue do seu jeito" },
+	{ id: "copa", label: "Formato da Copa" },
 	{ id: "exemplos-certo", label: "Acertou o resultado" },
 	{ id: "exemplos-errado", label: "Errou o resultado" },
 	{ id: "prazo", label: "Prazo pra palpitar" },
@@ -93,6 +102,95 @@ export default function RegrasPage() {
 									</li>
 								))}
 							</ul>
+						</div>
+					</section>
+
+					{/* Jogue do seu jeito */}
+					<section id="seu-jeito" className="scroll-mt-24 space-y-5">
+						<header>
+							<span className="text-[var(--b-text-3)] text-eyebrow">
+								Jogue do seu jeito
+							</span>
+							<h2 className="font-black font-display text-3xl text-[var(--b-text)] uppercase tracking-tight">
+								Do nosso padrão ao seu ranking
+							</h2>
+							<p className="mt-2 text-[var(--b-text-3)] text-sm leading-relaxed">
+								O bolão já vem pronto pra jogar, mas cada liga pode escolher
+								como quer medir a disputa.
+							</p>
+						</header>
+
+						<div className="grid gap-3 sm:grid-cols-2">
+							<div className="rounded-2xl border border-[var(--b-brand)] bg-[var(--b-brand-10)] p-5">
+								<p className="font-bold font-display text-[var(--b-brand)] text-sm uppercase tracking-wide">
+									O jeito do site
+								</p>
+								<p className="mt-2 text-[var(--b-text-2)] text-sm leading-relaxed">
+									Pontuação padrão de até 10 pontos, palpites fechando 1h antes
+									do jogo e ranking por soma de pontos.
+								</p>
+							</div>
+							<div className="rounded-2xl border border-[var(--b-border-md)] bg-[var(--b-card)] p-5">
+								<p className="font-bold font-display text-[var(--b-text)] text-sm uppercase tracking-wide">
+									O seu jeito
+								</p>
+								<p className="mt-2 text-[var(--b-text-2)] text-sm leading-relaxed">
+									Numa liga, o líder decide se o ranking privilegia quem soma
+									mais pontos ou quem crava mais placares exatos.
+								</p>
+								<Link
+									href="/leagues"
+									className="mt-4 inline-flex items-center gap-1 font-bold text-[var(--b-brand)] text-xs uppercase tracking-wide hover:underline"
+								>
+									Criar minha liga
+									<ChevronRight className="h-3.5 w-3.5" />
+								</Link>
+							</div>
+						</div>
+					</section>
+
+					{/* Copa */}
+					<section id="copa" className="scroll-mt-24 space-y-5">
+						<header>
+							<span className="text-[var(--b-text-3)] text-eyebrow">
+								Copa do Mundo 2026
+							</span>
+							<h2 className="font-black font-display text-3xl text-[var(--b-text)] uppercase tracking-tight">
+								Como funciona a Copa
+							</h2>
+							<p className="mt-2 text-[var(--b-text-3)] text-sm leading-relaxed">
+								São 12 grupos, de A a L. Passam os dois primeiros de cada grupo
+								e os 8 melhores terceiros.
+							</p>
+						</header>
+
+						<div className="rounded-2xl border border-[var(--b-border-sm)] bg-[var(--b-card)] p-5">
+							<div className="flex flex-wrap items-center gap-2">
+								{[
+									"Grupos · 11–27/06",
+									"Pré-oitavas",
+									"Oitavas",
+									"Quartas",
+									"Semis",
+									"Final · 19/07",
+								].map((phase, index, list) => (
+									<div key={phase} className="flex items-center gap-2">
+										<span className="rounded-full border border-[var(--b-brand-25)] bg-[var(--b-brand-5)] px-3 py-1.5 font-bold text-[var(--b-brand)] text-xs uppercase tracking-wide">
+											{phase}
+										</span>
+										{index < list.length - 1 ? (
+											<ChevronRight className="h-4 w-4 text-[var(--b-text-4)]" />
+										) : null}
+									</div>
+								))}
+							</div>
+							<Link
+								href="/mata-mata"
+								className="mt-5 inline-flex items-center gap-1 font-bold text-[var(--b-brand)] text-xs uppercase tracking-wide hover:underline"
+							>
+								Ver o chaveamento
+								<ChevronRight className="h-3.5 w-3.5" />
+							</Link>
 						</div>
 					</section>
 
