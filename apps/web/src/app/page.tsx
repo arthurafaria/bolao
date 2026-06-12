@@ -29,7 +29,7 @@ const featureCards = [
 		icon: Users,
 		title: "Ligas privadas",
 		description:
-			"Monte grupos com amigos, família ou trabalho; o líder escolhe ranking por pontos ou por cravadas.",
+			"Monte grupos com amigos, família ou trabalho; o líder escolhe ranking por pontos ou por cravadas — e cravada é critério de desempate.",
 		highlight: "Código de 6 dígitos",
 		color: "var(--b-accent)",
 	},
@@ -208,8 +208,8 @@ export default function LandingPage() {
 							style={{ color: "var(--b-text-2)" }}
 						>
 							Palpite por grupo, acompanhe o mata-mata em chaveamento e dispute
-							ligas privadas com ranking por pontos ou cravadas. E o Brasileirão
-							segue valendo no mesmo app.
+							ligas privadas com ranking por pontos ou cravadas — cravada
+							desempata. E o Brasileirão segue valendo no mesmo app.
 						</p>
 
 						{/* CTAs */}

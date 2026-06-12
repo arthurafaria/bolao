@@ -15,6 +15,7 @@ import { RuleToc } from "@/components/regras/rule-toc";
 const TOC = [
 	{ id: "pontuacao", label: "Sistema de pontuação" },
 	{ id: "seu-jeito", label: "Jogue do seu jeito" },
+	{ id: "rankings", label: "Rankings e desempate" },
 	{ id: "copa", label: "Formato da Copa" },
 	{ id: "exemplos-certo", label: "Acertou o resultado" },
 	{ id: "exemplos-errado", label: "Errou o resultado" },
@@ -127,7 +128,11 @@ export default function RegrasPage() {
 								</p>
 								<p className="mt-2 text-[var(--b-text-2)] text-sm leading-relaxed">
 									Pontuação padrão de até 10 pontos, palpites fechando 1h antes
-									do jogo e ranking por soma de pontos.
+									do jogo e ranking por soma de pontos — com{" "}
+									<strong className="text-[var(--b-brand)]">
+										cravadas como critério de desempate
+									</strong>
+									.
 								</p>
 							</div>
 							<div className="rounded-2xl border border-[var(--b-border-md)] bg-[var(--b-card)] p-5">
@@ -145,6 +150,54 @@ export default function RegrasPage() {
 									Criar minha liga
 									<ChevronRight className="h-3.5 w-3.5" />
 								</Link>
+							</div>
+						</div>
+					</section>
+
+					{/* Rankings e desempate */}
+					<section id="rankings" className="scroll-mt-24 space-y-5">
+						<header>
+							<span className="text-[var(--b-text-3)] text-eyebrow">
+								Como a disputa é resolvida
+							</span>
+							<h2 className="font-black font-display text-3xl text-[var(--b-text)] uppercase tracking-tight">
+								Rankings e desempate
+							</h2>
+							<p className="mt-2 text-[var(--b-text-3)] text-sm leading-relaxed">
+								Cada linha do ranking mostra{" "}
+								<strong className="text-[var(--b-text)]">
+									pontos | cravadas
+								</strong>
+								. A cravada é o primeiro critério de desempate.
+							</p>
+						</header>
+
+						<div className="grid gap-3 sm:grid-cols-2">
+							<div className="rounded-2xl border border-[var(--b-brand)] bg-[var(--b-brand-10)] p-5">
+								<p className="font-bold font-display text-[var(--b-brand)] text-sm uppercase tracking-wide">
+									Ranking de pontos
+								</p>
+								<p className="mt-2 text-[var(--b-text-2)] text-sm leading-relaxed">
+									Classifica pela soma de pontos. Empatou em pontos?{" "}
+									<strong className="text-[var(--b-text)]">
+										Quem tem mais cravadas (placares exatos) fica na frente.
+									</strong>{" "}
+									Persistiu o empate, decide quem acertou mais resultados.
+								</p>
+							</div>
+							<div className="rounded-2xl border border-[var(--b-border-md)] bg-[var(--b-card)] p-5">
+								<p className="font-bold font-display text-[var(--b-text)] text-sm uppercase tracking-wide">
+									Liga "mais cravadas"
+								</p>
+								<p className="mt-2 text-[var(--b-text-2)] text-sm leading-relaxed">
+									Além do ranking de pontos (visão padrão ao abrir),{" "}
+									<strong className="text-[var(--b-text)]">
+										a liga ganha o Ranking de cravadas
+									</strong>{" "}
+									— só os placares exatos contam (10 pts na pontuação padrão);
+									em empate de cravadas, os pontos desempatam. Alterne no topo
+									da tabela.
+								</p>
 							</div>
 						</div>
 					</section>
@@ -352,7 +405,18 @@ export default function RegrasPage() {
 							</p>
 							<p>
 								O ranking soma todos os pontos conquistados em cada jogo do
-								torneio escolhido.
+								torneio escolhido. Empatou em pontos?{" "}
+								<strong className="text-[var(--b-text)]">
+									Cravadas desempatam
+								</strong>{" "}
+								—{" "}
+								<Link
+									href="/regras#rankings"
+									className="font-bold text-[var(--b-brand)] hover:underline"
+								>
+									veja como funciona o desempate
+								</Link>
+								.
 							</p>
 						</div>
 					</section>

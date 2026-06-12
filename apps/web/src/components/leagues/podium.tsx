@@ -12,6 +12,7 @@ export interface PodiumEntry {
 
 interface PodiumProps {
 	entries: PodiumEntry[];
+	unit?: string;
 	className?: string;
 }
 
@@ -54,7 +55,7 @@ const STEP = {
 	},
 } as const;
 
-export function Podium({ entries, className }: PodiumProps) {
+export function Podium({ entries, unit = "pts", className }: PodiumProps) {
 	const filled = [1, 2, 3]
 		.map((p) => entries.find((e) => e.position === p))
 		.filter(Boolean) as PodiumEntry[];
@@ -135,7 +136,7 @@ export function Podium({ entries, className }: PodiumProps) {
 								{entry.points}
 							</span>
 							<span className="text-[10px] text-[var(--b-text-4)] uppercase tracking-wider">
-								pts
+								{unit}
 							</span>
 						</div>
 

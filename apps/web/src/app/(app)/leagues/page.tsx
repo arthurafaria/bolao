@@ -189,13 +189,13 @@ function CreateLeagueDialog() {
 									<OptionCard
 										selected={rankingMode === "POINTS"}
 										title="Mais pontos"
-										description="Ranking pela soma de pontos de todos os palpites"
+										description="Ranking pela soma de pontos; cravadas desempatam"
 										onClick={() => setRankingMode("POINTS")}
 									/>
 									<OptionCard
 										selected={rankingMode === "EXACTS"}
 										title="Mais cravadas"
-										description="Ranking por placares exatos; pontos desempatam"
+										description="Dois rankings: pontos e cravadas (só placares exatos; pontos desempatam)"
 										onClick={() => setRankingMode("EXACTS")}
 									/>
 								</div>
@@ -500,6 +500,7 @@ export default function LeaguesPage() {
 										description={league.description}
 										memberCount={league.memberCount}
 										points={league.myPoints}
+										exacts={league.myExacts}
 										joinType={league.joinType}
 									/>
 								</div>
@@ -531,6 +532,7 @@ function LeagueCard({
 	description,
 	memberCount,
 	points,
+	exacts,
 	joinType,
 }: {
 	href: Route;
@@ -538,6 +540,7 @@ function LeagueCard({
 	description?: string;
 	memberCount: number;
 	points: number;
+	exacts?: number;
 	joinType: "OPEN" | "MODERATED";
 }) {
 	return (
@@ -576,13 +579,25 @@ function LeagueCard({
 			)}
 
 			<div className="mt-auto flex items-end justify-between gap-2">
-				<div className="flex flex-col">
-					<span className="text-[10px] text-[var(--b-text-4)] uppercase tracking-wider">
-						Seus pontos
-					</span>
-					<span className="font-black font-display text-3xl text-[var(--b-text)] tabular-nums leading-none">
-						{points}
-					</span>
+				<div className="flex items-end gap-4">
+					<div className="flex flex-col">
+						<span className="text-[10px] text-[var(--b-text-4)] uppercase tracking-wider">
+							Seus pontos
+						</span>
+						<span className="font-black font-display text-3xl text-[var(--b-text)] tabular-nums leading-none">
+							{points}
+						</span>
+					</div>
+					{exacts !== undefined && (
+						<div className="flex flex-col pb-0.5">
+							<span className="text-[10px] text-[var(--b-text-4)] uppercase tracking-wider">
+								Cravadas
+							</span>
+							<span className="font-black font-display text-[var(--b-text-3)] text-xl tabular-nums leading-none">
+								{exacts}
+							</span>
+						</div>
+					)}
 				</div>
 				<span className="inline-flex items-center gap-1 text-[var(--b-brand)] text-xs uppercase tracking-wider transition-transform duration-[var(--motion-base)] group-hover/league:translate-x-0.5">
 					Abrir liga

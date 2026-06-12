@@ -8,6 +8,8 @@ interface RankingRowProps {
 	position: number;
 	name: string;
 	points: number;
+	exacts?: number;
+	metric?: "points" | "exacts";
 	delta?: number;
 	avatarUrl?: string;
 	isYou?: boolean;
@@ -27,6 +29,8 @@ export function RankingRow({
 	position,
 	name,
 	points,
+	exacts,
+	metric = "points",
 	delta,
 	avatarUrl,
 	isYou = false,
@@ -125,15 +129,61 @@ export function RankingRow({
 				<DeltaBadge value={delta} size="sm" inverted className="shrink-0" />
 			)}
 
-			{/* Points */}
-			<div className="flex shrink-0 flex-col items-end">
-				<span className="font-black font-display text-2xl text-[var(--b-text)] tabular-nums leading-none">
-					{points}
-				</span>
-				<span className="text-[10px] text-[var(--b-text-4)] uppercase tracking-wider">
-					pts
-				</span>
-			</div>
+			{/* Stats: pontos | cravadas */}
+			{exacts !== undefined ? (
+				<div className="flex shrink-0 items-center gap-2">
+					{/* Pontos — sempre à esquerda */}
+					<div
+						className={cn(
+							"flex flex-col items-end",
+							metric === "points"
+								? "text-[var(--b-text)]"
+								: "text-[var(--b-text-3)]",
+						)}
+					>
+						<span
+							className={cn(
+								"font-black font-display tabular-nums leading-none",
+								metric === "points" ? "text-2xl" : "text-lg",
+							)}
+						>
+							{points}
+						</span>
+						<span className="text-[10px] uppercase tracking-wider">pts</span>
+					</div>
+					<span className="h-8 w-px bg-[var(--b-border-md)]" />
+					{/* Cravadas — sempre à direita */}
+					<div
+						className={cn(
+							"flex flex-col items-end",
+							metric === "exacts"
+								? "text-[var(--b-text)]"
+								: "text-[var(--b-text-3)]",
+						)}
+					>
+						<span
+							className={cn(
+								"font-black font-display tabular-nums leading-none",
+								metric === "exacts" ? "text-2xl" : "text-lg",
+							)}
+						>
+							{exacts}
+						</span>
+						<span className="text-[10px] uppercase tracking-wider">
+							{exacts === 1 ? "cravada" : "cravadas"}
+						</span>
+					</div>
+				</div>
+			) : (
+				<div className="flex shrink-0 flex-col items-end">
+					<span className="font-black font-display text-2xl text-[var(--b-text)] tabular-nums leading-none">
+						{points}
+					</span>
+					<span className="text-[10px] text-[var(--b-text-4)] uppercase tracking-wider">
+						pts
+					</span>
+				</div>
+			)}
 		</div>
 	);
 }

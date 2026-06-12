@@ -205,13 +205,13 @@ export default function ManageLeaguePage({
 						<RankingModeCard
 							selected={rankingMode === "POINTS"}
 							title="Mais pontos"
-							description="Ranking pela soma de pontos de todos os palpites"
+							description="Ranking pela soma de pontos; cravadas desempatam"
 							onClick={() => handleRankingModeChange("POINTS")}
 						/>
 						<RankingModeCard
 							selected={rankingMode === "EXACTS"}
 							title="Mais cravadas"
-							description="Ranking por placares exatos; pontos desempatam"
+							description="Dois rankings: pontos e cravadas (só placares exatos; pontos desempatam)"
 							onClick={() => handleRankingModeChange("EXACTS")}
 						/>
 					</div>

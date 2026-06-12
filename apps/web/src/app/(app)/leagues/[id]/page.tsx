@@ -2,7 +2,12 @@
 
 import { api } from "@bolao/backend/convex/_generated/api";
 import type { Id } from "@bolao/backend/convex/_generated/dataModel";
+import {
+	compareByExacts,
+	compareByPoints,
+} from "@bolao/backend/convex/lib/ranking";
 import { Button } from "@bolao/ui/components/button";
+import { PillTabs } from "@bolao/ui/components/pill-tabs";
 import {
 	Sheet,
 	SheetContent,
@@ -21,6 +26,7 @@ import {
 	Crown,
 	Settings,
 	Share2,
+	Star,
 	Trophy,
 	Users,
 } from "lucide-react";
@@ -44,14 +50,26 @@ export default function LeagueDetailPage({
 	const ranking = useQuery(api.leagues.getRanking, { leagueId });
 	const currentUser = useQuery(api.auth.getCurrentUser);
 
-	const podiumEntries: PodiumEntry[] = useMemo(() => {
+	const [rankingTab, setRankingTab] = useState<"POINTS" | "EXACTS">("POINTS");
+
+	const rankingMode = league?.rankingMode ?? "POINTS";
+	const activeTab = rankingMode === "EXACTS" ? rankingTab : "POINTS";
+
+	const sortedRanking = useMemo(() => {
 		if (!ranking) return [];
-		return ranking.slice(0, 3).map((m, idx) => ({
+		return [...ranking].sort(
+			activeTab === "EXACTS" ? compareByExacts : compareByPoints,
+		);
+	}, [ranking, activeTab]);
+
+	const podiumEntries: PodiumEntry[] = useMemo(() => {
+		if (!sortedRanking.length) return [];
+		return sortedRanking.slice(0, 3).map((m, idx) => ({
 			position: (idx + 1) as 1 | 2 | 3,
 			name: m.name,
-			points: m.totalPoints,
+			points: activeTab === "EXACTS" ? m.exactScores : m.totalPoints,
 		}));
-	}, [ranking]);
+	}, [sortedRanking, activeTab]);
 
 	if (league === undefined) {
 		return (
@@ -84,7 +102,6 @@ export default function LeagueDetailPage({
 	}
 
 	const isOwner = currentUser?._id === league.ownerId;
-	const rankingMode = league.rankingMode ?? "POINTS";
 
 	return (
 		<div className="animate-fade-in space-y-7">
@@ -165,7 +182,7 @@ export default function LeagueDetailPage({
 			) : (
 				<>
 					{/* Ranking completo */}
-					{ranking.length > 0 && (
+					{sortedRanking.length > 0 && (
 						<section>
 							<header className="mb-4 flex items-end justify-between gap-3">
 								<div>
@@ -177,20 +194,42 @@ export default function LeagueDetailPage({
 									</h2>
 								</div>
 								<div className="flex flex-wrap items-center justify-end gap-2">
-									<Tag variant={rankingMode === "POINTS" ? "brand" : "muted"}>
-										{rankingMode === "POINTS" ? "Mais pontos" : "Mais cravadas"}
-									</Tag>
+									{rankingMode === "POINTS" && (
+										<Tag variant="brand">Mais pontos</Tag>
+									)}
 									<span className="font-mono text-[var(--b-text-3)] text-xs tabular-nums">
-										{ranking.length}{" "}
-										{ranking.length === 1 ? "membro" : "membros"}
+										{sortedRanking.length}{" "}
+										{sortedRanking.length === 1 ? "membro" : "membros"}
 									</span>
 								</div>
 							</header>
+							{rankingMode === "EXACTS" && (
+								<PillTabs
+									aria-label="Critério do ranking"
+									size="sm"
+									value={rankingTab}
+									onChange={setRankingTab}
+									items={[
+										{
+											value: "POINTS",
+											label: "Ranking de pontos",
+											icon: Trophy,
+										},
+										{
+											value: "EXACTS",
+											label: "Ranking de cravadas",
+											icon: Star,
+										},
+									]}
+									className="mb-4"
+								/>
+							)}
 							<div
+								key={activeTab}
 								className="stagger-children flex flex-col gap-2"
 								style={{ ["--d" as string]: "40ms" }}
 							>
-								{ranking.map((member, idx) => (
+								{sortedRanking.map((member, idx) => (
 									<div key={member._id} style={{ ["--i" as string]: idx }}>
 										<Link
 											href={`/leagues/${id}/members/${member.userId}` as Route}
@@ -200,6 +239,8 @@ export default function LeagueDetailPage({
 												position={idx + 1}
 												name={member.name}
 												points={member.totalPoints}
+												exacts={member.exactScores}
+												metric={activeTab === "EXACTS" ? "exacts" : "points"}
 												isYou={currentUser?._id === member.userId}
 											/>
 										</Link>
@@ -225,7 +266,10 @@ export default function LeagueDetailPage({
 								style={{ color: "var(--b-gold)" }}
 							/>
 						</div>
-						<Podium entries={podiumEntries} />
+						<Podium
+							entries={podiumEntries}
+							unit={activeTab === "EXACTS" ? "cravadas" : "pts"}
+						/>
 					</section>
 				</>
 			)}
