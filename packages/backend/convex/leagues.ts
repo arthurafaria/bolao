@@ -3,6 +3,7 @@ import type { Id } from "./_generated/dataModel";
 import type { QueryCtx } from "./_generated/server";
 import { mutation, query } from "./_generated/server";
 import { auth, requireUserId } from "./auth";
+import { compareByExacts, compareByPoints } from "./lib/ranking";
 
 async function getActiveMembership(
 	ctx: QueryCtx,
@@ -479,15 +480,7 @@ export const getRanking = query({
 
 		const league = await ctx.db.get(args.leagueId);
 		const mode = league?.rankingMode ?? "POINTS";
-		members.sort((a, b) =>
-			mode === "EXACTS"
-				? b.exactScores - a.exactScores ||
-					b.totalPoints - a.totalPoints ||
-					b.correctResults - a.correctResults
-				: b.totalPoints - a.totalPoints ||
-					b.exactScores - a.exactScores ||
-					b.correctResults - a.correctResults,
-		);
+		members.sort(mode === "EXACTS" ? compareByExacts : compareByPoints);
 
 		return Promise.all(
 			members.map(async (member) => {
@@ -534,7 +527,9 @@ export const getUserLeagues = query({
 		const leagues = await Promise.all(
 			memberships.map(async (m) => {
 				const league = await ctx.db.get(m.leagueId);
-				return league ? { ...league, myPoints: m.totalPoints } : null;
+				return league
+					? { ...league, myPoints: m.totalPoints, myExacts: m.exactScores }
+					: null;
 			}),
 		);
 
