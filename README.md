@@ -45,10 +45,12 @@ bolao/
 │   │       ├── footballData.ts # Sync WC2026 + BSA2026 + fallback ESPN, admin wrappers
 │   │       ├── matches.ts      # upsertMatch, forceFinishStaleLive, claimScoreAlert
 │   │       ├── predictions.ts  # Palpites, cálculo de pontos, recomputeAll
-│   │       ├── leagues.ts      # join por código, getInvitePreview, getRanking
+│   │       ├── leagues.ts      # join por código, getRanking (comparadores em lib/ranking.ts)
+│   │       ├── lib/ranking.ts  # Comparadores de ranking (compareByPoints, compareByExacts)
 │   │       ├── notifications.ts# Lembrete diário + alerta de placar pendente
 │   │       ├── crons.ts        # WC e BSA: */10 * * * *
 │   │       └── schema.ts
+│   ├── backend/tests/          # Testes unitários com bun test
 │   └── ui/                     # Componentes shadcn/ui compartilhados
 ```
 
@@ -84,6 +86,10 @@ A UI abre na **Copa** por padrão durante o torneio (ver `WC_DEFAULT_UNTIL_MS` e
 - A página de convite gera OG tags server-side (`generateMetadata` + `fetchQuery`) para o card do WhatsApp
 - No gerenciamento, o dono alterna a liga entre **aberta e moderada**; ao abrir uma liga moderada, pedidos pendentes são aprovados automaticamente (até o limite de 50 membros)
 - Ranking em tempo real com **nomes reais** dos membros; pontuação personalizada e ranking por exatos configuráveis
+- Cada linha do ranking exibe `PONTOS | CRAVADAS` — **cravadas (placares exatos) são o 1º critério de desempate** em pontos; resultados certos são o 2º
+- Ligas "mais cravadas" têm **painel segmentado**: _Ranking de pontos_ (visão padrão ao entrar) e _Ranking de cravadas_ (conta só placares exatos; pontos desempatam)
+- Card da lista de ligas exibe pontos e cravadas do usuário logado
+- As regras de desempate estão documentadas em `/regras` (seção "Rankings e desempate")
 - Clicar em um membro do ranking abre `/leagues/[id]/members/[userId]` com todos os **palpites bloqueados** daquele membro (visíveis só para membros ativos da liga)
 - Posição 1/2/3 com medalhas 🥇🥈🥉
 
@@ -181,6 +187,7 @@ Acesse em [http://localhost:3001](http://localhost:3001).
 | `bun run build` | Build de todos os workspaces |
 | `bun run check-types` | TypeScript em todos os workspaces |
 | `bun run check` | Biome lint + format (com autofix) |
+| `bun test packages/backend/tests` | Testes unitários (comparadores de ranking) |
 | `bun run setup:hooks` | Instala pre-commit hook localmente |
 
 ## Adicionar componentes UI
