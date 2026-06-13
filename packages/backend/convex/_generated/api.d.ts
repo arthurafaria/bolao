@@ -14,6 +14,7 @@ import type * as footballData from "../footballData.js";
 import type * as healthCheck from "../healthCheck.js";
 import type * as http from "../http.js";
 import type * as leagues from "../leagues.js";
+import type * as lib_ranking from "../lib/ranking.js";
 import type * as matches from "../matches.js";
 import type * as notifications from "../notifications.js";
 import type * as predictions from "../predictions.js";
@@ -33,6 +34,7 @@ declare const fullApi: ApiFromModules<{
   healthCheck: typeof healthCheck;
   http: typeof http;
   leagues: typeof leagues;
+  "lib/ranking": typeof lib_ranking;
   matches: typeof matches;
   notifications: typeof notifications;
   predictions: typeof predictions;
