@@ -267,15 +267,15 @@ export function Scorecard({
 				className,
 			)}
 		>
-			{/* Top strip */}
-			<div className="flex items-center justify-between gap-2 border-[var(--b-border-sm)] border-b bg-[var(--b-tint)] px-4 py-2">
-				<span className="shrink-0 text-[var(--b-text-3)] text-eyebrow">
+			{/* Top strip — grid 1fr/auto/1fr centraliza a data no eixo do "×" */}
+			<div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2 border-[var(--b-border-sm)] border-b bg-[var(--b-tint)] px-4 py-2">
+				<span className="min-w-0 truncate text-[var(--b-text-3)] text-eyebrow">
 					{stageLabel}
 				</span>
-				<span className="min-w-0 flex-1 truncate text-center font-medium font-mono text-[10px] text-[var(--b-text-4)] uppercase tabular-nums tracking-wide sm:text-xs">
+				<span className="whitespace-nowrap text-center font-medium font-mono text-[10px] text-[var(--b-text-4)] uppercase tabular-nums tracking-wide sm:text-xs">
 					{dateStr}
 				</span>
-				<div className="flex shrink-0 items-center gap-2">
+				<div className="flex min-w-0 items-center justify-end gap-2">
 					<span className="font-mono font-semibold text-[var(--b-text-3)] text-xs tabular-nums">
 						{timeStr}
 					</span>
