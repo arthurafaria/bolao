@@ -64,7 +64,7 @@ export function DayHeader({
 					>
 						{label}
 					</span>
-					<span className="text-[var(--b-text-3)] text-eyebrow">
+					<span className="text-[var(--b-text-4)] text-eyebrow">
 						{day} {month}
 					</span>
 				</div>

@@ -227,6 +227,14 @@ export function Scorecard({
 		hour: "2-digit",
 		minute: "2-digit",
 	});
+	const dateStr = matchDate
+		.toLocaleDateString("pt-BR", {
+			weekday: "short",
+			day: "2-digit",
+			month: "short",
+		})
+		.replace(/\./g, "")
+		.toUpperCase();
 	const groupLetter = match.group?.replace(/^GROUP_/, "") ?? match.group;
 	const stageLabel = match.group
 		? `GRUPO ${groupLetter}`
@@ -261,10 +269,13 @@ export function Scorecard({
 		>
 			{/* Top strip */}
 			<div className="flex items-center justify-between gap-2 border-[var(--b-border-sm)] border-b bg-[var(--b-tint)] px-4 py-2">
-				<span className="text-[var(--b-text-3)] text-eyebrow">
+				<span className="shrink-0 text-[var(--b-text-3)] text-eyebrow">
 					{stageLabel}
 				</span>
-				<div className="flex items-center gap-2">
+				<span className="min-w-0 flex-1 truncate text-center font-medium font-mono text-[10px] text-[var(--b-text-4)] uppercase tabular-nums tracking-wide sm:text-xs">
+					{dateStr}
+				</span>
+				<div className="flex shrink-0 items-center gap-2">
 					<span className="font-mono font-semibold text-[var(--b-text-3)] text-xs tabular-nums">
 						{timeStr}
 					</span>

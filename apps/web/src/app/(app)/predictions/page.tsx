@@ -5,19 +5,27 @@ import { PillTabs } from "@bolao/ui/components/pill-tabs";
 import { Skeleton } from "@bolao/ui/components/skeleton";
 import { useQuery } from "convex/react";
 import type { FunctionReturnType } from "convex/server";
-import { CalendarOff, History, Target, Trophy } from "lucide-react";
+import {
+	CalendarDays,
+	CalendarOff,
+	History,
+	LayoutGrid,
+	Target,
+	Trophy,
+} from "lucide-react";
 import { useMemo, useState } from "react";
 
 import { DayHeader } from "@/components/match/day-header";
 import { Scorecard } from "@/components/match/scorecard";
 import { useTournament } from "@/contexts/tournament-context";
-import { groupByGroup, roundLabel } from "@/lib/match-grouping";
+import { groupByGroup } from "@/lib/match-grouping";
 
 type Match = NonNullable<
 	FunctionReturnType<typeof api.matches.getAllByDate>[number]
 >;
 
 type FilterTab = "pending" | "upcoming" | "history";
+type UpcomingMode = "consecutivos" | "grupo";
 
 const LOCK_MS = 60 * 60 * 1000;
 
@@ -45,27 +53,13 @@ function groupByDay(matches: Match[]): [string, Date, Match[]][] {
 	});
 }
 
-function getNextRoundMatches(matches: Match[]): Match[] {
-	const sorted = [...matches].sort(
-		(a, b) => new Date(a.utcDate).getTime() - new Date(b.utcDate).getTime(),
-	);
-	const first = sorted[0];
-	if (!first) return [];
-
-	if (first.matchday != null) {
-		return sorted.filter(
-			(m) => m.stage === first.stage && m.matchday === first.matchday,
-		);
-	}
-
-	return sorted.filter((m) => dayKey(m.utcDate) === dayKey(first.utcDate));
-}
-
 export default function PredictionsPage() {
 	const { tournament } = useTournament();
 	const matches = useQuery(api.matches.getAllByDate, { tournament });
 	const allPredictions = useQuery(api.predictions.getUserPredictions);
 	const [tab, setTab] = useState<FilterTab>("upcoming");
+	const [upcomingMode, setUpcomingMode] =
+		useState<UpcomingMode>("consecutivos");
 
 	const predMap = useMemo(() => {
 		if (!allPredictions) return undefined;
@@ -89,8 +83,11 @@ export default function PredictionsPage() {
 		[cleanedMatches],
 	);
 
-	const upcomingMatches = useMemo(
-		() => getNextRoundMatches(allUpcomingMatches),
+	const sortedUpcoming = useMemo(
+		() =>
+			[...allUpcomingMatches].sort(
+				(a, b) => new Date(a.utcDate).getTime() - new Date(b.utcDate).getTime(),
+			),
 		[allUpcomingMatches],
 	);
 
@@ -112,50 +109,41 @@ export default function PredictionsPage() {
 		[cleanedMatches, predMap],
 	);
 
-	const activeMatches =
-		tab === "pending"
-			? pendingMatches
-			: tab === "history"
-				? historyMatches
-				: upcomingMatches;
-
+	// Pendentes / Histórico: lista simples agrupada por dia.
 	const sortedActive = useMemo(() => {
-		const list = [...activeMatches];
+		const list = tab === "pending" ? [...pendingMatches] : [...historyMatches];
 		list.sort(
 			(a, b) => new Date(a.utcDate).getTime() - new Date(b.utcDate).getTime(),
 		);
 		if (tab === "history") list.reverse();
 		return list;
-	}, [activeMatches, tab]);
+	}, [pendingMatches, historyMatches, tab]);
 
 	const grouped = useMemo(
 		() => (sortedActive.length === 0 ? [] : groupByDay(sortedActive)),
 		[sortedActive],
 	);
 
-	const showWorldCupGroups =
-		tournament === "WC2026" &&
-		tab === "upcoming" &&
-		sortedActive.length > 0 &&
-		sortedActive.every((m) => Boolean(m.group));
-
-	const groupedByGroup = useMemo(
-		() => (showWorldCupGroups ? groupByGroup(sortedActive) : []),
-		[showWorldCupGroups, sortedActive],
+	// Próximos: dois modos — jogos consecutivos (por dia) ou por grupo.
+	const upcomingByDay = useMemo(
+		() => groupByDay(sortedUpcoming),
+		[sortedUpcoming],
 	);
 
-	const roundTitle =
-		showWorldCupGroups && sortedActive[0] ? roundLabel(sortedActive[0]) : null;
+	const groupStageUpcoming = useMemo(
+		() => sortedUpcoming.filter((m) => Boolean(m.group)),
+		[sortedUpcoming],
+	);
 
-	const todayMatches = useMemo(() => {
-		if (tournament !== "WC2026" || tab !== "upcoming") return [];
-		const today = dayKey(new Date().toISOString());
-		return cleanedMatches
-			.filter((m) => dayKey(m.utcDate) === today && m.status !== "FINISHED")
-			.sort(
-				(a, b) => new Date(a.utcDate).getTime() - new Date(b.utcDate).getTime(),
-			);
-	}, [cleanedMatches, tab, tournament]);
+	const canGroupView = tournament === "WC2026" && groupStageUpcoming.length > 0;
+
+	const effectiveMode: UpcomingMode =
+		upcomingMode === "grupo" && canGroupView ? "grupo" : "consecutivos";
+
+	const upcomingByGroup = useMemo(
+		() => (canGroupView ? groupByGroup(groupStageUpcoming) : []),
+		[canGroupView, groupStageUpcoming],
+	);
 
 	const isLoading = matches === undefined || predMap === undefined;
 
@@ -183,7 +171,7 @@ export default function PredictionsPage() {
 						value: "upcoming",
 						label: "Próximos",
 						icon: Trophy,
-						count: upcomingMatches.length,
+						count: sortedUpcoming.length,
 					},
 					{
 						value: "pending",
@@ -203,6 +191,24 @@ export default function PredictionsPage() {
 				aria-label="Filtrar palpites"
 			/>
 
+			{/* Sub-toggle de visualização (apenas em "Próximos", com fase de grupos) */}
+			{tab === "upcoming" && canGroupView && !isLoading ? (
+				<PillTabs
+					size="sm"
+					items={[
+						{
+							value: "consecutivos",
+							label: "Jogos consecutivos",
+							icon: CalendarDays,
+						},
+						{ value: "grupo", label: "Por grupo", icon: LayoutGrid },
+					]}
+					value={effectiveMode}
+					onChange={(v) => setUpcomingMode(v)}
+					aria-label="Modo de visualização dos próximos jogos"
+				/>
+			) : null}
+
 			{/* Lista */}
 			{isLoading ? (
 				<div className="space-y-6">
@@ -214,79 +220,75 @@ export default function PredictionsPage() {
 						</div>
 					))}
 				</div>
-			) : sortedActive.length === 0 ? (
-				<EmptyByTab tab={tab} />
-			) : showWorldCupGroups ? (
-				<div className="space-y-8">
-					{todayMatches.length > 0 ? (
-						<section className="space-y-3">
-							<div className="flex flex-wrap items-end justify-between gap-3">
-								<div className="flex flex-col">
-									<span className="text-[var(--b-brand)] text-eyebrow">
-										Hoje no gramado
-									</span>
-									<h2 className="text-balance font-black font-display text-2xl text-[var(--b-text)] uppercase leading-none tracking-tight sm:text-3xl">
-										Jogos do dia
-									</h2>
-								</div>
-								<span className="font-mono font-semibold text-[var(--b-text-3)] text-xs tabular-nums">
-									{todayMatches.length} jogos
+			) : tab === "upcoming" ? (
+				sortedUpcoming.length === 0 ? (
+					<EmptyByTab tab="upcoming" />
+				) : effectiveMode === "grupo" ? (
+					<div className="space-y-8">
+						<div className="flex flex-wrap items-end justify-between gap-3">
+							<div className="flex flex-col">
+								<span className="text-[var(--b-brand)] text-eyebrow">
+									Fase de grupos
 								</span>
+								<h2 className="text-balance font-black font-display text-2xl text-[var(--b-text)] uppercase leading-none tracking-tight sm:text-3xl">
+									Palpite por grupo
+								</h2>
 							</div>
-							<div
-								className="field-texture rounded-[28px] p-4 shadow-[0_18px_40px_-24px_rgba(0,0,0,0.45)]"
-								style={{ background: "var(--g-hero-match)" }}
-							>
-								<div
-									className="stagger-children space-y-3"
-									style={{ ["--d" as string]: "60ms" }}
-								>
-									{todayMatches.map((m, i) => (
-										<div key={m._id} style={{ ["--i" as string]: i }}>
-											<Scorecard
-												match={m}
-												prediction={
-													predMap ? (predMap.get(m._id) ?? null) : undefined
-												}
-											/>
-										</div>
-									))}
-								</div>
-							</div>
-						</section>
-					) : null}
-
-					<div className="flex flex-wrap items-end justify-between gap-3">
-						<div className="flex flex-col">
-							<span className="text-[var(--b-brand)] text-eyebrow">
-								Fase de grupos
+							<span className="font-mono font-semibold text-[var(--b-text-4)] text-xs tabular-nums">
+								{groupStageUpcoming.length} jogos
 							</span>
-							<h2 className="text-balance font-black font-display text-2xl text-[var(--b-text)] uppercase leading-none tracking-tight sm:text-3xl">
-								{roundTitle}
-							</h2>
 						</div>
-						<span className="font-mono font-semibold text-[var(--b-text-3)] text-xs tabular-nums">
-							{sortedActive.length} jogos
-						</span>
-					</div>
 
-					<div className="space-y-6">
-						{groupedByGroup.map(([group, groupMatches]) => {
-							const predictedCount = groupMatches.filter((m) =>
+						<div className="space-y-6">
+							{upcomingByGroup.map(([group, groupMatches]) => {
+								const predictedCount = groupMatches.filter((m) =>
+									predMap?.has(m._id),
+								).length;
+								return (
+									<section key={group} className="space-y-3">
+										<GroupHeader
+											group={group}
+											totalMatches={groupMatches.length}
+											predictedMatches={predictedCount}
+										/>
+										<div
+											className="stagger-children space-y-3"
+											style={{ ["--d" as string]: "60ms" }}
+										>
+											{groupMatches.map((m, i) => (
+												<div key={m._id} style={{ ["--i" as string]: i }}>
+													<Scorecard
+														match={m}
+														prediction={
+															predMap ? (predMap.get(m._id) ?? null) : undefined
+														}
+													/>
+												</div>
+											))}
+										</div>
+									</section>
+								);
+							})}
+						</div>
+					</div>
+				) : (
+					<div className="space-y-8">
+						{upcomingByDay.map(([key, date, dayMatches]) => {
+							const predictedCount = dayMatches.filter((m) =>
 								predMap?.has(m._id),
 							).length;
 							return (
-								<section key={group} className="space-y-3">
-									<GroupHeader
-										group={group}
-										totalMatches={groupMatches.length}
+								<section key={key} className="space-y-3">
+									<DayHeader
+										date={date}
+										totalMatches={dayMatches.length}
 										predictedMatches={predictedCount}
 									/>
 									<div
 										className="stagger-children space-y-3"
 										style={{ ["--d" as string]: "60ms" }}
 									>
-										{groupMatches.map((m, i) => (
+										{dayMatches.map((m, i) => (
 											<div key={m._id} style={{ ["--i" as string]: i }}>
 												<Scorecard
 													match={m}
@@ -301,7 +303,9 @@ export default function PredictionsPage() {
 							);
 						})}
 					</div>
-				</div>
+				)
+			) : sortedActive.length === 0 ? (
+				<EmptyByTab tab={tab} />
 			) : (
 				<div className="space-y-8">
 					{grouped.map(([key, date, dayMatches]) => {
