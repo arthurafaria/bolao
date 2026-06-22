@@ -8,8 +8,8 @@ import type { FunctionReturnType } from "convex/server";
 import {
 	CalendarDays,
 	CalendarOff,
-	History,
 	LayoutGrid,
+	ListChecks,
 	Target,
 	Trophy,
 } from "lucide-react";
@@ -24,10 +24,12 @@ type Match = NonNullable<
 	FunctionReturnType<typeof api.matches.getAllByDate>[number]
 >;
 
-type FilterTab = "pending" | "upcoming" | "history";
+type FilterTab = "pending" | "upcoming" | "mine";
 type UpcomingMode = "consecutivos" | "grupo";
 
 const LOCK_MS = 60 * 60 * 1000;
+
+const LIVE_STATUSES = new Set(["LIVE", "IN_PLAY", "PAUSED"]);
 
 function dayKey(iso: string): string {
 	const d = new Date(iso);
@@ -101,23 +103,35 @@ export default function PredictionsPage() {
 		[allUpcomingMatches, predMap, now],
 	);
 
-	const historyMatches = useMemo(
+	// Meus palpites: todo jogo já bloqueado (faltando começar, ao vivo ou
+	// encerrado) em que o usuário palpitou. Permite acompanhar o que jogou
+	// assim que o palpite fecha, sem poder editar.
+	const mineMatches = useMemo(
 		() =>
-			cleanedMatches.filter(
-				(m) => m.status === "FINISHED" && predMap?.has(m._id),
-			),
-		[cleanedMatches, predMap],
+			cleanedMatches.filter((m) => {
+				if (!predMap?.has(m._id)) return false;
+				const lockTime = new Date(m.utcDate).getTime() - LOCK_MS;
+				return now >= lockTime;
+			}),
+		[cleanedMatches, predMap, now],
 	);
 
-	// Pendentes / Histórico: lista simples agrupada por dia.
+	const liveMineCount = useMemo(
+		() => mineMatches.filter((m) => LIVE_STATUSES.has(m.status)).length,
+		[mineMatches],
+	);
+
+	// Pendentes / Meus palpites: lista simples agrupada por dia.
 	const sortedActive = useMemo(() => {
-		const list = tab === "pending" ? [...pendingMatches] : [...historyMatches];
+		const list = tab === "pending" ? [...pendingMatches] : [...mineMatches];
 		list.sort(
 			(a, b) => new Date(a.utcDate).getTime() - new Date(b.utcDate).getTime(),
 		);
-		if (tab === "history") list.reverse();
+		// Em "Meus palpites", mostra do mais recente (a começar / ao vivo) ao
+		// mais antigo já encerrado.
+		if (tab === "mine") list.reverse();
 		return list;
-	}, [pendingMatches, historyMatches, tab]);
+	}, [pendingMatches, mineMatches, tab]);
 
 	const grouped = useMemo(
 		() => (sortedActive.length === 0 ? [] : groupByDay(sortedActive)),
@@ -180,10 +194,10 @@ export default function PredictionsPage() {
 						count: pendingMatches.length,
 					},
 					{
-						value: "history",
-						label: "Histórico",
-						icon: History,
-						count: historyMatches.length,
+						value: "mine",
+						label: "Meus palpites",
+						icon: ListChecks,
+						count: mineMatches.length,
 					},
 				]}
 				value={tab}
@@ -207,6 +221,25 @@ export default function PredictionsPage() {
 					onChange={(v) => setUpcomingMode(v)}
 					aria-label="Modo de visualização dos próximos jogos"
 				/>
+			) : null}
+
+			{/* Aviso de jogos em andamento (apenas em "Meus palpites") */}
+			{tab === "mine" && liveMineCount > 0 && !isLoading ? (
+				<div
+					className="flex items-center gap-2 rounded-2xl border px-4 py-2.5 text-[var(--b-danger)] text-sm"
+					style={{
+						borderColor:
+							"color-mix(in oklch, var(--b-danger) 30%, transparent)",
+						background: "color-mix(in oklch, var(--b-danger) 8%, transparent)",
+					}}
+				>
+					<span className="h-2 w-2 animate-pulse rounded-full bg-[var(--b-danger)]" />
+					<span className="font-semibold">
+						{liveMineCount === 1
+							? "1 jogo seu acontecendo agora"
+							: `${liveMineCount} jogos seus acontecendo agora`}
+					</span>
+				</div>
 			) : null}
 
 			{/* Lista */}
@@ -330,7 +363,7 @@ export default function PredictionsPage() {
 												prediction={
 													predMap ? (predMap.get(m._id) ?? null) : undefined
 												}
-												readOnly={tab === "history"}
+												readOnly={tab === "mine"}
 											/>
 										</div>
 									))}
@@ -427,10 +460,10 @@ function EmptyByTab({ tab }: { tab: FilterTab }) {
 			title: "Sem jogos por enquanto",
 			desc: "Quando a próxima janela do torneio entrar no ar, os jogos aparecem aqui.",
 		},
-		history: {
-			icon: History,
-			title: "Sem histórico ainda",
-			desc: "Seus palpites de jogos encerrados aparecerão aqui depois que o resultado sair.",
+		mine: {
+			icon: ListChecks,
+			title: "Nenhum palpite em jogo ainda",
+			desc: "Assim que um palpite fecha (1h antes do jogo), ele aparece aqui para você acompanhar — ao vivo e depois de encerrado.",
 		},
 	};
 	const { icon: Icon, title, desc } = config[tab];

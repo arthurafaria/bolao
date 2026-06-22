@@ -174,6 +174,10 @@ export function Scorecard({
 		Date.now() >= lockTime ||
 		(match.status !== "TIMED" && match.status !== "SCHEDULED");
 	const isFinished = match.status === "FINISHED";
+	const isLive =
+		match.status === "LIVE" ||
+		match.status === "IN_PLAY" ||
+		match.status === "PAUSED";
 
 	const [home, setHome] = useState(0);
 	const [away, setAway] = useState(0);
@@ -262,7 +266,7 @@ export function Scorecard({
 				"transition-[transform,box-shadow,filter,opacity] duration-[var(--motion-base)] ease-[var(--ease-out-quart)]",
 				!isLocked &&
 					"hover:-translate-y-0.5 hover:shadow-[var(--b-shadow-brand-md)]",
-				isLocked && !isFinished && "opacity-75 saturate-50",
+				isLocked && !isFinished && !isLive && "opacity-75 saturate-50",
 				"data-[just-saved=true]:animate-ring-success",
 				className,
 			)}
@@ -280,7 +284,13 @@ export function Scorecard({
 						{timeStr}
 					</span>
 					{!isLocked && !isFinished && <LockCountdown kickoff={matchDate} />}
-					{isLocked && !isFinished && (
+					{isLive && (
+						<span className="flex items-center gap-1 font-bold text-[var(--b-danger)] text-eyebrow">
+							<span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[var(--b-danger)]" />
+							Ao vivo
+						</span>
+					)}
+					{isLocked && !isFinished && !isLive && (
 						<span className="text-[var(--b-text-4)] text-eyebrow">Fechado</span>
 					)}
 					{isFinished && (
@@ -373,6 +383,11 @@ export function Scorecard({
 					{isFinished && prediction?.predictedHome != null && (
 						<span className="font-medium text-[var(--b-text-3)] text-xs">
 							Resultado: {match.homeScore ?? "–"} × {match.awayScore ?? "–"}
+						</span>
+					)}
+					{isLive && (
+						<span className="font-bold text-[var(--b-danger)] text-xs">
+							Parcial: {match.homeScore ?? 0} × {match.awayScore ?? 0}
 						</span>
 					)}
 				</div>
