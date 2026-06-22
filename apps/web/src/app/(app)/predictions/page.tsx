@@ -10,7 +10,6 @@ import {
 	CalendarOff,
 	LayoutGrid,
 	ListChecks,
-	Target,
 	Trophy,
 } from "lucide-react";
 import { useMemo, useState } from "react";
@@ -24,7 +23,7 @@ type Match = NonNullable<
 	FunctionReturnType<typeof api.matches.getAllByDate>[number]
 >;
 
-type FilterTab = "pending" | "upcoming" | "mine";
+type FilterTab = "upcoming" | "mine";
 type UpcomingMode = "consecutivos" | "grupo";
 
 const LOCK_MS = 60 * 60 * 1000;
@@ -93,16 +92,6 @@ export default function PredictionsPage() {
 		[allUpcomingMatches],
 	);
 
-	const pendingMatches = useMemo(
-		() =>
-			allUpcomingMatches.filter((m) => {
-				if (!predMap) return false;
-				const lockTime = new Date(m.utcDate).getTime() - LOCK_MS;
-				return now < lockTime && !predMap.has(m._id);
-			}),
-		[allUpcomingMatches, predMap, now],
-	);
-
 	// Meus palpites: todo jogo já bloqueado (faltando começar, ao vivo ou
 	// encerrado) em que o usuário palpitou. Permite acompanhar o que jogou
 	// assim que o palpite fecha, sem poder editar.
@@ -121,17 +110,15 @@ export default function PredictionsPage() {
 		[mineMatches],
 	);
 
-	// Pendentes / Meus palpites: lista simples agrupada por dia.
+	// Meus palpites: lista simples agrupada por dia, do mais recente
+	// (a começar / ao vivo) ao mais antigo já encerrado.
 	const sortedActive = useMemo(() => {
-		const list = tab === "pending" ? [...pendingMatches] : [...mineMatches];
+		const list = [...mineMatches];
 		list.sort(
-			(a, b) => new Date(a.utcDate).getTime() - new Date(b.utcDate).getTime(),
+			(a, b) => new Date(b.utcDate).getTime() - new Date(a.utcDate).getTime(),
 		);
-		// Em "Meus palpites", mostra do mais recente (a começar / ao vivo) ao
-		// mais antigo já encerrado.
-		if (tab === "mine") list.reverse();
 		return list;
-	}, [pendingMatches, mineMatches, tab]);
+	}, [mineMatches]);
 
 	const grouped = useMemo(
 		() => (sortedActive.length === 0 ? [] : groupByDay(sortedActive)),
@@ -186,12 +173,6 @@ export default function PredictionsPage() {
 						label: "Próximos",
 						icon: Trophy,
 						count: sortedUpcoming.length,
-					},
-					{
-						value: "pending",
-						label: "Pendentes",
-						icon: Target,
-						count: pendingMatches.length,
 					},
 					{
 						value: "mine",
@@ -450,11 +431,6 @@ function EmptyByTab({ tab }: { tab: FilterTab }) {
 		FilterTab,
 		{ icon: React.ElementType; title: string; desc: string }
 	> = {
-		pending: {
-			icon: Target,
-			title: "Tudo em dia!",
-			desc: "Você palpitou em todos os jogos abertos. Volte quando entrarem novos jogos na agenda.",
-		},
 		upcoming: {
 			icon: CalendarOff,
 			title: "Sem jogos por enquanto",
