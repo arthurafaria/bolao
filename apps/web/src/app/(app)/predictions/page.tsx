@@ -28,8 +28,6 @@ type UpcomingMode = "consecutivos" | "grupo";
 
 const LOCK_MS = 60 * 60 * 1000;
 
-const LIVE_STATUSES = new Set(["LIVE", "IN_PLAY", "PAUSED"]);
-
 function dayKey(iso: string): string {
 	const d = new Date(iso);
 	return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
@@ -103,11 +101,6 @@ export default function PredictionsPage() {
 				return now >= lockTime;
 			}),
 		[cleanedMatches, predMap, now],
-	);
-
-	const liveMineCount = useMemo(
-		() => mineMatches.filter((m) => LIVE_STATUSES.has(m.status)).length,
-		[mineMatches],
 	);
 
 	// Meus palpites: lista simples agrupada por dia, do mais recente
@@ -202,25 +195,6 @@ export default function PredictionsPage() {
 					onChange={(v) => setUpcomingMode(v)}
 					aria-label="Modo de visualização dos próximos jogos"
 				/>
-			) : null}
-
-			{/* Aviso de jogos em andamento (apenas em "Meus palpites") */}
-			{tab === "mine" && liveMineCount > 0 && !isLoading ? (
-				<div
-					className="flex items-center gap-2 rounded-2xl border px-4 py-2.5 text-[var(--b-danger)] text-sm"
-					style={{
-						borderColor:
-							"color-mix(in oklch, var(--b-danger) 30%, transparent)",
-						background: "color-mix(in oklch, var(--b-danger) 8%, transparent)",
-					}}
-				>
-					<span className="h-2 w-2 animate-pulse rounded-full bg-[var(--b-danger)]" />
-					<span className="font-semibold">
-						{liveMineCount === 1
-							? "1 jogo seu acontecendo agora"
-							: `${liveMineCount} jogos seus acontecendo agora`}
-					</span>
-				</div>
 			) : null}
 
 			{/* Lista */}
@@ -439,7 +413,7 @@ function EmptyByTab({ tab }: { tab: FilterTab }) {
 		mine: {
 			icon: ListChecks,
 			title: "Nenhum palpite em jogo ainda",
-			desc: "Assim que um palpite fecha (1h antes do jogo), ele aparece aqui para você acompanhar — ao vivo e depois de encerrado.",
+			desc: "Assim que um palpite fecha (1h antes do jogo), ele aparece aqui fixo para você conferir — e o resultado quando o jogo encerra.",
 		},
 	};
 	const { icon: Icon, title, desc } = config[tab];

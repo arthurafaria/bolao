@@ -12,6 +12,11 @@ import { auth, requireUserId } from "./auth";
 
 const LOCK_WINDOW_MS = 60 * 60 * 1000; // 1 hour before match
 
+// Apenas a Copa do Mundo pontua para o ranking das ligas. Jogos de outros
+// torneios (ex.: Brasileirão/BSA2026, DEMO) podem existir no banco para
+// preencher o calendário, mas NÃO geram pontos.
+const SCORABLE_TOURNAMENT = "WC2026";
+
 type ScoreComponents = {
 	result: boolean;
 	homeGoals: boolean;
@@ -192,6 +197,7 @@ export const computeForMatch = internalMutation({
 	handler: async (ctx, args) => {
 		const match = await ctx.db.get(args.matchId);
 		if (!match || match.status !== "FINISHED") return;
+		if (match.tournament !== SCORABLE_TOURNAMENT) return;
 		if (match.homeScore == null || match.awayScore == null) return;
 
 		const allPredictions = await ctx.db

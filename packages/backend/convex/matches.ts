@@ -211,7 +211,11 @@ export const getFinishedWithScore = internalQuery({
 			.query("matches")
 			.withIndex("by_status", (q) => q.eq("status", "FINISHED"))
 			.collect();
-		return matches.filter((m) => m.homeScore != null && m.awayScore != null);
+		// Apenas a Copa pontua — mantém o recálculo alinhado com computeForMatch.
+		return matches.filter(
+			(m) =>
+				m.tournament === "WC2026" && m.homeScore != null && m.awayScore != null,
+		);
 	},
 });
 
