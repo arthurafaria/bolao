@@ -3,68 +3,30 @@
 import { api } from "@bolao/backend/convex/_generated/api";
 import { Skeleton } from "@bolao/ui/components/skeleton";
 import { useQuery } from "convex/react";
-import type { FunctionReturnType } from "convex/server";
+import { useMemo } from "react";
 
 import { BracketMatch } from "@/components/bracket/bracket-match";
+import { resolveBracket } from "@/lib/knockout";
 import { STAGE_LABELS } from "@/lib/match-grouping";
+import { type BracketStage, STAGE_GAME_COUNT } from "@/lib/wc2026-bracket";
 
-type Match = NonNullable<
-	FunctionReturnType<typeof api.matches.getByStage>[number]
->;
-
-const BRACKET_PHASES = [
-	{
-		key: "round32",
-		stages: ["LAST_32", "ROUND_OF_32", "PLAYOFF_ROUND_OF_32"],
-		labelStage: "LAST_32",
-		slots: 16,
-		gap: "gap-3",
-	},
-	{
-		key: "round16",
-		stages: ["LAST_16", "ROUND_OF_16"],
-		labelStage: "LAST_16",
-		slots: 8,
-		gap: "gap-8",
-	},
-	{
-		key: "quarters",
-		stages: ["QUARTER_FINALS"],
-		labelStage: "QUARTER_FINALS",
-		slots: 4,
-		gap: "gap-14",
-	},
-	{
-		key: "semis",
-		stages: ["SEMI_FINALS"],
-		labelStage: "SEMI_FINALS",
-		slots: 2,
-		gap: "gap-24",
-	},
-	{
-		key: "third",
-		stages: ["THIRD_PLACE"],
-		labelStage: "THIRD_PLACE",
-		slots: 1,
-		gap: "gap-3",
-	},
-	{
-		key: "final",
-		stages: ["FINAL"],
-		labelStage: "FINAL",
-		slots: 1,
-		gap: "gap-3",
-	},
-] as const;
+const PHASES: { stage: BracketStage; labelStage: string; gap: string }[] = [
+	{ stage: "ROUND_OF_32", labelStage: "ROUND_OF_32", gap: "gap-3" },
+	{ stage: "ROUND_OF_16", labelStage: "ROUND_OF_16", gap: "gap-8" },
+	{ stage: "QUARTER_FINALS", labelStage: "QUARTER_FINALS", gap: "gap-14" },
+	{ stage: "SEMI_FINALS", labelStage: "SEMI_FINALS", gap: "gap-24" },
+	{ stage: "THIRD_PLACE", labelStage: "THIRD_PLACE", gap: "gap-3" },
+	{ stage: "FINAL", labelStage: "FINAL", gap: "gap-3" },
+];
 
 export default function MataMataPage() {
 	const matches = useQuery(api.matches.getByStage, { tournament: "WC2026" });
-	const knockoutMatches =
-		matches
-			?.filter((m): m is Match => m !== null && m.stage !== "GROUP_STAGE")
-			.sort(
-				(a, b) => new Date(a.utcDate).getTime() - new Date(b.utcDate).getTime(),
-			) ?? [];
+
+	const games = useMemo(() => {
+		if (!matches) return null;
+		const clean = matches.filter((m) => m !== null);
+		return resolveBracket(clean);
+	}, [matches]);
 
 	return (
 		<div className="animate-fade-in space-y-6">
@@ -77,28 +39,22 @@ export default function MataMataPage() {
 						Mata-mata
 					</h1>
 					<p className="mt-1 max-w-2xl text-[var(--b-text-3)] text-sm">
-						A chave da Copa aparece completa assim que os confrontos forem
-						definidos.
+						A chave completa da Copa, com datas e estádios. Os confrontos vão se
+						preenchendo conforme os grupos terminam — vagas em aberto aparecem
+						como o slot do chaveamento (ex.: “3º A/E/F”).
 					</p>
 				</div>
 			</header>
 
-			{matches === undefined ? (
+			{games === null ? (
 				<BracketSkeleton />
 			) : (
 				<div className="-mx-4 overflow-x-auto px-4 pb-4 md:-mx-6 md:px-6">
 					<div className="flex min-w-max items-start gap-4">
-						{BRACKET_PHASES.map((phase) => {
-							const phaseMatches = knockoutMatches.filter((match) =>
-								(phase.stages as readonly string[]).includes(match.stage),
-							);
-							const placeholders = Math.max(
-								phase.slots - phaseMatches.length,
-								0,
-							);
-
+						{PHASES.map((phase) => {
+							const phaseGames = games.filter((g) => g.stage === phase.stage);
 							return (
-								<section key={phase.key} className="w-64 shrink-0 space-y-3">
+								<section key={phase.stage} className="w-64 shrink-0 space-y-3">
 									<div
 										className="sticky left-0 z-10 rounded-[16px] px-3 py-2.5"
 										style={{
@@ -114,11 +70,19 @@ export default function MataMataPage() {
 										</h2>
 									</div>
 									<div className={`flex flex-col ${phase.gap}`}>
-										{phaseMatches.map((match) => (
-											<BracketMatch key={match._id} match={match} />
+										{phaseGames.map((game) => (
+											<BracketMatch key={game.no} game={game} />
 										))}
-										{Array.from({ length: placeholders }).map((_, index) => (
-											<BracketMatch key={`${phase.key}-placeholder-${index}`} />
+										{Array.from({
+											length: Math.max(
+												STAGE_GAME_COUNT[phase.stage] - phaseGames.length,
+												0,
+											),
+										}).map((_, index) => (
+											<BracketMatch
+												key={`${phase.stage}-placeholder-${index}`}
+												placeholder
+											/>
 										))}
 									</div>
 								</section>
@@ -135,18 +99,18 @@ function BracketSkeleton() {
 	return (
 		<div className="-mx-4 overflow-hidden px-4 pb-4 md:-mx-6 md:px-6">
 			<div className="flex min-w-max items-start gap-4">
-				{BRACKET_PHASES.map((phase) => (
-					<section key={phase.key} className="w-64 shrink-0 space-y-3">
+				{PHASES.map((phase) => (
+					<section key={phase.stage} className="w-64 shrink-0 space-y-3">
 						<Skeleton className="h-12 rounded-2xl" />
 						<div className={`flex flex-col ${phase.gap}`}>
-							{Array.from({ length: Math.min(phase.slots, 4) }).map(
-								(_, index) => (
-									<Skeleton
-										key={`${phase.key}-skeleton-${index}`}
-										className="h-28 rounded-2xl"
-									/>
-								),
-							)}
+							{Array.from({
+								length: Math.min(STAGE_GAME_COUNT[phase.stage], 4),
+							}).map((_, index) => (
+								<Skeleton
+									key={`${phase.stage}-skeleton-${index}`}
+									className="h-28 rounded-2xl"
+								/>
+							))}
 						</div>
 					</section>
 				))}

@@ -1,8 +1,8 @@
 export const STAGE_LABELS: Record<string, string> = {
 	GROUP_STAGE: "Fase de Grupos",
-	LAST_32: "Pré-oitavas",
-	ROUND_OF_32: "Pré-oitavas",
-	PLAYOFF_ROUND_OF_32: "Pré-oitavas",
+	LAST_32: "2ª Fase",
+	ROUND_OF_32: "2ª Fase",
+	PLAYOFF_ROUND_OF_32: "2ª Fase",
 	LAST_16: "Oitavas de Final",
 	ROUND_OF_16: "Oitavas de Final",
 	QUARTER_FINALS: "Quartas de Final",

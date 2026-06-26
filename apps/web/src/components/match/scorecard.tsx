@@ -10,6 +10,7 @@ import { type ChangeEvent, useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { getCrest } from "@/lib/crest-overrides";
+import { STAGE_LABELS } from "@/lib/match-grouping";
 import { getPointsTier } from "@/lib/points-palette";
 import { abbreviateTeamName, translateTeamName } from "@/lib/team-translations";
 import { LockCountdown } from "./lock-countdown";
@@ -247,7 +248,7 @@ export function Scorecard({
 		? `GRUPO ${groupLetter}`
 		: match.matchday
 			? `RODADA ${match.matchday}`
-			: match.stage.replace(/_/g, " ");
+			: (STAGE_LABELS[match.stage] ?? match.stage.replace(/_/g, " "));
 
 	const formatName = compact ? abbreviateTeamName : translateTeamName;
 	const homeName = formatName(match.homeTeam?.shortName ?? "") || "TBD";

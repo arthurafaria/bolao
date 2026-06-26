@@ -8,23 +8,36 @@ import type { FunctionReturnType } from "convex/server";
 import {
 	CalendarDays,
 	CalendarOff,
+	GitBranch,
 	LayoutGrid,
 	ListChecks,
 	Trophy,
 } from "lucide-react";
 import { useMemo, useState } from "react";
 
+import { KnockoutPreviewCard } from "@/components/bracket/knockout-preview-card";
 import { DayHeader } from "@/components/match/day-header";
 import { Scorecard } from "@/components/match/scorecard";
 import { useTournament } from "@/contexts/tournament-context";
-import { groupByGroup } from "@/lib/match-grouping";
+import { resolveBracket } from "@/lib/knockout";
+import { groupByGroup, STAGE_LABELS } from "@/lib/match-grouping";
+import type { BracketStage } from "@/lib/wc2026-bracket";
 
 type Match = NonNullable<
 	FunctionReturnType<typeof api.matches.getAllByDate>[number]
 >;
 
-type FilterTab = "upcoming" | "mine";
+type FilterTab = "upcoming" | "mine" | "knockout";
 type UpcomingMode = "consecutivos" | "grupo";
+
+const KNOCKOUT_STAGES: BracketStage[] = [
+	"ROUND_OF_32",
+	"ROUND_OF_16",
+	"QUARTER_FINALS",
+	"SEMI_FINALS",
+	"THIRD_PLACE",
+	"FINAL",
+];
 
 const LOCK_MS = 60 * 60 * 1000;
 
@@ -68,6 +81,23 @@ export default function PredictionsPage() {
 	const cleanedMatches = useMemo(
 		() => matches?.filter((m): m is Match => m !== null) ?? [],
 		[matches],
+	);
+
+	// Chave do mata-mata (só a Copa). Resolve os slots a partir dos grupos e
+	// casa com os jogos reais; matchById recupera o documento completo para o
+	// Scorecard quando o confronto já está definido.
+	const showKnockoutTab = tournament === "WC2026";
+	const matchById = useMemo(
+		() => new Map(cleanedMatches.map((m) => [m._id as string, m])),
+		[cleanedMatches],
+	);
+	const bracket = useMemo(
+		() => (showKnockoutTab ? resolveBracket(cleanedMatches) : []),
+		[showKnockoutTab, cleanedMatches],
+	);
+	const knockoutDefinedCount = useMemo(
+		() => bracket.filter((g) => g.match != null).length,
+		[bracket],
 	);
 
 	const now = Date.now();
@@ -167,6 +197,16 @@ export default function PredictionsPage() {
 						icon: Trophy,
 						count: sortedUpcoming.length,
 					},
+					...(showKnockoutTab
+						? [
+								{
+									value: "knockout" as const,
+									label: "Mata-mata",
+									icon: GitBranch,
+									count: knockoutDefinedCount,
+								},
+							]
+						: []),
 					{
 						value: "mine",
 						label: "Meus palpites",
@@ -292,6 +332,78 @@ export default function PredictionsPage() {
 						})}
 					</div>
 				)
+			) : tab === "knockout" ? (
+				<div className="space-y-8">
+					<div className="flex flex-wrap items-end justify-between gap-3">
+						<div className="flex flex-col">
+							<span className="text-[var(--b-brand)] text-eyebrow">
+								Caminho até a taça
+							</span>
+							<h2 className="text-balance font-black font-display text-2xl text-[var(--b-text)] uppercase leading-none tracking-tight sm:text-3xl">
+								Mata-mata
+							</h2>
+						</div>
+						<span className="font-mono font-semibold text-[var(--b-text-4)] text-xs tabular-nums">
+							{knockoutDefinedCount}/{bracket.length} definidos
+						</span>
+					</div>
+					<p className="-mt-4 max-w-2xl text-[var(--b-text-3)] text-sm">
+						Cada confronto abre para palpite assim que os dois times estão
+						definidos. Até lá ele aparece como confronto potencial (ex.: “3º
+						A/E/F”).
+					</p>
+
+					{KNOCKOUT_STAGES.map((stage) => {
+						const stageGames = bracket.filter((g) => g.stage === stage);
+						if (stageGames.length === 0) return null;
+						const definedInStage = stageGames.filter(
+							(g) => g.match != null,
+						).length;
+						return (
+							<section key={stage} className="space-y-3">
+								<div className="flex items-end justify-between gap-3">
+									<div className="flex items-baseline gap-2">
+										<span className="text-[var(--b-brand)] text-eyebrow">
+											Fase
+										</span>
+										<span className="font-black font-display text-[var(--b-text)] text-xl uppercase leading-none tracking-tight sm:text-2xl">
+											{STAGE_LABELS[stage]}
+										</span>
+									</div>
+									<span className="font-mono font-semibold text-[var(--b-text-4)] text-xs tabular-nums">
+										{definedInStage}/{stageGames.length}
+									</span>
+								</div>
+								<div
+									className="stagger-children space-y-3"
+									style={{ ["--d" as string]: "60ms" }}
+								>
+									{stageGames.map((game, i) => {
+										const full = game.match
+											? matchById.get(game.match._id)
+											: undefined;
+										return (
+											<div key={game.no} style={{ ["--i" as string]: i }}>
+												{full ? (
+													<Scorecard
+														match={full}
+														prediction={
+															predMap
+																? (predMap.get(full._id) ?? null)
+																: undefined
+														}
+													/>
+												) : (
+													<KnockoutPreviewCard game={game} />
+												)}
+											</div>
+										);
+									})}
+								</div>
+							</section>
+						);
+					})}
+				</div>
 			) : sortedActive.length === 0 ? (
 				<EmptyByTab tab={tab} />
 			) : (
@@ -400,9 +512,9 @@ function GroupHeader({
 	);
 }
 
-function EmptyByTab({ tab }: { tab: FilterTab }) {
+function EmptyByTab({ tab }: { tab: "upcoming" | "mine" }) {
 	const config: Record<
-		FilterTab,
+		"upcoming" | "mine",
 		{ icon: React.ElementType; title: string; desc: string }
 	> = {
 		upcoming: {

@@ -1,96 +1,105 @@
 "use client";
 
-type BracketTeam = {
-	name: string;
-	shortName: string;
-	crest: string;
-	tla?: string;
-} | null;
-
-type BracketMatchData = {
-	homeTeam?: BracketTeam;
-	awayTeam?: BracketTeam;
-	homeScore?: number;
-	awayScore?: number;
-	status: string;
-	utcDate?: string;
-	venue?: string;
-};
+import type { ResolvedGame, ResolvedSide } from "@/lib/knockout";
+import { translateTeamName } from "@/lib/team-translations";
 
 type BracketMatchProps = {
-	match?: BracketMatchData;
+	game?: ResolvedGame;
+	/** Placeholder de coluna ainda sem jogo (ex.: fase mais à frente). */
+	placeholder?: boolean;
 };
 
-export function BracketMatch({ match }: BracketMatchProps) {
+function isLive(status?: string) {
+	return status === "LIVE" || status === "IN_PLAY" || status === "PAUSED";
+}
+
+export function BracketMatch({ game, placeholder }: BracketMatchProps) {
+	if (!game || placeholder) {
+		return (
+			<div className="rounded-2xl border border-[var(--b-border-sm)] border-dashed bg-[var(--b-card)] p-3 opacity-70">
+				<div className="space-y-1.5">
+					<EmptyRow />
+					<EmptyRow />
+				</div>
+				<p className="mt-3 text-[var(--b-text-4)] text-xs">A definir</p>
+			</div>
+		);
+	}
+
 	const showScore =
-		match?.status === "FINISHED" ||
-		match?.status === "LIVE" ||
-		match?.status === "IN_PLAY" ||
-		match?.status === "PAUSED";
+		game.status === "FINISHED" ||
+		(isLive(game.status) && game.homeScore != null);
 	const homeWon =
 		showScore &&
-		match?.homeScore != null &&
-		match.awayScore != null &&
-		match.homeScore > match.awayScore;
+		game.homeScore != null &&
+		game.awayScore != null &&
+		game.homeScore > game.awayScore;
 	const awayWon =
 		showScore &&
-		match?.homeScore != null &&
-		match.awayScore != null &&
-		match.awayScore > match.homeScore;
+		game.homeScore != null &&
+		game.awayScore != null &&
+		game.awayScore > game.homeScore;
 
 	return (
 		<div className="rounded-2xl border border-[var(--b-border-sm)] bg-[var(--b-card)] p-3 shadow-[0_16px_34px_-30px_rgba(0,0,0,0.35)]">
 			<div className="space-y-1.5">
 				<TeamRow
-					team={match?.homeTeam ?? null}
-					score={match?.homeScore}
+					side={game.home}
+					score={game.homeScore}
 					showScore={showScore}
 					won={homeWon}
 					lost={awayWon}
 				/>
 				<TeamRow
-					team={match?.awayTeam ?? null}
-					score={match?.awayScore}
+					side={game.away}
+					score={game.awayScore}
 					showScore={showScore}
 					won={awayWon}
 					lost={homeWon}
 				/>
 			</div>
 
-			{match?.utcDate || match?.venue ? (
-				<p className="mt-3 truncate text-[var(--b-text-3)] text-xs">
-					{match.utcDate ? formatMatchDate(match.utcDate) : null}
-					{match.utcDate && match.venue ? " · " : null}
-					{match.venue}
-				</p>
-			) : (
-				<p className="mt-3 text-[var(--b-text-4)] text-xs">A definir</p>
-			)}
+			<p className="mt-3 flex items-center justify-between gap-2 text-[var(--b-text-3)] text-xs">
+				<span className="truncate">
+					{formatMatchDate(game.utcDate)}
+					{game.venue ? ` · ${game.venue}` : null}
+				</span>
+				<span className="shrink-0 font-mono text-[10px] text-[var(--b-text-4)] tabular-nums">
+					J{game.no}
+				</span>
+			</p>
 		</div>
 	);
 }
 
 function TeamRow({
-	team,
+	side,
 	score,
 	showScore,
 	won,
 	lost,
 }: {
-	team: BracketTeam;
-	score?: number;
+	side: ResolvedSide;
+	score?: number | null;
 	showScore: boolean;
 	won?: boolean;
 	lost?: boolean;
 }) {
-	const label = team?.tla ?? team?.shortName.slice(0, 3).toUpperCase();
+	const isTeam = side.type === "team";
+	const label = isTeam
+		? (side.team.tla ?? side.team.shortName.slice(0, 3).toUpperCase())
+		: side.shortLabel;
+	const fullName = isTeam ? translateTeamName(side.team.shortName) : side.label;
 
 	return (
-		<div className="flex min-h-8 items-center gap-2 rounded-xl bg-[var(--b-tint-sm)] px-2 py-1.5">
-			{team?.crest ? (
+		<div
+			className="flex min-h-8 items-center gap-2 rounded-xl bg-[var(--b-tint-sm)] px-2 py-1.5"
+			title={fullName}
+		>
+			{isTeam && side.team.crest ? (
 				<img
-					src={team.crest}
-					alt={team.name}
+					src={side.team.crest}
+					alt={fullName}
 					className="h-[14px] w-5 shrink-0 rounded-[2px] object-cover outline outline-1 outline-[rgba(0,0,0,0.1)] dark:outline-[rgba(255,255,255,0.1)]"
 				/>
 			) : (
@@ -98,12 +107,12 @@ function TeamRow({
 			)}
 			<span
 				className={
-					team
-						? "min-w-0 flex-1 font-bold font-display text-[var(--b-text)] text-sm uppercase leading-none tracking-tight"
-						: "min-w-0 flex-1 text-[var(--b-text-4)] text-sm"
+					isTeam
+						? "min-w-0 flex-1 truncate font-bold font-display text-[var(--b-text)] text-sm uppercase leading-none tracking-tight"
+						: "min-w-0 flex-1 truncate text-[var(--b-text-4)] text-xs"
 				}
 			>
-				{team ? label : "A definir"}
+				{label}
 			</span>
 			{showScore ? (
 				<span
@@ -119,6 +128,17 @@ function TeamRow({
 					{score ?? "-"}
 				</span>
 			) : null}
+		</div>
+	);
+}
+
+function EmptyRow() {
+	return (
+		<div className="flex min-h-8 items-center gap-2 rounded-xl bg-[var(--b-tint-sm)] px-2 py-1.5">
+			<span className="h-[14px] w-5 shrink-0 rounded-[2px] bg-[var(--b-tint-md)]" />
+			<span className="min-w-0 flex-1 text-[var(--b-text-4)] text-sm">
+				A definir
+			</span>
 		</div>
 	);
 }
