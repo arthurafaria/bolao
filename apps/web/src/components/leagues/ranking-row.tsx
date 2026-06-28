@@ -13,6 +13,10 @@ interface RankingRowProps {
 	delta?: number;
 	avatarUrl?: string;
 	isYou?: boolean;
+	/** Selo opcional (ex.: fase ativa) renderizado ao lado do nome. */
+	selo?: React.ReactNode;
+	/** Cor de destaque (tinge a borda/realce da linha). */
+	accent?: string;
 	className?: string;
 }
 
@@ -34,6 +38,8 @@ export function RankingRow({
 	delta,
 	avatarUrl,
 	isYou = false,
+	selo,
+	accent,
 	className,
 }: RankingRowProps) {
 	const isPodium = position <= 3;
@@ -56,13 +62,12 @@ export function RankingRow({
 					"ring-2 ring-[var(--b-brand)] ring-offset-2 ring-offset-[var(--b-bg)]",
 				className,
 			)}
-			style={
-				isPodium
-					? {
-							borderLeft: `3px solid ${podiumColor}`,
-						}
-					: undefined
-			}
+			style={{
+				...(isPodium ? { borderLeft: `3px solid ${podiumColor}` } : null),
+				...(isYou && accent
+					? ({ ["--tw-ring-color" as string]: accent } as React.CSSProperties)
+					: null),
+			}}
 		>
 			{/* Position */}
 			<div
@@ -108,7 +113,7 @@ export function RankingRow({
 			</div>
 
 			{/* Name */}
-			<div className="flex min-w-0 flex-1 flex-col">
+			<div className="flex min-w-0 flex-1 flex-col gap-1">
 				<span
 					className={cn(
 						"truncate font-bold font-display text-base uppercase tracking-tight",
@@ -122,6 +127,7 @@ export function RankingRow({
 						</span>
 					)}
 				</span>
+				{selo && <span className="flex">{selo}</span>}
 			</div>
 
 			{/* Delta */}

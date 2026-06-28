@@ -3,7 +3,16 @@ import type { Id } from "./_generated/dataModel";
 import type { QueryCtx } from "./_generated/server";
 import { mutation, query } from "./_generated/server";
 import { auth, requireUserId } from "./auth";
-import { compareByExacts, compareByPoints } from "./lib/ranking";
+import {
+	compareByExacts,
+	compareByPoints,
+	DEFAULT_SCORING,
+	isKnockoutStage,
+	pointsFrom,
+} from "./lib/ranking";
+
+// Apenas a Copa do Mundo pontua para o ranking das ligas.
+const SCORABLE_TOURNAMENT = "WC2026";
 
 async function getActiveMembership(
 	ctx: QueryCtx,
@@ -509,6 +518,93 @@ export const getRanking = query({
 				};
 			}),
 		);
+	},
+});
+
+/**
+ * Ranking dividido em três fases: Geral, Fase de Grupos e Mata-mata.
+ * Cada palpite calculado é classificado pela `stage` da partida e seus
+ * pontos são recalculados com a pontuação da liga (mesma fórmula do
+ * cálculo incremental), de modo que a separação respeita pontuações
+ * personalizadas. O front ordena cada fase independentemente.
+ */
+export const getRankingByPhase = query({
+	args: { leagueId: v.id("leagues") },
+	handler: async (ctx, args) => {
+		const userId = await auth.getUserId(ctx);
+		if (!userId) return [];
+		const membership = await getActiveMembership(ctx, args.leagueId, userId);
+		if (!membership) return [];
+
+		const league = await ctx.db.get(args.leagueId);
+		const scoring = league?.scoring ?? DEFAULT_SCORING;
+
+		const [members, scorableMatches] = await Promise.all([
+			ctx.db
+				.query("leagueMembers")
+				.withIndex("by_league", (q) => q.eq("leagueId", args.leagueId))
+				.filter((q) => q.eq(q.field("status"), "ACTIVE"))
+				.collect(),
+			ctx.db
+				.query("matches")
+				.withIndex("by_tournament_date", (q) =>
+					q.eq("tournament", SCORABLE_TOURNAMENT),
+				)
+				.collect(),
+		]);
+
+		// matchId -> é mata-mata? (só partidas pontuáveis da Copa entram aqui)
+		const knockoutByMatch = new Map<string, boolean>(
+			scorableMatches.map((m) => [m._id, isKnockoutStage(m.stage)]),
+		);
+
+		function emptyBucket() {
+			return { totalPoints: 0, exactScores: 0, correctResults: 0 };
+		}
+
+		const rows = await Promise.all(
+			members.map(async (member) => {
+				const [user, predictions] = await Promise.all([
+					ctx.db.get(member.userId as Id<"users">),
+					ctx.db
+						.query("predictions")
+						.withIndex("by_user", (q) => q.eq("userId", member.userId))
+						.collect(),
+				]);
+
+				const group = emptyBucket();
+				const knockout = emptyBucket();
+
+				for (const pred of predictions) {
+					if (!pred.components || pred.calculatedAt === undefined) continue;
+					const isKnockout = knockoutByMatch.get(pred.matchId as string);
+					if (isKnockout === undefined) continue; // partida não pontuável
+					const bucket = isKnockout ? knockout : group;
+					const c = pred.components;
+					const isExact = c.result && c.homeGoals && c.awayGoals;
+					bucket.totalPoints += pointsFrom(c, scoring);
+					if (isExact) bucket.exactScores += 1;
+					if (c.result) bucket.correctResults += 1;
+				}
+
+				const overall = {
+					totalPoints: group.totalPoints + knockout.totalPoints,
+					exactScores: group.exactScores + knockout.exactScores,
+					correctResults: group.correctResults + knockout.correctResults,
+				};
+
+				return {
+					_id: member._id,
+					userId: member.userId,
+					name: user?.name ?? user?.email?.split("@")[0] ?? "Jogador",
+					overall,
+					group,
+					knockout,
+				};
+			}),
+		);
+
+		return rows;
 	},
 });
 

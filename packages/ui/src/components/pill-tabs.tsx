@@ -15,9 +15,17 @@ interface PillTabsProps<T extends string> {
 	value: T;
 	onChange: (value: T) => void;
 	className?: string;
-	size?: "sm" | "md";
+	size?: "sm" | "md" | "lg";
+	/** Ocupa a largura total, distribuindo as abas igualmente (segmented). */
+	fullWidth?: boolean;
+	/** Cor do slider/aba ativa. Default: dourado (--b-action). */
+	accentColor?: string;
+	/** Cor do texto da aba ativa quando accentColor é definido. Default: branco. */
+	accentFg?: string;
 	"aria-label"?: string;
 }
+
+const SIZE_HEIGHT = { sm: 32, md: 40, lg: 52 } as const;
 
 export function PillTabs<T extends string>({
 	items,
@@ -25,6 +33,9 @@ export function PillTabs<T extends string>({
 	onChange,
 	className,
 	size = "md",
+	fullWidth = false,
+	accentColor,
+	accentFg = "#fff",
 	"aria-label": ariaLabel,
 }: PillTabsProps<T>) {
 	const id = useId();
@@ -47,7 +58,12 @@ export function PillTabs<T extends string>({
 	}, [value, items]);
 
 	const padding = size === "sm" ? "p-1" : "p-1.5";
-	const buttonSize = size === "sm" ? "h-8 px-3 text-xs" : "h-10 px-4 text-sm";
+	const buttonSize =
+		size === "sm"
+			? "h-8 px-3 text-xs"
+			: size === "lg"
+				? "h-[52px] px-5 text-sm sm:text-base"
+				: "h-10 px-4 text-sm";
 
 	return (
 		<div
@@ -55,7 +71,8 @@ export function PillTabs<T extends string>({
 			role="tablist"
 			aria-label={ariaLabel}
 			className={cn(
-				"relative inline-flex items-center gap-1 rounded-full border border-[var(--b-border-sm)] bg-[var(--b-inner)]",
+				"relative items-center gap-1 rounded-full border border-[var(--b-border-sm)] bg-[var(--b-inner)]",
+				fullWidth ? "flex w-full" : "inline-flex",
 				padding,
 				className,
 			)}
@@ -63,13 +80,21 @@ export function PillTabs<T extends string>({
 			{pillStyle && (
 				<span
 					aria-hidden
-					className="pointer-events-none absolute top-1/2 z-0 -translate-y-1/2 rounded-full bg-[var(--b-action)] shadow-[0_2px_6px_oklch(0.55_0.14_95_/_0.4)]"
+					className={cn(
+						"pointer-events-none absolute top-1/2 z-0 -translate-y-1/2 rounded-full",
+						!accentColor &&
+							"bg-[var(--b-action)] shadow-[0_2px_6px_oklch(0.55_0.14_95_/_0.4)]",
+					)}
 					style={{
 						left: pillStyle.left,
 						width: pillStyle.width,
-						height: size === "sm" ? 32 : 40,
+						height: SIZE_HEIGHT[size],
+						background: accentColor,
+						boxShadow: accentColor
+							? `0 4px 14px color-mix(in oklch, ${accentColor} 45%, transparent)`
+							: undefined,
 						transition:
-							"left var(--motion-base) var(--ease-out-expo), width var(--motion-base) var(--ease-out-expo)",
+							"left var(--motion-base) var(--ease-out-expo), width var(--motion-base) var(--ease-out-expo), background var(--motion-base) var(--ease-out-quart), box-shadow var(--motion-base) var(--ease-out-quart)",
 					}}
 				/>
 			)}
@@ -85,15 +110,22 @@ export function PillTabs<T extends string>({
 						aria-controls={`${id}-panel-${item.value}`}
 						data-active={active || undefined}
 						onClick={() => onChange(item.value)}
+						style={active && accentColor ? { color: accentFg } : undefined}
 						className={cn(
 							"relative z-10 inline-flex items-center justify-center gap-1.5 rounded-full font-semibold uppercase tracking-wide transition-colors duration-[var(--motion-base)]",
 							buttonSize,
+							fullWidth && "flex-1",
 							active
-								? "text-[var(--b-action-fg)] dark:text-[var(--b-action-fg)]"
+								? !accentColor &&
+										"text-[var(--b-action-fg)] dark:text-[var(--b-action-fg)]"
 								: "text-[var(--b-text-3)] hover:text-[var(--b-text-2)]",
 						)}
 					>
-						{Icon && <Icon className="h-3.5 w-3.5" />}
+						{Icon && (
+							<Icon
+								className={size === "lg" ? "h-[18px] w-[18px]" : "h-3.5 w-3.5"}
+							/>
+						)}
 						<span>{item.label}</span>
 						{item.count != null && (
 							<span

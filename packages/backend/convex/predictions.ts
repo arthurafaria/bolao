@@ -9,6 +9,11 @@ import {
 	query,
 } from "./_generated/server";
 import { auth, requireUserId } from "./auth";
+import {
+	DEFAULT_SCORING,
+	pointsFrom,
+	type ScoreComponents,
+} from "./lib/ranking";
 
 const LOCK_WINDOW_MS = 60 * 60 * 1000; // 1 hour before match
 
@@ -16,15 +21,6 @@ const LOCK_WINDOW_MS = 60 * 60 * 1000; // 1 hour before match
 // torneios (ex.: Brasileirão/BSA2026, DEMO) podem existir no banco para
 // preencher o calendário, mas NÃO geram pontos.
 const SCORABLE_TOURNAMENT = "WC2026";
-
-type ScoreComponents = {
-	result: boolean;
-	homeGoals: boolean;
-	awayGoals: boolean;
-};
-type Scoring = { result: number; goal: number; exactBonus: number };
-
-const DEFAULT_SCORING: Scoring = { result: 5, goal: 2, exactBonus: 1 };
 
 function calcComponents(
 	predHome: number,
@@ -38,17 +34,6 @@ function calcComponents(
 		homeGoals: predHome === actualHome,
 		awayGoals: predAway === actualAway,
 	};
-}
-
-function pointsFrom(c: ScoreComponents | undefined, s: Scoring): number {
-	if (!c) return 0;
-	const exact = c.result && c.homeGoals && c.awayGoals;
-	return (
-		(c.result ? s.result : 0) +
-		(c.homeGoals ? s.goal : 0) +
-		(c.awayGoals ? s.goal : 0) +
-		(exact ? s.exactBonus : 0)
-	);
 }
 
 function calcPoints(
