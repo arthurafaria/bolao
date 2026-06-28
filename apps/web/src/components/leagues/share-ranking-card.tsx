@@ -177,8 +177,8 @@ export const ShareRankingCard = forwardRef<
 						display: "flex",
 						flexDirection: "column",
 						justifyContent: "center",
-						gap: isStory ? 20 : 12,
-						paddingTop: isStory ? 22 : 14,
+						gap: isStory ? 16 : 12,
+						paddingTop: isStory ? 14 : 12,
 					}}
 				>
 					{/* Pódio */}
@@ -195,8 +195,8 @@ export const ShareRankingCard = forwardRef<
 							const pos = entry.position as 1 | 2 | 3;
 							const color = PODIUM_COLOR[pos];
 							const isFirst = pos === 1;
-							const avatarSize = isFirst ? 64 : 50;
-							const blockH = isFirst ? (isStory ? 64 : 44) : isStory ? 44 : 30;
+							const avatarSize = isFirst ? 58 : 48;
+							const blockH = isFirst ? (isStory ? 50 : 44) : isStory ? 34 : 30;
 							return (
 								<div
 									key={entry.position}
@@ -204,7 +204,7 @@ export const ShareRankingCard = forwardRef<
 										display: "flex",
 										flexDirection: "column",
 										alignItems: "center",
-										gap: 7,
+										gap: 5,
 									}}
 								>
 									<div style={{ position: "relative" }}>
@@ -230,7 +230,7 @@ export const ShareRankingCard = forwardRef<
 												justifyContent: "center",
 												fontFamily: DISPLAY,
 												fontWeight: 900,
-												fontSize: isFirst ? 22 : 17,
+												fontSize: isFirst ? 19 : 16,
 												color: "#fff",
 												background: avatarColor(entry.name),
 												border: `3px solid ${color}`,
@@ -262,7 +262,7 @@ export const ShareRankingCard = forwardRef<
 										style={{
 											fontFamily: DISPLAY,
 											fontWeight: 900,
-											fontSize: isFirst ? 30 : 24,
+											fontSize: isFirst ? 26 : 21,
 											lineHeight: 1,
 											color,
 										}}
@@ -312,7 +312,7 @@ export const ShareRankingCard = forwardRef<
 							style={{
 								display: "flex",
 								flexDirection: "column",
-								gap: isStory ? 7 : 5,
+								gap: isStory ? 6 : 5,
 							}}
 						>
 							{rest.map((entry) => (
@@ -322,7 +322,7 @@ export const ShareRankingCard = forwardRef<
 										display: "flex",
 										alignItems: "center",
 										gap: 10,
-										padding: isStory ? "9px 12px" : "6px 10px",
+										padding: isStory ? "8px 12px" : "6px 10px",
 										borderRadius: 14,
 										background: "var(--b-card)",
 										border: "1px solid var(--b-border-sm)",
