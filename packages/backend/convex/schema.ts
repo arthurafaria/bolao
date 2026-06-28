@@ -28,8 +28,16 @@ export default defineSchema({
 			v.literal("POSTPONED"),
 			v.literal("CANCELLED"),
 		),
+		// Placar dos 90 minutos (regular time). É o que pontua os palpites —
+		// no mata-mata, prorrogação e pênaltis NÃO contam.
 		homeScore: v.optional(v.number()),
 		awayScore: v.optional(v.number()),
+		// Como o jogo terminou: REGULAR | EXTRA_TIME | PENALTY_SHOOTOUT.
+		// Usado só para exibir uma etiqueta no card (não afeta a pontuação).
+		duration: v.optional(v.string()),
+		// Vencedor segundo a API: HOME_TEAM | AWAY_TEAM | DRAW. Usado para
+		// rotular quem passou na prorrogação/pênaltis.
+		winner: v.optional(v.string()),
 		stage: v.string(),
 		group: v.optional(v.string()),
 		matchday: v.optional(v.number()),

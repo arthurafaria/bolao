@@ -147,6 +147,8 @@ export const upsertMatch = internalMutation({
 		),
 		homeScore: v.optional(v.number()),
 		awayScore: v.optional(v.number()),
+		duration: v.optional(v.string()),
+		winner: v.optional(v.string()),
 		stage: v.string(),
 		group: v.optional(v.string()),
 		matchday: v.optional(v.number()),
@@ -182,6 +184,8 @@ export const upsertMatch = internalMutation({
 				status: statusToSet,
 				homeScore: args.homeScore ?? existing.homeScore,
 				awayScore: args.awayScore ?? existing.awayScore,
+				duration: args.duration ?? existing.duration,
+				winner: args.winner ?? existing.winner,
 				utcDate: args.utcDate,
 				venue: args.venue ?? existing.venue,
 			});

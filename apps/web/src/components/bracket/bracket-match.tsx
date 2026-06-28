@@ -29,16 +29,25 @@ export function BracketMatch({ game, placeholder }: BracketMatchProps) {
 	const showScore =
 		game.status === "FINISHED" ||
 		(isLive(game.status) && game.homeScore != null);
+	const hs = game.homeScore;
+	const as = game.awayScore;
+	// Em empate de 90 min, quem avança é decidido na prorrogação/pênaltis (winner).
 	const homeWon =
 		showScore &&
-		game.homeScore != null &&
-		game.awayScore != null &&
-		game.homeScore > game.awayScore;
+		hs != null &&
+		as != null &&
+		(hs > as || (hs === as && game.winner === "HOME_TEAM"));
 	const awayWon =
 		showScore &&
-		game.homeScore != null &&
-		game.awayScore != null &&
-		game.awayScore > game.homeScore;
+		hs != null &&
+		as != null &&
+		(as > hs || (hs === as && game.winner === "AWAY_TEAM"));
+	const overtimeTag =
+		game.status === "FINISHED" && game.duration === "PENALTY_SHOOTOUT"
+			? "pên"
+			: game.status === "FINISHED" && game.duration === "EXTRA_TIME"
+				? "pror"
+				: null;
 
 	return (
 		<div className="rounded-2xl border border-[var(--b-border-sm)] bg-[var(--b-card)] p-3 shadow-[0_16px_34px_-30px_rgba(0,0,0,0.35)]">
@@ -64,8 +73,22 @@ export function BracketMatch({ game, placeholder }: BracketMatchProps) {
 					{formatMatchDate(game.utcDate)}
 					{game.venue ? ` · ${game.venue}` : null}
 				</span>
-				<span className="shrink-0 font-mono text-[10px] text-[var(--b-text-4)] tabular-nums">
-					J{game.no}
+				<span className="flex shrink-0 items-center gap-1.5">
+					{overtimeTag && (
+						<span
+							className="rounded-full px-1.5 py-px font-bold text-[9px] uppercase tracking-wide"
+							style={{
+								background: "var(--b-warning-bg)",
+								color: "var(--b-warning-fg)",
+							}}
+							title="Decidido fora dos 90 min. Palpites contam só os 90 minutos."
+						>
+							{overtimeTag}
+						</span>
+					)}
+					<span className="font-mono text-[10px] text-[var(--b-text-4)] tabular-nums">
+						J{game.no}
+					</span>
 				</span>
 			</p>
 		</div>

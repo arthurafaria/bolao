@@ -93,7 +93,12 @@ interface ApiMatch {
 	homeTeam: ApiTeam;
 	awayTeam: ApiTeam;
 	score: {
+		// fullTime na football-data v4 INCLUI prorrogação e pênaltis.
 		fullTime: { home: number | null; away: number | null };
+		// regularTime = gols após os 90 minutos (o que pontua os palpites).
+		// Pode vir ausente em jogos sem prorrogação (aí fullTime == 90 min).
+		regularTime?: { home: number | null; away: number | null };
+		duration?: string; // REGULAR | EXTRA_TIME | PENALTY_SHOOTOUT
 		winner: string | null;
 	};
 }
@@ -386,14 +391,21 @@ async function doSync(
 			| "POSTPONED"
 			| "CANCELLED";
 
+		// Placar que pontua: 90 minutos. regularTime existe quando houve
+		// prorrogação/pênaltis; senão fullTime já é o placar dos 90 min.
+		const home90 = match.score.regularTime?.home ?? match.score.fullTime.home;
+		const away90 = match.score.regularTime?.away ?? match.score.fullTime.away;
+
 		const result = await ctx.runMutation(internal.matches.upsertMatch, {
 			apiId: match.id,
 			homeTeamId,
 			awayTeamId,
 			utcDate: match.utcDate,
 			status,
-			homeScore: match.score.fullTime.home ?? undefined,
-			awayScore: match.score.fullTime.away ?? undefined,
+			homeScore: home90 ?? undefined,
+			awayScore: away90 ?? undefined,
+			duration: match.score.duration ?? undefined,
+			winner: match.score.winner ?? undefined,
 			stage: match.stage,
 			group: match.group ?? undefined,
 			matchday: match.matchday ?? undefined,
@@ -404,10 +416,7 @@ async function doSync(
 		synced++;
 
 		if (result.shouldComputePoints) {
-			if (
-				match.score.fullTime.home == null ||
-				match.score.fullTime.away == null
-			) {
+			if (home90 == null || away90 == null) {
 				console.warn(
 					`[${tournament}] shouldComputePoints=true but score is null for apiId=${match.id}`,
 				);
@@ -420,7 +429,10 @@ async function doSync(
 
 		// Candidato a fallback de placar: jogo que (provavelmente) acabou mas a
 		// football-data ainda não publicou o placar.
-		if (!result.hasScore) {
+		// Só fase de grupos: no mata-mata a ESPN devolve o placar COM prorrogação/
+		// pênaltis, e os palpites pontuam só os 90 min — então esperamos a
+		// football-data publicar o regularTime em vez de arriscar um placar errado.
+		if (!result.hasScore && match.stage === "GROUP_STAGE") {
 			const kickoff = new Date(match.utcDate).getTime();
 			const likelyEnded = Date.now() - kickoff > 105 * 60 * 1000; // 1h45 após o início
 			const liveStatuses = ["LIVE", "IN_PLAY", "PAUSED"];

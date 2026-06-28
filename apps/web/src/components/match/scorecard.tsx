@@ -31,6 +31,8 @@ type Match = {
 	status: string;
 	homeScore?: number;
 	awayScore?: number;
+	duration?: string;
+	winner?: string;
 	stage: string;
 	group?: string;
 	matchday?: number;
@@ -257,6 +259,20 @@ export function Scorecard({
 	const showPredictionScore =
 		(readOnly || isFinished) && prediction?.predictedHome != null;
 
+	// Mata-mata decidido fora dos 90 min: etiqueta informativa (não pontua).
+	const overtimeNote =
+		isFinished && match.duration && match.duration !== "REGULAR"
+			? match.duration === "PENALTY_SHOOTOUT"
+				? `Pênaltis: ${
+						match.winner === "HOME_TEAM"
+							? homeName
+							: match.winner === "AWAY_TEAM"
+								? awayName
+								: "—"
+					}`
+				: "Após prorrogação"
+			: null;
+
 	const tier =
 		isFinished && prediction?.points != null
 			? getPointsTier(prediction.points)
@@ -392,6 +408,18 @@ export function Scorecard({
 					{showLive && (
 						<span className="font-bold text-[var(--b-danger)] text-xs">
 							Parcial: {match.homeScore ?? 0} × {match.awayScore ?? 0}
+						</span>
+					)}
+					{overtimeNote && (
+						<span
+							className="rounded-full px-2.5 py-0.5 font-bold text-[10px] uppercase tracking-wide"
+							style={{
+								background: "var(--b-warning-bg)",
+								color: "var(--b-warning-fg)",
+							}}
+							title="Os palpites contam só os 90 minutos. Prorrogação e pênaltis não pontuam."
+						>
+							{overtimeNote}
 						</span>
 					)}
 				</div>

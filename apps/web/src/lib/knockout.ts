@@ -31,6 +31,10 @@ export type SourceMatch = {
 	venue?: string | null;
 	homeScore?: number | null;
 	awayScore?: number | null;
+	/** REGULAR | EXTRA_TIME | PENALTY_SHOOTOUT — placar guardado é o dos 90 min. */
+	duration?: string | null;
+	/** HOME_TEAM | AWAY_TEAM | DRAW — quem avançou (vale para ET/pênaltis). */
+	winner?: string | null;
 	homeTeam: KnockoutTeam;
 	awayTeam: KnockoutTeam;
 };
@@ -51,6 +55,10 @@ export type ResolvedGame = {
 	homeScore: number | null;
 	awayScore: number | null;
 	status: string;
+	/** Como terminou (para etiqueta de prorrogação/pênaltis). */
+	duration: string | null;
+	/** Quem avançou segundo a API (resolve empate de 90 min em ET/pênaltis). */
+	winner: string | null;
 };
 
 const FINISHED = "FINISHED";
@@ -166,13 +174,17 @@ function outcome(
 ): NonNullable<KnockoutTeam> | null {
 	if (!game?.match || game.status !== FINISHED) return null;
 	const { homeScore, awayScore, match } = game;
-	if (homeScore == null || awayScore == null || homeScore === awayScore) {
-		// Empate no tempo normal/prorrogação: decisão por pênaltis não fica no
-		// placar armazenado — deixa pendente (o jogo real da fase seguinte
-		// preenche os times quando aparecer).
-		return null;
+	if (homeScore == null || awayScore == null) return null;
+	let homeWon: boolean;
+	if (homeScore === awayScore) {
+		// Empate nos 90 min: decidido na prorrogação/pênaltis. O placar guardado
+		// é só dos 90 min, então usamos o `winner` da API para saber quem avançou.
+		if (match.winner === "HOME_TEAM") homeWon = true;
+		else if (match.winner === "AWAY_TEAM") homeWon = false;
+		else return null; // sem info de vencedor ainda — deixa pendente
+	} else {
+		homeWon = homeScore > awayScore;
 	}
-	const homeWon = homeScore > awayScore;
 	if (want === "winner") return homeWon ? match.homeTeam : match.awayTeam;
 	return homeWon ? match.awayTeam : match.homeTeam;
 }
@@ -280,6 +292,8 @@ export function resolveBracket(allMatches: SourceMatch[]): ResolvedGame[] {
 			homeScore: real?.homeScore ?? null,
 			awayScore: real?.awayScore ?? null,
 			status: real?.status ?? "SCHEDULED",
+			duration: real?.duration ?? null,
+			winner: real?.winner ?? null,
 		};
 		resolved.set(tmpl.no, game);
 		games.push(game);

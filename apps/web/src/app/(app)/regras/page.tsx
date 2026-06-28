@@ -245,6 +245,30 @@ export default function RegrasPage() {
 								<ChevronRight className="h-3.5 w-3.5" />
 							</Link>
 						</div>
+
+						{/* Regra dos 90 minutos no mata-mata */}
+						<div className="flex items-start gap-3 rounded-2xl border border-[var(--b-warning-border,var(--b-border-md))] bg-[var(--b-warning-bg)] p-5">
+							<span className="mt-px flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-[var(--b-card)] text-[var(--b-warning-fg)]">
+								<Clock className="h-4 w-4" />
+							</span>
+							<div className="space-y-1.5">
+								<p className="font-bold font-display text-[var(--b-text)] text-sm uppercase tracking-wide">
+									Mata-mata vale só os 90 minutos
+								</p>
+								<p className="text-[var(--b-text-2)] text-sm leading-relaxed">
+									Nos jogos eliminatórios, seu palpite é pontuado{" "}
+									<strong className="text-[var(--b-text)]">
+										exclusivamente pelo placar dos 90 minutos
+									</strong>{" "}
+									(tempo normal). Prorrogação e disputa de pênaltis{" "}
+									<strong className="text-[var(--b-text)]">não contam</strong>{" "}
+									para a pontuação. Se um jogo terminar empatado nos 90 e for
+									decidido depois, o card mostra uma etiqueta (
+									<em>"Após prorrogação"</em> ou <em>"Pênaltis"</em>), mas os
+									pontos seguem o resultado dos 90 minutos.
+								</p>
+							</div>
+						</div>
 					</section>
 
 					{/* Exemplos resultado certo */}
