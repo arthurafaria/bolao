@@ -67,6 +67,14 @@ export default defineSchema({
 				awayGoals: v.boolean(),
 			}),
 		),
+		// Palpite de desempate (só mata-mata, só quando o placar palpitado empata):
+		// quem o usuário acha que avança e como. O método é sabor visual — só o
+		// vencedor pontua. Vale +2 pts se tieWinner == match.winner.
+		tieWinner: v.optional(v.union(v.literal("HOME"), v.literal("AWAY"))),
+		tieMethod: v.optional(v.union(v.literal("ET"), v.literal("PEN"))),
+		// Bônus concedido (0 ou 2). Guardado separado de `points` para não poluir
+		// a detecção de cravada (points === 10) usada no app.
+		tieBonus: v.optional(v.number()),
 	})
 		.index("by_user", ["userId"])
 		.index("by_match", ["matchId"])

@@ -11,6 +11,7 @@ import {
 import { auth, requireUserId } from "./auth";
 import {
 	DEFAULT_SCORING,
+	isKnockoutStage,
 	pointsFrom,
 	type ScoreComponents,
 } from "./lib/ranking";
@@ -63,6 +64,10 @@ export const upsert = mutation({
 		matchId: v.id("matches"),
 		predictedHome: v.number(),
 		predictedAway: v.number(),
+		// Palpite de desempate — só é guardado quando o placar palpitado empata
+		// e o jogo é de mata-mata; caso contrário é descartado.
+		tieWinner: v.optional(v.union(v.literal("HOME"), v.literal("AWAY"))),
+		tieMethod: v.optional(v.union(v.literal("ET"), v.literal("PEN"))),
 	},
 	handler: async (ctx, args) => {
 		const userId = await requireUserId(ctx);
@@ -79,6 +84,12 @@ export const upsert = mutation({
 			throw new ConvexError("Predictions are locked 1 hour before kick-off");
 		}
 
+		// Desempate só vale quando o palpite empata E o jogo é eliminatório.
+		const isTie = args.predictedHome === args.predictedAway;
+		const isKnockout = isKnockoutStage(match.stage);
+		const tieWinner = isTie && isKnockout ? args.tieWinner : undefined;
+		const tieMethod = isTie && isKnockout ? args.tieMethod : undefined;
+
 		const existing = await ctx.db
 			.query("predictions")
 			.withIndex("by_user_match", (q) =>
@@ -90,9 +101,12 @@ export const upsert = mutation({
 			await ctx.db.patch(existing._id, {
 				predictedHome: args.predictedHome,
 				predictedAway: args.predictedAway,
+				tieWinner,
+				tieMethod,
 				points: undefined,
 				calculatedAt: undefined,
 				components: undefined,
+				tieBonus: undefined,
 			});
 			return existing._id;
 		}
@@ -102,6 +116,8 @@ export const upsert = mutation({
 			matchId: args.matchId,
 			predictedHome: args.predictedHome,
 			predictedAway: args.predictedAway,
+			tieWinner,
+			tieMethod,
 		});
 	},
 });
@@ -193,6 +209,20 @@ export const computeForMatch = internalMutation({
 
 		const now = Date.now();
 
+		// Desempate do mata-mata: empatou nos 90 (homeScore == awayScore) e a API
+		// já definiu quem avançou. O placar guardado é só dos 90 min, então o
+		// `winner` é a fonte da verdade de quem passou na prorrogação/pênaltis.
+		const ninetyTie = match.homeScore === match.awayScore;
+		const tieDecided =
+			match.winner === "HOME_TEAM" || match.winner === "AWAY_TEAM";
+		const tieAdvancer: "HOME" | "AWAY" | null = !tieDecided
+			? null
+			: match.winner === "HOME_TEAM"
+				? "HOME"
+				: "AWAY";
+		const bonusEligible =
+			isKnockoutStage(match.stage) && ninetyTie && tieAdvancer !== null;
+
 		for (const pred of predictions) {
 			const { points, isExact, isCorrectResult, components } = calcPoints(
 				pred.predictedHome,
@@ -200,6 +230,15 @@ export const computeForMatch = internalMutation({
 				match.homeScore,
 				match.awayScore,
 			);
+			// +2 fixos se o usuário palpitou empate e cravou quem avança (o método
+			// — prorrogação/pênaltis — não importa para os pontos).
+			const newBonus =
+				bonusEligible &&
+				pred.predictedHome === pred.predictedAway &&
+				pred.tieWinner === tieAdvancer
+					? 2
+					: 0;
+			const oldBonus = pred.tieBonus ?? 0;
 			const oldComponents = pred.components;
 			const previousPoints = pred.points ?? 0;
 			const oldExact = oldComponents
@@ -214,7 +253,12 @@ export const computeForMatch = internalMutation({
 			const correctResultDelta =
 				(isCorrectResult ? 1 : 0) - (oldCorrectResult ? 1 : 0);
 
-			await ctx.db.patch(pred._id, { points, calculatedAt: now, components });
+			await ctx.db.patch(pred._id, {
+				points,
+				calculatedAt: now,
+				components,
+				tieBonus: newBonus,
+			});
 
 			const memberships = await ctx.db
 				.query("leagueMembers")
@@ -229,7 +273,8 @@ export const computeForMatch = internalMutation({
 					? pointsFrom(oldComponents, scoring)
 					: previousPoints;
 				const newPts = pointsFrom(components, scoring);
-				const leagueDelta = newPts - oldPts;
+				// Bônus de desempate é fixo (+2), somado igual em qualquer liga.
+				const leagueDelta = newPts - oldPts + (newBonus - oldBonus);
 				if (leagueDelta === 0 && exactDelta === 0 && correctResultDelta === 0) {
 					continue;
 				}
@@ -465,7 +510,10 @@ export const getStats = query({
 		const total = allPredictions.length;
 		const exact = calculated.filter((p) => p.points === 10).length;
 		const correct = calculated.filter((p) => (p.points ?? 0) > 0).length;
-		const totalPoints = calculated.reduce((s, p) => s + (p.points ?? 0), 0);
+		const totalPoints = calculated.reduce(
+			(s, p) => s + (p.points ?? 0) + (p.tieBonus ?? 0),
+			0,
+		);
 
 		return { total, exact, correct, totalPoints };
 	},

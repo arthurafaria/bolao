@@ -4,7 +4,7 @@ import { api } from "@bolao/backend/convex/_generated/api";
 import type { Id } from "@bolao/backend/convex/_generated/dataModel";
 import { cn } from "@bolao/ui/lib/utils";
 import { useMutation } from "convex/react";
-import { Check, Lock, MapPin } from "lucide-react";
+import { Check, Lock, MapPin, Zap } from "lucide-react";
 import Image from "next/image";
 import { type ChangeEvent, useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -15,18 +15,34 @@ import { getPointsTier } from "@/lib/points-palette";
 import { abbreviateTeamName, translateTeamName } from "@/lib/team-translations";
 import { LockCountdown } from "./lock-countdown";
 
+type TieWinner = "HOME" | "AWAY";
+type TieMethod = "ET" | "PEN";
+
 type Prediction = {
 	_id: Id<"predictions">;
 	predictedHome: number;
 	predictedAway: number;
 	points?: number;
 	calculatedAt?: number;
+	tieWinner?: TieWinner;
+	tieMethod?: TieMethod;
+	tieBonus?: number;
 };
 
 type Match = {
 	_id: Id<"matches">;
-	homeTeam: { name: string; shortName: string; crest: string } | null;
-	awayTeam: { name: string; shortName: string; crest: string } | null;
+	homeTeam: {
+		name: string;
+		shortName: string;
+		crest: string;
+		tla?: string;
+	} | null;
+	awayTeam: {
+		name: string;
+		shortName: string;
+		crest: string;
+		tla?: string;
+	} | null;
 	utcDate: string;
 	status: string;
 	homeScore?: number;
@@ -163,6 +179,124 @@ function ScoreInput({
 	);
 }
 
+type TieValue = { winner: TieWinner; method: TieMethod } | null;
+
+function TiebreakerPicker({
+	home,
+	away,
+	value,
+	onChange,
+	readOnly = false,
+	realAdvancer = null,
+}: {
+	home: { abbr: string; crest: string; name: string };
+	away: { abbr: string; crest: string; name: string };
+	value: TieValue;
+	onChange?: (v: TieValue) => void;
+	readOnly?: boolean;
+	realAdvancer?: TieWinner | null;
+}) {
+	const select = (winner: TieWinner, method: TieMethod) => {
+		if (readOnly) return;
+		if (value?.winner === winner && value?.method === method) onChange?.(null);
+		else onChange?.({ winner, method });
+	};
+
+	const cell = (winner: TieWinner, method: TieMethod) => {
+		const active = value?.winner === winner && value?.method === method;
+		return (
+			<button
+				type="button"
+				disabled={readOnly}
+				onClick={() => select(winner, method)}
+				title={method === "ET" ? "Vence na prorrogação" : "Vence nos pênaltis"}
+				className={cn(
+					"flex h-11 w-[68px] shrink-0 flex-col items-center justify-center gap-0.5 rounded-xl border font-bold uppercase tracking-wide transition-[transform,background-color,border-color,color] duration-[var(--motion-fast)] sm:w-[76px]",
+					!readOnly && "active:scale-[0.94]",
+					active
+						? "border-[var(--b-brand)] bg-[var(--b-brand)] text-[var(--b-brand-fg)] shadow-[var(--b-shadow-brand-sm)]"
+						: "border-[var(--b-border-md)] bg-[var(--b-card)] text-[var(--b-text-3)] hover:border-[var(--b-brand-25)] hover:bg-[var(--b-brand-10)] disabled:opacity-50 disabled:hover:bg-[var(--b-card)]",
+				)}
+			>
+				<span className="text-base leading-none">
+					{method === "ET" ? "⏱" : "🥅"}
+				</span>
+				<span className="text-[9px] leading-none">
+					{method === "ET" ? "Prorrog." : "Pênaltis"}
+				</span>
+			</button>
+		);
+	};
+
+	const teamRow = (
+		team: { abbr: string; crest: string; name: string },
+		winner: TieWinner,
+	) => {
+		const picked = value?.winner === winner;
+		const advanced = realAdvancer === winner;
+		return (
+			<div
+				className={cn(
+					"flex items-center gap-2.5 rounded-2xl border p-2 pl-3 transition-[border-color,background-color] duration-[var(--motion-base)]",
+					picked
+						? "border-[var(--b-brand-25)] bg-[var(--b-brand-5)]"
+						: "border-[var(--b-border-sm)] bg-[var(--b-tint)]",
+				)}
+			>
+				<TeamCrest
+					crest={getCrest(team.name, team.crest)}
+					name={team.name}
+					size={28}
+				/>
+				<span className="min-w-0 flex-1 truncate font-bold font-display text-[var(--b-text)] text-base uppercase leading-none tracking-tight">
+					{team.abbr}
+				</span>
+				{advanced && (
+					<span className="shrink-0 rounded-full bg-[var(--b-success-bg)] px-2 py-0.5 font-bold text-[9px] text-[var(--b-success)] uppercase tracking-wide">
+						Avançou
+					</span>
+				)}
+				{picked && !advanced && (
+					<Check
+						className="h-4 w-4 shrink-0 text-[var(--b-brand)]"
+						strokeWidth={3}
+					/>
+				)}
+				<div className="flex shrink-0 gap-1.5">
+					{cell(winner, "ET")}
+					{cell(winner, "PEN")}
+				</div>
+			</div>
+		);
+	};
+
+	return (
+		<div className="animate-slide-up border-[var(--b-border-sm)] border-t border-dashed bg-[var(--b-tint-sm)] px-4 py-3.5 sm:px-6">
+			<div className="mb-2.5 flex items-center justify-between gap-2">
+				<span className="flex items-center gap-1.5 font-bold text-[var(--b-brand)] text-eyebrow">
+					<Zap className="h-3.5 w-3.5" strokeWidth={2.5} />
+					Quem avança no desempate?
+				</span>
+				<span
+					className="shrink-0 rounded-full px-2 py-0.5 font-bold text-[10px] uppercase tracking-wide"
+					style={{ background: "var(--b-brand-12)", color: "var(--b-brand)" }}
+				>
+					+2 pts
+				</span>
+			</div>
+			<div className="flex flex-col gap-2">
+				{teamRow(home, "HOME")}
+				{teamRow(away, "AWAY")}
+			</div>
+			{!readOnly && (
+				<p className="mt-2 text-[var(--b-text-4)] text-xs">
+					Empate nos 90 min? Diga quem passa — vale 2 pontos além do placar.
+				</p>
+			)}
+		</div>
+	);
+}
+
 export function Scorecard({
 	match,
 	prediction,
@@ -187,6 +321,7 @@ export function Scorecard({
 
 	const [home, setHome] = useState(0);
 	const [away, setAway] = useState(0);
+	const [tie, setTie] = useState<TieValue>(null);
 	const [dirty, setDirty] = useState(false);
 	const [saving, setSaving] = useState(false);
 	const [justSaved, setJustSaved] = useState(false);
@@ -197,6 +332,14 @@ export function Scorecard({
 		if (prediction !== undefined) {
 			setHome(prediction?.predictedHome ?? 0);
 			setAway(prediction?.predictedAway ?? 0);
+			setTie(
+				prediction?.tieWinner
+					? {
+							winner: prediction.tieWinner,
+							method: prediction.tieMethod ?? "PEN",
+						}
+					: null,
+			);
 			setDirty(false);
 		}
 	}, [prediction]);
@@ -212,14 +355,30 @@ export function Scorecard({
 		setDirty(true);
 	}, []);
 
+	const handleTie = useCallback((v: TieValue) => {
+		setTie(v);
+		setDirty(true);
+	}, []);
+
+	// Placar deixou de empatar → o desempate não se aplica mais.
+	useEffect(() => {
+		if (home !== away && tie !== null) setTie(null);
+	}, [home, away, tie]);
+
+	const isTie = home === away;
+	const isKnockout = match.stage !== "GROUP_STAGE";
+
 	const handleSave = useCallback(async () => {
 		if (!dirty) return;
 		setSaving(true);
 		try {
+			const sendTie = isKnockout && home === away;
 			await upsert({
 				matchId: match._id,
 				predictedHome: home,
 				predictedAway: away,
+				tieWinner: sendTie ? tie?.winner : undefined,
+				tieMethod: sendTie ? tie?.method : undefined,
 			});
 			setDirty(false);
 			setJustSaved(true);
@@ -230,7 +389,7 @@ export function Scorecard({
 		} finally {
 			setSaving(false);
 		}
-	}, [dirty, upsert, match._id, home, away]);
+	}, [dirty, upsert, match._id, home, away, isKnockout, tie]);
 
 	const matchDate = new Date(match.utcDate);
 	const timeStr = matchDate.toLocaleTimeString("pt-BR", {
@@ -277,6 +436,51 @@ export function Scorecard({
 		isFinished && prediction?.points != null
 			? getPointsTier(prediction.points)
 			: null;
+
+	// ── Desempate (mata-mata) ──────────────────────────────────────────────
+	const homeAbbr =
+		match.homeTeam?.tla ?? abbreviateTeamName(match.homeTeam?.shortName ?? "");
+	const awayAbbr =
+		match.awayTeam?.tla ?? abbreviateTeamName(match.awayTeam?.shortName ?? "");
+	const tieTeams = {
+		home: {
+			abbr: homeAbbr,
+			crest: match.homeTeam?.crest ?? "",
+			name: match.homeTeam?.shortName ?? "",
+		},
+		away: {
+			abbr: awayAbbr,
+			crest: match.awayTeam?.crest ?? "",
+			name: match.awayTeam?.shortName ?? "",
+		},
+	};
+	// Quem realmente avançou (só quando empatou nos 90 e a API definiu).
+	const realAdvancer: TieWinner | null =
+		isFinished && match.homeScore != null && match.homeScore === match.awayScore
+			? match.winner === "HOME_TEAM"
+				? "HOME"
+				: match.winner === "AWAY_TEAM"
+					? "AWAY"
+					: null
+			: null;
+	const tieBonus = prediction?.tieBonus ?? 0;
+	// Mostra o seletor sempre que o jogo é eliminatório e o palpite empata.
+	// Em jogos abertos: editável. Fechado/encerrado/somente-leitura: read-only,
+	// desde que o usuário tenha de fato palpitado um empate.
+	const editableTie =
+		!isLocked && !readOnly && !isFinished && isKnockout && isTie;
+	const lockedTieValue =
+		prediction?.tieWinner &&
+		prediction.predictedHome === prediction.predictedAway
+			? {
+					winner: prediction.tieWinner,
+					method: prediction.tieMethod ?? "PEN",
+				}
+			: null;
+	const showLockedTie =
+		isKnockout &&
+		(isLocked || readOnly || isFinished) &&
+		lockedTieValue !== null;
 
 	return (
 		<article
@@ -425,6 +629,25 @@ export function Scorecard({
 				</div>
 			</div>
 
+			{/* Desempate (mata-mata + palpite empatado) */}
+			{editableTie && (
+				<TiebreakerPicker
+					home={tieTeams.home}
+					away={tieTeams.away}
+					value={tie}
+					onChange={handleTie}
+				/>
+			)}
+			{showLockedTie && (
+				<TiebreakerPicker
+					home={tieTeams.home}
+					away={tieTeams.away}
+					value={lockedTieValue}
+					readOnly
+					realAdvancer={realAdvancer}
+				/>
+			)}
+
 			{/* Footer: action / status */}
 			<div className="flex items-center justify-between gap-3 border-[var(--b-border-sm)] border-t bg-[var(--b-tint)] px-4 py-2.5">
 				<div className="flex min-w-0 items-center gap-1.5 text-[var(--b-text-3)] text-xs">
@@ -437,6 +660,19 @@ export function Scorecard({
 				</div>
 				<div className="flex flex-col items-end gap-1">
 					<div className="flex items-center gap-2">
+						{isFinished && lockedTieValue && tieBonus > 0 && (
+							<span
+								className="flex items-center gap-1 rounded-full px-2.5 py-1 font-bold text-xs tabular-nums"
+								style={{
+									background: "var(--b-brand-10)",
+									color: "var(--b-brand-hi)",
+									border: "1px solid var(--b-brand-25)",
+								}}
+								title="Bônus por cravar quem avançou no desempate"
+							>
+								<Zap className="h-3 w-3" strokeWidth={2.5} />+{tieBonus}
+							</span>
+						)}
 						{tier && (
 							<span
 								className="rounded-full px-2.5 py-1 font-bold text-xs tabular-nums"

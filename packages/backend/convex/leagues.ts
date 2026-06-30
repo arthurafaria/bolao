@@ -582,7 +582,9 @@ export const getRankingByPhase = query({
 					const bucket = isKnockout ? knockout : group;
 					const c = pred.components;
 					const isExact = c.result && c.homeGoals && c.awayGoals;
-					bucket.totalPoints += pointsFrom(c, scoring);
+					// Bônus de desempate (+2) entra só no total, sem virar cravada/
+					// resultado. Só existe em jogos de mata-mata.
+					bucket.totalPoints += pointsFrom(c, scoring) + (pred.tieBonus ?? 0);
 					if (isExact) bucket.exactScores += 1;
 					if (c.result) bucket.correctResults += 1;
 				}
