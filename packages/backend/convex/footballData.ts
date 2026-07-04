@@ -391,20 +391,22 @@ async function doSync(
 			| "POSTPONED"
 			| "CANCELLED";
 
-		// Placar que pontua: 90 minutos. regularTime existe quando houve
-		// prorrogação/pênaltis; senão fullTime já é o placar dos 90 min.
-		const home90 = match.score.regularTime?.home ?? match.score.fullTime.home;
-		const away90 = match.score.regularTime?.away ?? match.score.fullTime.away;
-
+		// Placar que pontua: 90 minutos. fullTime INCLUI prorrogação/pênaltis
+		// quando o jogo foi além dos 90 — só regularTime é confiável nesse caso.
+		// A decisão de qual usar é feita dentro de upsertMatch, que também
+		// considera o que já está gravado (a resposta da API às vezes vem sem
+		// o campo `duration`/`regularTime` numa chamada e com eles na próxima).
 		const result = await ctx.runMutation(internal.matches.upsertMatch, {
 			apiId: match.id,
 			homeTeamId,
 			awayTeamId,
 			utcDate: match.utcDate,
 			status,
-			homeScore: home90 ?? undefined,
-			awayScore: away90 ?? undefined,
-			duration: match.score.duration ?? undefined,
+			fullTimeHome: match.score.fullTime.home ?? undefined,
+			fullTimeAway: match.score.fullTime.away ?? undefined,
+			regularTimeHome: match.score.regularTime?.home ?? undefined,
+			regularTimeAway: match.score.regularTime?.away ?? undefined,
+			apiDuration: match.score.duration ?? undefined,
 			winner: match.score.winner ?? undefined,
 			stage: match.stage,
 			group: match.group ?? undefined,
@@ -416,7 +418,7 @@ async function doSync(
 		synced++;
 
 		if (result.shouldComputePoints) {
-			if (home90 == null || away90 == null) {
+			if (!result.hasScore) {
 				console.warn(
 					`[${tournament}] shouldComputePoints=true but score is null for apiId=${match.id}`,
 				);

@@ -145,9 +145,15 @@ export const upsertMatch = internalMutation({
 			v.literal("POSTPONED"),
 			v.literal("CANCELLED"),
 		),
-		homeScore: v.optional(v.number()),
-		awayScore: v.optional(v.number()),
-		duration: v.optional(v.string()),
+		// fullTime inclui prorrogação/pênaltis quando o jogo foi além dos 90.
+		// regularTime é o placar dos 90 min e só vem preenchido nesse caso —
+		// mas a API (tier free) às vezes omite os dois campos numa chamada e
+		// devolve de novo na próxima, então nenhum deles é confiável sozinho.
+		fullTimeHome: v.optional(v.number()),
+		fullTimeAway: v.optional(v.number()),
+		regularTimeHome: v.optional(v.number()),
+		regularTimeAway: v.optional(v.number()),
+		apiDuration: v.optional(v.string()),
 		winner: v.optional(v.string()),
 		stage: v.string(),
 		group: v.optional(v.string()),
@@ -161,6 +167,30 @@ export const upsertMatch = internalMutation({
 			.withIndex("by_apiId", (q) => q.eq("apiId", args.apiId))
 			.unique();
 
+		// Placar dos 90 minutos: regularTime é a única fonte confiável quando o
+		// jogo foi (ou é conhecido ter ido) além da regulamentação. "Conhecido"
+		// olha tanto a resposta atual da API quanto o que já está gravado —
+		// assim, uma chamada sem `duration`/`regularTime` (comum no tier free)
+		// nunca reintroduz o placar cheio por cima de um placar de 90 min já
+		// confirmado.
+		const regularTimeKnown =
+			args.regularTimeHome != null && args.regularTimeAway != null;
+		const knownBeyondRegulation =
+			existing?.duration === "EXTRA_TIME" ||
+			existing?.duration === "PENALTY_SHOOTOUT" ||
+			(args.apiDuration != null && args.apiDuration !== "REGULAR");
+		const newHomeScore = regularTimeKnown
+			? args.regularTimeHome
+			: knownBeyondRegulation
+				? undefined
+				: args.fullTimeHome;
+		const newAwayScore = regularTimeKnown
+			? args.regularTimeAway
+			: knownBeyondRegulation
+				? undefined
+				: args.fullTimeAway;
+		const newDuration = args.apiDuration ?? existing?.duration;
+
 		if (existing) {
 			const wasFinished = existing.status === "FINISHED";
 			// Never downgrade a FINISHED match — football-data.org sometimes
@@ -171,26 +201,26 @@ export const upsertMatch = internalMutation({
 			const scoreNowVisible =
 				args.status === "FINISHED" &&
 				(existing.homeScore == null || existing.awayScore == null) &&
-				args.homeScore != null &&
-				args.awayScore != null;
+				newHomeScore != null &&
+				newAwayScore != null;
 			// Always recompute for already-FINISHED matches: computeForMatch is
 			// idempotent (skips predictions already having calculatedAt set).
 			const alreadyFinishedWithScore =
-				wasFinished && args.homeScore != null && args.awayScore != null;
+				wasFinished && newHomeScore != null && newAwayScore != null;
 			// Nunca apaga um placar já conhecido: a football-data.org às vezes
 			// devolve FINISHED com score null (atraso do tier free), e patch com
 			// undefined removeria placar lançado manualmente via admin.
 			await ctx.db.patch(existing._id, {
 				status: statusToSet,
-				homeScore: args.homeScore ?? existing.homeScore,
-				awayScore: args.awayScore ?? existing.awayScore,
-				duration: args.duration ?? existing.duration,
+				homeScore: newHomeScore ?? existing.homeScore,
+				awayScore: newAwayScore ?? existing.awayScore,
+				duration: newDuration,
 				winner: args.winner ?? existing.winner,
 				utcDate: args.utcDate,
 				venue: args.venue ?? existing.venue,
 			});
-			const finalHome = args.homeScore ?? existing.homeScore;
-			const finalAway = args.awayScore ?? existing.awayScore;
+			const finalHome = newHomeScore ?? existing.homeScore;
+			const finalAway = newAwayScore ?? existing.awayScore;
 			return {
 				id: existing._id,
 				shouldComputePoints:
@@ -199,11 +229,26 @@ export const upsertMatch = internalMutation({
 			};
 		}
 
-		const id = await ctx.db.insert("matches", args);
+		const id = await ctx.db.insert("matches", {
+			apiId: args.apiId,
+			homeTeamId: args.homeTeamId,
+			awayTeamId: args.awayTeamId,
+			utcDate: args.utcDate,
+			status: args.status,
+			homeScore: newHomeScore,
+			awayScore: newAwayScore,
+			duration: newDuration,
+			winner: args.winner,
+			stage: args.stage,
+			group: args.group,
+			matchday: args.matchday,
+			venue: args.venue,
+			tournament: args.tournament,
+		});
 		return {
 			id,
 			shouldComputePoints: false,
-			hasScore: args.homeScore != null && args.awayScore != null,
+			hasScore: newHomeScore != null && newAwayScore != null,
 		};
 	},
 });
@@ -263,12 +308,19 @@ export const patchMatchScore = internalMutation({
 		matchId: v.id("matches"),
 		homeScore: v.number(),
 		awayScore: v.number(),
+		// Opcionais — usados para corrigir quem avançou quando a API não
+		// publica o vencedor de uma prorrogação/pênaltis (ex.: winner "DRAW"
+		// num jogo de mata-mata, que é sempre decidido).
+		duration: v.optional(v.string()),
+		winner: v.optional(v.string()),
 	},
 	handler: async (ctx, args) => {
 		await ctx.db.patch(args.matchId, {
 			homeScore: args.homeScore,
 			awayScore: args.awayScore,
 			status: "FINISHED",
+			...(args.duration != null ? { duration: args.duration } : {}),
+			...(args.winner != null ? { winner: args.winner } : {}),
 		});
 	},
 });
