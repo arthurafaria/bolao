@@ -167,6 +167,22 @@ export const upsertMatch = internalMutation({
 			.withIndex("by_apiId", (q) => q.eq("apiId", args.apiId))
 			.unique();
 
+		// Um admin já corrigiu esse jogo manualmente (ex.: erro na API-fonte) —
+		// placar/duração/vencedor ficam travados até alguém corrigir de novo,
+		// mesmo que a sync automática continue rodando a cada 10 minutos.
+		if (existing?.manualOverride) {
+			await ctx.db.patch(existing._id, {
+				status: existing.status,
+				utcDate: args.utcDate,
+				venue: args.venue ?? existing.venue,
+			});
+			return {
+				id: existing._id,
+				shouldComputePoints: false,
+				hasScore: existing.homeScore != null && existing.awayScore != null,
+			};
+		}
+
 		// Placar dos 90 minutos: regularTime é a única fonte confiável quando o
 		// jogo foi (ou é conhecido ter ido) além da regulamentação. "Conhecido"
 		// olha tanto a resposta atual da API quanto o que já está gravado —
@@ -319,6 +335,7 @@ export const patchMatchScore = internalMutation({
 			homeScore: args.homeScore,
 			awayScore: args.awayScore,
 			status: "FINISHED",
+			manualOverride: true,
 			...(args.duration != null ? { duration: args.duration } : {}),
 			...(args.winner != null ? { winner: args.winner } : {}),
 		});

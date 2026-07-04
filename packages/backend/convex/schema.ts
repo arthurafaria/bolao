@@ -38,6 +38,10 @@ export default defineSchema({
 		// Vencedor segundo a API: HOME_TEAM | AWAY_TEAM | DRAW. Usado para
 		// rotular quem passou na prorrogação/pênaltis.
 		winner: v.optional(v.string()),
+		// Quando um admin corrige o placar manualmente (ex.: erro da API-fonte),
+		// esse jogo fica protegido: a sync automática para de sobrescrever
+		// homeScore/awayScore/duration/winner até alguém corrigir de novo.
+		manualOverride: v.optional(v.boolean()),
 		stage: v.string(),
 		group: v.optional(v.string()),
 		matchday: v.optional(v.number()),
