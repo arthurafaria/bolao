@@ -309,6 +309,7 @@ export const resetComputedPoints = internalMutation({
 				points: undefined,
 				calculatedAt: undefined,
 				components: undefined,
+				tieBonus: undefined,
 			});
 		}
 
