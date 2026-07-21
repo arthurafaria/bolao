@@ -85,9 +85,9 @@ export const sendScoreMissingAlert = internalAction({
 
 		const resend = new Resend(apiKey);
 		await resend.emails.send({
-			from: "Bolão 2026 <onboarding@resend.dev>",
+			from: "Chuta de Bico <onboarding@resend.dev>",
 			to: [adminEmail],
-			subject: `⚠️ Placar pendente — ${homeName} x ${awayName} — Bolão 2026`,
+			subject: `⚠️ Placar pendente — ${homeName} x ${awayName} — Chuta de Bico`,
 			text: `O jogo ${homeName} x ${awayName} (${formatBRT(match.utcDate)}) terminou, mas nem a football-data.org nem a ESPN publicaram o placar ainda.\n\nOs pontos serão computados automaticamente assim que alguma fonte publicar. Se quiser adiantar, lance o placar manualmente em ${siteUrl}/admin.`,
 		});
 		console.log(
@@ -129,9 +129,9 @@ export const sendFirstMatchReminder = internalAction({
 		const results = await Promise.allSettled(
 			users.map((user) =>
 				resend.emails.send({
-					from: "Bolão 2026 <onboarding@resend.dev>",
+					from: "Chuta de Bico <onboarding@resend.dev>",
 					to: [user.email],
-					subject: `⚽ Palpites fecham em 1h — ${homeName} x ${awayName} — Bolão 2026`,
+					subject: `⚽ Palpites fecham em 1h — ${homeName} x ${awayName} — Chuta de Bico`,
 					text: `Falta 1 hora para fechar os palpites!\n\n${homeName} x ${awayName} — ${timeStr}\n\nDepois disso você não poderá mais apostar.\n${siteUrl}`,
 					html: buildEmailHtml({ homeName, awayName, timeStr, siteUrl }),
 				}),
@@ -163,7 +163,7 @@ function buildEmailHtml({
 <html>
 <body style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#0b0d10;color:#e6eaf0;margin:0;padding:32px;">
   <div style="max-width:480px;margin:0 auto;background:#14181d;border-radius:16px;padding:32px;border:1px solid #1f2933;">
-    <h1 style="font-size:22px;margin:0 0 8px;color:#22c55e;">Bolão 2026</h1>
+    <h1 style="font-size:22px;margin:0 0 8px;color:#22c55e;">Chuta de Bico</h1>
     <p style="font-size:13px;color:#6b7280;margin:0 0 24px;">Falta 1 hora para fechar os palpites do dia!</p>
     <div style="text-align:center;padding:24px;background:#0b0d10;border-radius:12px;margin-bottom:24px;">
       <div style="font-size:28px;font-weight:700;color:#f1f5f9;">${homeName} <span style="color:#22c55e;">x</span> ${awayName}</div>

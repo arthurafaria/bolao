@@ -140,7 +140,7 @@ export default function LandingPage() {
 								className="text-base text-display-sm leading-none"
 								style={{ color: "var(--b-text)" }}
 							>
-								Bolão 2026
+								Chuta de Bico
 							</p>
 							<p
 								className="mt-0.5 text-[10px] text-eyebrow"
@@ -718,7 +718,7 @@ export default function LandingPage() {
 								className="text-display-sm text-sm"
 								style={{ color: "var(--b-text-3)" }}
 							>
-								Bolão 2026
+								Chuta de Bico
 							</span>
 						</div>
 						<div className="flex items-center gap-6">
@@ -730,7 +730,7 @@ export default function LandingPage() {
 								Regras
 							</Link>
 							<span className="text-xs" style={{ color: "var(--b-text-4)" }}>
-								© 2026 Bolão da Copa
+								© 2026 Chuta de Bico
 							</span>
 						</div>
 					</div>

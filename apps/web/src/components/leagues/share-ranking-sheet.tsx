@@ -113,7 +113,7 @@ export function ShareRankingSheet({
 				await nav.share({
 					files: [file],
 					title: `${leagueName} · ${phaseLabel}`,
-					text: `Ranking da liga ${leagueName} (${phaseLabel}) — Bolão da Copa 2026 ⚽`,
+					text: `Ranking da liga ${leagueName} (${phaseLabel}) — Chuta de Bico ⚽`,
 				});
 			} else {
 				const a = document.createElement("a");

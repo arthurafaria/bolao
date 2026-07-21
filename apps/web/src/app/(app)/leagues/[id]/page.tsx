@@ -608,8 +608,8 @@ function InviteSheet({
 		if (typeof navigator !== "undefined" && "share" in navigator) {
 			navigator
 				.share({
-					title: `Liga ${leagueName} — Bolão da Copa 2026`,
-					text: `⚽ Vem palpitar comigo! Entre na minha liga "${leagueName}" no Bolão da Copa 2026. É só tocar no link:`,
+					title: `Liga ${leagueName} — Chuta de Bico`,
+					text: `⚽ Vem palpitar comigo! Entre na minha liga "${leagueName}" no Chuta de Bico. É só tocar no link:`,
 					url: getInviteUrl(),
 				})
 				.catch(() => {

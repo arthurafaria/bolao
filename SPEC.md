@@ -1,10 +1,10 @@
-# Bolão da Copa — Especificação do Produto
+# Chuta de Bico — Especificação do Produto
 
 > Última atualização: 2026-04-21
 
 ## Visão Geral
 
-Site de previsão de placares para a Copa do Mundo 2026 (e futuras competições). Usuários fazem palpites de placares, participam de ligas com ranking e acompanham resultados em tempo real.
+Site de previsão de placares do Brasileirão Série A (e futuras competições). Usuários fazem palpites de placares, participam de ligas com ranking e acompanham resultados em tempo real.
 
 ---
 

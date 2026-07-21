@@ -110,7 +110,7 @@ function AppNav() {
 						className="text-base text-display-sm"
 						style={{ color: "var(--b-text)" }}
 					>
-						Bolão 2026
+						Chuta de Bico
 					</span>
 				</div>
 
@@ -459,7 +459,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 									className="text-display-sm text-sm"
 									style={{ color: "var(--b-text)" }}
 								>
-									Bolão 2026
+									Chuta de Bico
 								</span>
 							</Link>
 							<div className="hidden md:block" />
