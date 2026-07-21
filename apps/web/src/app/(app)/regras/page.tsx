@@ -236,28 +236,28 @@ export default function RegrasPage() {
 						</header>
 
 						<RealMatchBox
-							home="Brasil"
-							away="Argentina"
+							home="Flamengo"
+							away="Fluminense"
 							hs={2}
 							as={1}
-							winner="Brasil"
+							winner="Flamengo"
 						/>
 
 						<div className="space-y-2">
 							<ExampleRow
 								palpite="2 × 1"
 								pts={10}
-								breakdown="resultado +5 · gols Brasil ✓ +2 · gols Argentina ✓ +2 · bônus placar exato +1"
+								breakdown="resultado +5 · gols Flamengo ✓ +2 · gols Fluminense ✓ +2 · bônus placar exato +1"
 							/>
 							<ExampleRow
 								palpite="2 × 0"
 								pts={7}
-								breakdown="resultado +5 · gols Brasil (2) ✓ +2"
+								breakdown="resultado +5 · gols Flamengo (2) ✓ +2"
 							/>
 							<ExampleRow
 								palpite="3 × 1"
 								pts={7}
-								breakdown="resultado +5 · gols Argentina (1) ✓ +2"
+								breakdown="resultado +5 · gols Fluminense (1) ✓ +2"
 							/>
 							<ExampleRow
 								palpite="3 × 0"
@@ -289,23 +289,23 @@ export default function RegrasPage() {
 						</p>
 
 						<RealMatchBox
-							home="Brasil"
-							away="Argentina"
+							home="Flamengo"
+							away="Fluminense"
 							hs={2}
 							as={1}
-							winner="Brasil"
+							winner="Flamengo"
 						/>
 
 						<div className="space-y-2">
 							<ExampleRow
 								palpite="2 × 2"
 								pts={2}
-								breakdown="resultado errado (previu empate) · gols Brasil (2) ✓ +2"
+								breakdown="resultado errado (previu empate) · gols Flamengo (2) ✓ +2"
 							/>
 							<ExampleRow
 								palpite="0 × 1"
 								pts={2}
-								breakdown="resultado errado (previu Argentina ganhando) · gols Argentina (1) ✓ +2"
+								breakdown="resultado errado (previu Fluminense ganhando) · gols Fluminense (1) ✓ +2"
 							/>
 							<ExampleRow
 								palpite="0 × 3"
