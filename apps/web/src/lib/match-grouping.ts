@@ -31,12 +31,20 @@ export function roundLabel(match: RoundableMatch): string {
 	return STAGE_LABELS[match.stage] ?? match.stage.replace(/_/g, " ");
 }
 
-type RoundStatusMatch = { matchday?: number | null; status: string };
+type RoundStatusMatch = {
+	matchday?: number | null;
+	status: string;
+	utcDate: string;
+};
 
 /**
- * Rodada atual: a menor rodada (matchday) que ainda tem jogo não encerrado.
- * Se todas as rodadas com jogos estiverem encerradas, retorna a maior rodada.
- * Retorna null se nenhum jogo tiver matchday definido.
+ * Rodada atual: a rodada (matchday) do jogo pendente com a data (utcDate)
+ * mais próxima cronologicamente. Jogos remarcados (make-up games) não
+ * respeitam a ordem das rodadas, então usar "menor matchday com jogo
+ * pendente" prenderia a rodada atual numa rodada antiga com só um jogo
+ * remarcado pra uma data futura distante. Se todas as rodadas com jogos
+ * estiverem encerradas, retorna a maior rodada. Retorna null se nenhum jogo
+ * tiver matchday definido.
  *
  * Função pura para poder ser reutilizada por dashboard + predictions sem
  * depender de uma query específica (client-side derivation; ver plano 005
@@ -45,29 +53,29 @@ type RoundStatusMatch = { matchday?: number | null; status: string };
 export function currentRound<T extends RoundStatusMatch>(
 	matches: T[],
 ): number | null {
-	const byRound = new Map<number, T[]>();
+	const rounds = new Set<number>();
 	for (const m of matches) {
-		if (m.matchday == null) continue;
-		const list = byRound.get(m.matchday) ?? [];
-		list.push(m);
-		byRound.set(m.matchday, list);
+		if (m.matchday != null) rounds.add(m.matchday);
 	}
-	if (byRound.size === 0) return null;
+	if (rounds.size === 0) return null;
+	const max = Math.max(...rounds);
 
-	const rounds = Array.from(byRound.keys()).sort((a, b) => a - b);
-	for (const round of rounds) {
-		const roundMatches = byRound.get(round) ?? [];
-		if (
-			roundMatches.some(
-				(m) =>
-					m.status !== "FINISHED" &&
-					m.status !== "POSTPONED" &&
-					m.status !== "CANCELLED",
-			)
-		)
-			return round;
+	const pending = matches.filter(
+		(m) =>
+			m.matchday != null &&
+			m.status !== "FINISHED" &&
+			m.status !== "POSTPONED" &&
+			m.status !== "CANCELLED",
+	);
+	if (pending.length === 0) return max;
+
+	// utcDate são strings ISO 8601 UTC consistentemente formatadas, então
+	// comparação lexicográfica de string equivale à ordem cronológica.
+	let earliest = pending[0];
+	for (const m of pending) {
+		if (m.utcDate < earliest.utcDate) earliest = m;
 	}
-	return rounds[rounds.length - 1] ?? null;
+	return earliest.matchday ?? null;
 }
 
 export function groupByRound<T extends RoundableMatch>(

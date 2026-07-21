@@ -9,11 +9,11 @@ import { computeCurrentRound } from "../convex/lib/rounds";
 describe("computeCurrentRound", () => {
 	test("rodadas 1-2 encerradas, rodada 3 tem jogo agendado: atual é 3", () => {
 		const matches = [
-			{ matchday: 1, status: "FINISHED" },
-			{ matchday: 1, status: "FINISHED" },
-			{ matchday: 2, status: "FINISHED" },
-			{ matchday: 3, status: "SCHEDULED" },
-			{ matchday: 3, status: "TIMED" },
+			{ matchday: 1, status: "FINISHED", utcDate: "2026-01-01T20:00:00Z" },
+			{ matchday: 1, status: "FINISHED", utcDate: "2026-01-02T20:00:00Z" },
+			{ matchday: 2, status: "FINISHED", utcDate: "2026-01-08T20:00:00Z" },
+			{ matchday: 3, status: "SCHEDULED", utcDate: "2026-01-15T20:00:00Z" },
+			{ matchday: 3, status: "TIMED", utcDate: "2026-01-15T22:30:00Z" },
 		];
 		expect(computeCurrentRound(matches)).toEqual({
 			current: 3,
@@ -24,9 +24,9 @@ describe("computeCurrentRound", () => {
 
 	test("todas as rodadas encerradas: atual é a maior rodada", () => {
 		const matches = [
-			{ matchday: 1, status: "FINISHED" },
-			{ matchday: 2, status: "FINISHED" },
-			{ matchday: 3, status: "FINISHED" },
+			{ matchday: 1, status: "FINISHED", utcDate: "2026-01-01T20:00:00Z" },
+			{ matchday: 2, status: "FINISHED", utcDate: "2026-01-08T20:00:00Z" },
+			{ matchday: 3, status: "FINISHED", utcDate: "2026-01-15T20:00:00Z" },
 		];
 		expect(computeCurrentRound(matches)).toEqual({
 			current: 3,
@@ -42,15 +42,17 @@ describe("computeCurrentRound", () => {
 			max: null,
 		});
 		expect(
-			computeCurrentRound([{ matchday: null, status: "FINISHED" }]),
+			computeCurrentRound([
+				{ matchday: null, status: "FINISHED", utcDate: "2026-01-01T20:00:00Z" },
+			]),
 		).toEqual({ current: null, min: null, max: null });
 	});
 
 	test("ignora jogos sem matchday ao calcular min/max", () => {
 		const matches = [
-			{ matchday: null, status: "SCHEDULED" },
-			{ matchday: 5, status: "FINISHED" },
-			{ matchday: 7, status: "SCHEDULED" },
+			{ matchday: null, status: "SCHEDULED", utcDate: "2026-01-01T20:00:00Z" },
+			{ matchday: 5, status: "FINISHED", utcDate: "2026-02-01T20:00:00Z" },
+			{ matchday: 7, status: "SCHEDULED", utcDate: "2026-02-15T20:00:00Z" },
 		];
 		expect(computeCurrentRound(matches)).toEqual({
 			current: 7,
@@ -61,13 +63,13 @@ describe("computeCurrentRound", () => {
 
 	test("rodada com único jogo POSTPONED não bloqueia progressão: pula para a próxima rodada com jogo pendente", () => {
 		const matches = [
-			{ matchday: 1, status: "FINISHED" },
-			{ matchday: 2, status: "FINISHED" },
-			{ matchday: 3, status: "FINISHED" },
-			{ matchday: 4, status: "POSTPONED" },
-			{ matchday: 5, status: "FINISHED" },
-			{ matchday: 18, status: "FINISHED" },
-			{ matchday: 19, status: "SCHEDULED" },
+			{ matchday: 1, status: "FINISHED", utcDate: "2026-01-01T20:00:00Z" },
+			{ matchday: 2, status: "FINISHED", utcDate: "2026-01-08T20:00:00Z" },
+			{ matchday: 3, status: "FINISHED", utcDate: "2026-01-15T20:00:00Z" },
+			{ matchday: 4, status: "POSTPONED", utcDate: "2026-01-22T20:00:00Z" },
+			{ matchday: 5, status: "FINISHED", utcDate: "2026-01-29T20:00:00Z" },
+			{ matchday: 18, status: "FINISHED", utcDate: "2026-06-01T20:00:00Z" },
+			{ matchday: 19, status: "SCHEDULED", utcDate: "2026-06-08T20:00:00Z" },
 		];
 		expect(computeCurrentRound(matches)).toEqual({
 			current: 19,
@@ -78,15 +80,61 @@ describe("computeCurrentRound", () => {
 
 	test("rodada com único jogo CANCELLED não bloqueia progressão: pula para a próxima rodada com jogo pendente", () => {
 		const matches = [
-			{ matchday: 1, status: "FINISHED" },
-			{ matchday: 4, status: "CANCELLED" },
-			{ matchday: 5, status: "FINISHED" },
-			{ matchday: 19, status: "SCHEDULED" },
+			{ matchday: 1, status: "FINISHED", utcDate: "2026-01-01T20:00:00Z" },
+			{ matchday: 4, status: "CANCELLED", utcDate: "2026-01-22T20:00:00Z" },
+			{ matchday: 5, status: "FINISHED", utcDate: "2026-01-29T20:00:00Z" },
+			{ matchday: 19, status: "SCHEDULED", utcDate: "2026-06-08T20:00:00Z" },
 		];
 		expect(computeCurrentRound(matches)).toEqual({
 			current: 19,
 			min: 1,
 			max: 19,
+		});
+	});
+
+	test("jogo remarcado (TIMED) de rodada antiga com data futura mais distante que rodada nova não trava a rodada atual: usa a data mais próxima, não o menor matchday", () => {
+		// Cenário real: rodada 4 tem um jogo POSTPONED (sem data, ignorado) e
+		// um jogo TIMED remarcado pra 2026-07-23, mais tarde que o próximo
+		// jogo pendente da rodada 19 (2026-07-21). Rodadas 5-18 já terminaram.
+		// A rodada atual deve seguir a progressão cronológica real (19), não
+		// ficar presa na rodada 4 só porque tecnicamente ainda tem jogo
+		// pendente lá.
+		const matches = [
+			{
+				matchday: 4,
+				status: "POSTPONED",
+				utcDate: "2026-04-01T20:00:00Z",
+			},
+			{
+				matchday: 4,
+				status: "TIMED",
+				utcDate: "2026-07-23T18:00:00Z",
+			},
+			{ matchday: 5, status: "FINISHED", utcDate: "2026-04-08T20:00:00Z" },
+			{ matchday: 6, status: "FINISHED", utcDate: "2026-04-15T20:00:00Z" },
+			{ matchday: 7, status: "FINISHED", utcDate: "2026-04-22T20:00:00Z" },
+			{ matchday: 8, status: "FINISHED", utcDate: "2026-04-29T20:00:00Z" },
+			{ matchday: 9, status: "FINISHED", utcDate: "2026-05-06T20:00:00Z" },
+			{ matchday: 10, status: "FINISHED", utcDate: "2026-05-13T20:00:00Z" },
+			{ matchday: 11, status: "FINISHED", utcDate: "2026-05-20T20:00:00Z" },
+			{ matchday: 12, status: "FINISHED", utcDate: "2026-05-27T20:00:00Z" },
+			{ matchday: 13, status: "FINISHED", utcDate: "2026-06-03T20:00:00Z" },
+			{ matchday: 14, status: "FINISHED", utcDate: "2026-06-10T20:00:00Z" },
+			{ matchday: 15, status: "FINISHED", utcDate: "2026-06-17T20:00:00Z" },
+			{ matchday: 16, status: "FINISHED", utcDate: "2026-06-24T20:00:00Z" },
+			{ matchday: 17, status: "FINISHED", utcDate: "2026-07-01T20:00:00Z" },
+			{ matchday: 18, status: "FINISHED", utcDate: "2026-07-08T20:00:00Z" },
+			{
+				matchday: 19,
+				status: "TIMED",
+				utcDate: "2026-07-21T22:30:00Z",
+			},
+			{ matchday: 20, status: "SCHEDULED", utcDate: "2026-07-28T20:00:00Z" },
+		];
+		expect(computeCurrentRound(matches)).toEqual({
+			current: 19,
+			min: 4,
+			max: 20,
 		});
 	});
 });
