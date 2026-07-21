@@ -3,6 +3,7 @@ import { v } from "convex/values";
 import type { Doc } from "./_generated/dataModel";
 import type { QueryCtx } from "./_generated/server";
 import { internalMutation, internalQuery, query } from "./_generated/server";
+import { computeCurrentRound } from "./lib/rounds";
 import { ACTIVE_TOURNAMENT } from "./lib/tournaments";
 
 async function enrichMatch(ctx: QueryCtx, match: Doc<"matches">) {
@@ -97,6 +98,26 @@ export const getAllByDate = query({
 			.order("asc")
 			.collect();
 		return Promise.all(matches.map((m) => enrichMatch(ctx, m)));
+	},
+});
+
+/**
+ * Rodada atual do torneio (ver lib/rounds.computeCurrentRound): a menor
+ * rodada que ainda tem jogo não encerrado, ou a maior rodada se todas já
+ * terminaram. `min`/`max` servem para clampar a navegação (◀ Rodada N ▶) no
+ * frontend. Fonte única de verdade — substitui a derivação client-side que
+ * dashboard/palpites usavam antes desta query existir (ver plano 005).
+ */
+export const getCurrentRound = query({
+	args: { tournament: v.string() },
+	handler: async (ctx, args) => {
+		const matches = await ctx.db
+			.query("matches")
+			.withIndex("by_tournament_date", (q) =>
+				q.eq("tournament", args.tournament),
+			)
+			.collect();
+		return computeCurrentRound(matches);
 	},
 });
 

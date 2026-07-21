@@ -67,6 +67,9 @@ export default function PredictionsPage() {
 	const { tournament } = useTournament();
 	const matches = useQuery(api.matches.getAllByDate, { tournament });
 	const allPredictions = useQuery(api.predictions.getUserPredictions);
+	const currentRoundQuery = useQuery(api.matches.getCurrentRound, {
+		tournament,
+	});
 	const [tab, setTab] = useState<FilterTab>("rodada");
 	const [selectedRound, setSelectedRound] = useState<number | null>(null);
 
@@ -94,10 +97,13 @@ export default function PredictionsPage() {
 	const minRound = roundNumbers[0] ?? null;
 	const maxRound = roundNumbers[roundNumbers.length - 1] ?? null;
 
-	const derivedCurrentRound = useMemo(
-		() => currentRound(cleanedMatches),
-		[cleanedMatches],
-	);
+	// Rodada atual vem de matches.getCurrentRound (fonte única de verdade,
+	// ver plano 005); cai para a derivação client-side enquanto a query
+	// ainda está carregando.
+	const derivedCurrentRound = useMemo(() => {
+		if (currentRoundQuery !== undefined) return currentRoundQuery.current;
+		return currentRound(cleanedMatches);
+	}, [currentRoundQuery, cleanedMatches]);
 
 	// Rodada selecionada por padrão é a atual; o usuário pode navegar a partir
 	// dela com os botões ◀ ▶ (clampado aos limites disponíveis).

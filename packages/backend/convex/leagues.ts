@@ -6,9 +6,11 @@ import { auth, requireUserId } from "./auth";
 import {
 	compareByExacts,
 	compareByPoints,
+	computeRoundStats,
 	DEFAULT_SCORING,
 	pointsFrom,
 } from "./lib/ranking";
+import { ACTIVE_TOURNAMENT } from "./lib/tournaments";
 
 // Apenas o Brasileirão (torneio ativo, ver lib/tournaments) pontua para o
 // ranking das ligas.
@@ -581,6 +583,70 @@ export const getRankingByPhase = query({
 		);
 
 		return rows;
+	},
+});
+
+/**
+ * Ranking de uma rodada específica (matchday) do torneio ativo — quem fez
+ * mais pontos *naquela* rodada, não no campeonato inteiro. Base do recap de
+ * rodada (dashboard) e da visão "Por rodada" da página da liga (ver plano
+ * 005). Mesma lógica de auth-gate e mesma pontuação personalizada da liga
+ * usadas por `getRanking`/`getRankingByPhase`.
+ */
+export const getRoundRanking = query({
+	args: { leagueId: v.id("leagues"), matchday: v.number() },
+	handler: async (ctx, args) => {
+		const userId = await auth.getUserId(ctx);
+		if (!userId) return [];
+		const membership = await getActiveMembership(ctx, args.leagueId, userId);
+		if (!membership) return [];
+
+		const league = await ctx.db.get(args.leagueId);
+		const scoring = league?.scoring ?? DEFAULT_SCORING;
+
+		// Jogos do torneio ativo que pertencem a essa rodada — usado para
+		// filtrar quais predições contam para o total da rodada.
+		const tournamentMatches = await ctx.db
+			.query("matches")
+			.withIndex("by_tournament_stage", (q) =>
+				q.eq("tournament", ACTIVE_TOURNAMENT),
+			)
+			.collect();
+		const matchIdsInRound = new Set(
+			tournamentMatches
+				.filter((m) => m.matchday === args.matchday)
+				.map((m) => m._id as string),
+		);
+
+		const members = await ctx.db
+			.query("leagueMembers")
+			.withIndex("by_league", (q) => q.eq("leagueId", args.leagueId))
+			.filter((q) => q.eq(q.field("status"), "ACTIVE"))
+			.collect();
+
+		const rows = await Promise.all(
+			members.map(async (member) => {
+				const [user, predictions] = await Promise.all([
+					ctx.db.get(member.userId as Id<"users">),
+					ctx.db
+						.query("predictions")
+						.withIndex("by_user", (q) => q.eq("userId", member.userId))
+						.collect(),
+				]);
+
+				const stats = computeRoundStats(predictions, matchIdsInRound, scoring);
+
+				return {
+					userId: member.userId,
+					name: user?.name ?? user?.email?.split("@")[0] ?? "Jogador",
+					...stats,
+				};
+			}),
+		);
+
+		rows.sort(compareByPoints);
+
+		return rows.map((row, idx) => ({ ...row, rank: idx + 1 }));
 	},
 });
 

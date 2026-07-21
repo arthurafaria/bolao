@@ -21,84 +21,32 @@ import { Tag } from "@bolao/ui/components/tag";
 import { useQuery } from "convex/react";
 import {
 	ArrowLeft,
+	Calendar,
 	Check,
+	ChevronLeft,
+	ChevronRight,
 	Copy,
 	Crown,
 	Globe,
 	Settings,
 	Share2,
 	Star,
-	Swords,
 	Trophy,
 	Users,
 } from "lucide-react";
 import type { Route } from "next";
 import Link from "next/link";
-import { use, useMemo, useState } from "react";
+import { use, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
 import { Podium, type PodiumEntry } from "@/components/leagues/podium";
 import { RankingRow } from "@/components/leagues/ranking-row";
 import type { ShareEntry } from "@/components/leagues/share-ranking-card";
 import { ShareRankingSheet } from "@/components/leagues/share-ranking-sheet";
+import { useTournament } from "@/contexts/tournament-context";
 
-type Phase = "OVERALL" | "GROUP" | "KNOCKOUT";
-
-// Ordem das abas (mata-mata no meio): geral → mata-mata → grupos.
-const PHASE_ORDER: Phase[] = ["OVERALL", "KNOCKOUT", "GROUP"];
-
-const PHASE_META: Record<
-	Phase,
-	{
-		label: string;
-		icon: typeof Trophy;
-		blurb: string;
-		/** Cor de destaque da fase. */
-		accent: string;
-		/** Tint suave da cor (fundo de chips/cards). */
-		accentSoft: string;
-	}
-> = {
-	GROUP: {
-		label: "Grupos",
-		icon: Users,
-		blurb: "Só os pontos conquistados na fase de grupos.",
-		accent: "oklch(0.6 0.14 240)",
-		accentSoft: "color-mix(in oklch, oklch(0.6 0.14 240) 14%, var(--b-card))",
-	},
-	KNOCKOUT: {
-		label: "Mata-mata",
-		icon: Swords,
-		blurb: "Mata-mata: começa do zero, a partir dos jogos eliminatórios.",
-		accent: "oklch(0.57 0.21 25)",
-		accentSoft: "color-mix(in oklch, oklch(0.57 0.21 25) 16%, var(--b-card))",
-	},
-	OVERALL: {
-		label: "Geral",
-		icon: Globe,
-		blurb: "Tudo somado: fase de grupos + mata-mata.",
-		accent: "var(--b-brand)",
-		accentSoft: "var(--b-brand-10)",
-	},
-};
-
-function PhaseChip({ phase }: { phase: Phase }) {
-	const meta = PHASE_META[phase];
-	const Icon = meta.icon;
-	return (
-		<span
-			className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 font-bold text-[10px] uppercase tracking-wider"
-			style={{
-				color: meta.accent,
-				background: `color-mix(in oklch, ${meta.accent} 14%, transparent)`,
-				border: `1px solid color-mix(in oklch, ${meta.accent} 35%, transparent)`,
-			}}
-		>
-			<Icon className="h-3 w-3" />
-			{meta.label}
-		</span>
-	);
-}
+const ROUND_ACCENT = "var(--b-brand)";
+const OVERALL_ACCENT = "var(--b-brand)";
 
 export default function LeagueDetailPage({
 	params,
@@ -111,38 +59,93 @@ export default function LeagueDetailPage({
 	const league = useQuery(api.leagues.getById, { leagueId });
 	const ranking = useQuery(api.leagues.getRankingByPhase, { leagueId });
 	const currentUser = useQuery(api.auth.getCurrentUser);
+	const { tournament } = useTournament();
+	const currentRoundQuery = useQuery(api.matches.getCurrentRound, {
+		tournament,
+	});
 
-	const [phase, setPhase] = useState<Phase>("OVERALL");
 	const [rankingTab, setRankingTab] = useState<"POINTS" | "EXACTS">("POINTS");
+
+	// Visão do ranking: geral (por fase, já existente) ou por rodada (plano
+	// 005). Suporta deep-link vindo do recap do dashboard
+	// (?view=rodada&matchday=N) sem depender de useSearchParams (evita exigir
+	// Suspense boundary nesta página client).
+	const [view, setView] = useState<"GERAL" | "RODADA">("GERAL");
+	const [selectedRound, setSelectedRound] = useState<number | null>(null);
+	useEffect(() => {
+		if (typeof window === "undefined") return;
+		const params = new URLSearchParams(window.location.search);
+		if (params.get("view") === "rodada") setView("RODADA");
+		const md = params.get("matchday");
+		if (md) {
+			const parsed = Number(md);
+			if (!Number.isNaN(parsed)) setSelectedRound(parsed);
+		}
+	}, []);
+
+	const minRound = currentRoundQuery?.min ?? null;
+	const maxRound = currentRoundQuery?.max ?? null;
+	useEffect(() => {
+		if (selectedRound === null && currentRoundQuery?.current != null) {
+			setSelectedRound(currentRoundQuery.current);
+		}
+	}, [currentRoundQuery, selectedRound]);
+	const activeRound = selectedRound ?? currentRoundQuery?.current ?? null;
+	const canGoPrevRound =
+		activeRound != null && minRound != null && activeRound > minRound;
+	const canGoNextRound =
+		activeRound != null && maxRound != null && activeRound < maxRound;
+
+	const roundRanking = useQuery(
+		api.leagues.getRoundRanking,
+		activeRound != null ? { leagueId, matchday: activeRound } : "skip",
+	);
+
+	const roundPodiumEntries: PodiumEntry[] = useMemo(() => {
+		if (!roundRanking || roundRanking.length === 0) return [];
+		return roundRanking.slice(0, 3).map((m, idx) => ({
+			position: (idx + 1) as 1 | 2 | 3,
+			name: m.name,
+			points: m.totalPoints,
+		}));
+	}, [roundRanking]);
+
+	const roundShareEntries: ShareEntry[] = useMemo(
+		() =>
+			(roundRanking ?? []).slice(0, 8).map((m, idx) => ({
+				position: idx + 1,
+				name: m.name,
+				points: m.totalPoints,
+				exacts: m.exactScores,
+			})),
+		[roundRanking],
+	);
+
+	const roundHasScores = useMemo(
+		() =>
+			(roundRanking ?? []).some((m) => m.totalPoints > 0 || m.exactScores > 0),
+		[roundRanking],
+	);
 
 	const rankingMode = league?.rankingMode ?? "POINTS";
 	const activeTab = rankingMode === "EXACTS" ? rankingTab : "POINTS";
 
-	// Achata o bucket da fase ativa para o shape usado por sort/RankingRow.
+	// Ranking geral: sempre lê o bucket "overall" (grupos/mata-mata não existem mais).
 	const sortedRanking = useMemo(() => {
 		if (!ranking) return [];
-		const bucketKey =
-			phase === "GROUP"
-				? "group"
-				: phase === "KNOCKOUT"
-					? "knockout"
-					: "overall";
 		return ranking
-			.map((m) => {
-				const b = m[bucketKey];
-				return {
-					_id: m._id,
-					userId: m.userId,
-					name: m.name,
-					totalPoints: b.totalPoints,
-					exactScores: b.exactScores,
-					correctResults: b.correctResults,
-				};
-			})
+			.map((m) => ({
+				_id: m._id,
+				userId: m.userId,
+				name: m.name,
+				totalPoints: m.overall.totalPoints,
+				exactScores: m.overall.exactScores,
+				correctResults: m.overall.correctResults,
+			}))
 			.sort(activeTab === "EXACTS" ? compareByExacts : compareByPoints);
-	}, [ranking, phase, activeTab]);
+	}, [ranking, activeTab]);
 
-	const phaseHasScores = useMemo(
+	const hasScores = useMemo(
 		() => sortedRanking.some((m) => m.totalPoints > 0 || m.exactScores > 0),
 		[sortedRanking],
 	);
@@ -166,39 +169,6 @@ export default function LeagueDetailPage({
 			})),
 		[sortedRanking],
 	);
-
-	// Mini-resumo: minha posição + pontos em cada fase (Grupos / Mata-mata / Geral).
-	const myStandings = useMemo(() => {
-		if (!ranking || !currentUser) return null;
-		const comparator =
-			activeTab === "EXACTS" ? compareByExacts : compareByPoints;
-		const buckets = {
-			GROUP: "group",
-			KNOCKOUT: "knockout",
-			OVERALL: "overall",
-		} as const;
-		return PHASE_ORDER.map((p) => {
-			const key = buckets[p];
-			const sorted = [...ranking].sort((a, b) => comparator(a[key], b[key]));
-			const idx = sorted.findIndex((m) => m.userId === currentUser._id);
-			const mine = idx >= 0 ? sorted[idx][key] : null;
-			const hasScores = sorted.some(
-				(m) => m[key].totalPoints > 0 || m[key].exactScores > 0,
-			);
-			return {
-				phase: p,
-				position: idx >= 0 ? idx + 1 : null,
-				value:
-					mine == null
-						? 0
-						: activeTab === "EXACTS"
-							? mine.exactScores
-							: mine.totalPoints,
-				total: ranking.length,
-				hasScores,
-			};
-		});
-	}, [ranking, currentUser, activeTab]);
 
 	if (league === undefined) {
 		return (
@@ -310,266 +280,284 @@ export default function LeagueDetailPage({
 				</div>
 			) : (
 				<>
-					{/* Seletor de fases */}
-					<section
-						className="overflow-hidden rounded-[28px] border bg-[var(--b-card)] p-4 shadow-[var(--b-shadow-card-soft)] transition-colors duration-[var(--motion-base)] sm:p-5"
-						style={{
-							borderColor: `color-mix(in oklch, ${PHASE_META[phase].accent} 35%, var(--b-border-sm))`,
-						}}
-					>
-						<div className="mb-3 flex items-center justify-between gap-3">
-							<span className="inline-flex items-center gap-2 text-[var(--b-text-3)] text-eyebrow">
-								<span
-									aria-hidden
-									className="h-2 w-2 rounded-full transition-colors duration-[var(--motion-base)]"
-									style={{ background: PHASE_META[phase].accent }}
-								/>
-								Visão do ranking
-							</span>
-							<span
-								key={phase}
-								className="hidden animate-fade-in items-center gap-1.5 text-[var(--b-text-3)] text-xs sm:inline-flex"
-							>
-								{PHASE_META[phase].blurb}
-							</span>
-						</div>
-						<PillTabs
-							aria-label="Fase do ranking"
-							size="lg"
-							fullWidth
-							value={phase}
-							onChange={setPhase}
-							accentColor={PHASE_META[phase].accent}
-							items={PHASE_ORDER.map((p) => ({
-								value: p,
-								label: PHASE_META[p].label,
-								icon: PHASE_META[p].icon,
-							}))}
-						/>
-						<p
-							key={`blurb-${phase}`}
-							className="mt-3 animate-fade-in text-[var(--b-text-3)] text-xs leading-relaxed sm:hidden"
-						>
-							{PHASE_META[phase].blurb}
-						</p>
-					</section>
+					{/* Geral vs Por rodada */}
+					<PillTabs
+						aria-label="Visão do ranking: geral ou por rodada"
+						size="lg"
+						fullWidth
+						value={view}
+						onChange={setView}
+						accentColor={view === "RODADA" ? ROUND_ACCENT : OVERALL_ACCENT}
+						items={[
+							{ value: "GERAL", label: "Geral", icon: Globe },
+							{ value: "RODADA", label: "Por rodada", icon: Calendar },
+						]}
+					/>
 
-					{/* Mini-resumo: sua posição em cada fase */}
-					{myStandings && (
-						<section aria-label="Sua posição em cada fase">
-							<div className="grid grid-cols-3 gap-2 sm:gap-3">
-								{myStandings.map((s) => {
-									const meta = PHASE_META[s.phase];
-									const Icon = meta.icon;
-									const active = s.phase === phase;
-									return (
-										<button
-											key={s.phase}
-											type="button"
-											onClick={() => setPhase(s.phase)}
-											className="group flex flex-col gap-1.5 rounded-2xl border p-3 text-left transition-[transform,box-shadow,border-color] duration-[var(--motion-base)] ease-[var(--ease-out-quart)] hover:-translate-y-0.5 sm:p-4"
-											style={{
-												borderColor: active
-													? meta.accent
-													: "var(--b-border-sm)",
-												background: active ? meta.accentSoft : "var(--b-card)",
-												boxShadow: active
-													? `0 6px 18px color-mix(in oklch, ${meta.accent} 22%, transparent)`
-													: undefined,
-											}}
-										>
-											<span className="inline-flex items-center gap-1.5 font-semibold text-[10px] uppercase tracking-wider">
-												<Icon
-													className="h-3.5 w-3.5"
-													style={{ color: meta.accent }}
-												/>
-												<span
-													className="truncate"
-													style={{
-														color: active ? meta.accent : "var(--b-text-3)",
-													}}
-												>
-													{meta.label}
-												</span>
-											</span>
-											{s.hasScores && s.position != null ? (
-												<div className="flex items-baseline gap-1">
-													<span
-														className="font-black font-display text-2xl tabular-nums leading-none sm:text-3xl"
-														style={{ color: "var(--b-text)" }}
-													>
-														{s.position}º
-													</span>
-													<span className="font-mono text-[10px] text-[var(--b-text-4)] tabular-nums">
-														/{s.total}
-													</span>
-												</div>
-											) : (
-												<span className="font-black font-display text-[var(--b-text-4)] text-xl leading-none">
-													—
-												</span>
-											)}
-											<span className="font-mono text-[11px] text-[var(--b-text-3)] tabular-nums">
-												{s.hasScores
-													? `${s.value} ${activeTab === "EXACTS" ? "cravadas" : "pts"}`
-													: "a começar"}
-											</span>
-										</button>
-									);
-								})}
-							</div>
-						</section>
-					)}
+					{view === "RODADA" ? (
+						<div key="rodada" className="animate-fade-in space-y-7">
+							{/* Navegador de rodada */}
+							<div className="flex items-center justify-between gap-3 rounded-[20px] border border-[var(--b-border-sm)] bg-[var(--b-card)] px-3 py-3 sm:px-4">
+								<button
+									type="button"
+									onClick={() =>
+										canGoPrevRound && setSelectedRound((activeRound ?? 0) - 1)
+									}
+									disabled={!canGoPrevRound}
+									aria-label="Rodada anterior"
+									className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[var(--b-border-md)] bg-[var(--b-tint-md)] text-[var(--b-brand)] transition-[transform,opacity] duration-[var(--motion-fast)] active:scale-[0.94] disabled:opacity-30"
+								>
+									<ChevronLeft className="h-5 w-5" />
+								</button>
 
-					{/* Conteúdo da fase ativa — re-keyed para reanimar na troca */}
-					<div key={phase} className="animate-fade-in space-y-7">
-						{!phaseHasScores ? (
-							<div className="flex flex-col items-center gap-3 rounded-[28px] border border-[var(--b-border-md)] border-dashed bg-[var(--b-card)] p-12 text-center">
-								<div className="flex h-14 w-14 items-center justify-center rounded-full bg-[var(--b-tint-md)]">
-									{(() => {
-										const Icon = PHASE_META[phase].icon;
-										return <Icon className="h-7 w-7 text-[var(--b-text-4)]" />;
-									})()}
+								<div className="flex flex-col items-center gap-0.5">
+									<span className="font-black font-display text-[var(--b-text)] text-xl uppercase leading-none tracking-tight sm:text-2xl">
+										{activeRound != null
+											? `Rodada ${activeRound}`
+											: "Sem rodada"}
+									</span>
+									{activeRound != null && (
+										<span className="font-mono text-[10px] text-[var(--b-text-3)] tabular-nums sm:text-xs">
+											{roundRanking?.length ?? 0}{" "}
+											{(roundRanking?.length ?? 0) === 1 ? "membro" : "membros"}
+										</span>
+									)}
 								</div>
-								<p className="font-bold font-display text-[var(--b-text)] text-lg uppercase tracking-tight">
-									{phase === "KNOCKOUT"
-										? "O mata-mata ainda não começou"
-										: "Sem pontos nessa fase ainda"}
-								</p>
-								<p className="max-w-md text-[var(--b-text-3)] text-sm leading-relaxed">
-									{phase === "KNOCKOUT"
-										? "Assim que os jogos eliminatórios terminarem, o ranking ganha vida aqui — todo mundo parte do zero."
-										: "Quando os palpites dessa fase virarem pontos, o ranking aparece aqui."}
-								</p>
+
+								<button
+									type="button"
+									onClick={() =>
+										canGoNextRound && setSelectedRound((activeRound ?? 0) + 1)
+									}
+									disabled={!canGoNextRound}
+									aria-label="Próxima rodada"
+									className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[var(--b-border-md)] bg-[var(--b-tint-md)] text-[var(--b-brand)] transition-[transform,opacity] duration-[var(--motion-fast)] active:scale-[0.94] disabled:opacity-30"
+								>
+									<ChevronRight className="h-5 w-5" />
+								</button>
 							</div>
-						) : (
-							<>
-								{/* Ranking completo */}
-								<section>
-									<header className="mb-4 flex items-end justify-between gap-3">
-										<div className="flex flex-col gap-1.5">
-											<span className="text-[var(--b-text-3)] text-eyebrow">
-												Tabela completa
-											</span>
-											<div className="flex items-center gap-2.5">
-												<h2 className="font-black font-display text-2xl text-[var(--b-text)] uppercase tracking-tight">
-													Ranking
-												</h2>
-												<span key={phase} className="animate-scale-in">
-													<PhaseChip phase={phase} />
+
+							{activeRound == null ? (
+								<div className="flex flex-col items-center gap-3 rounded-[28px] border border-[var(--b-border-md)] border-dashed bg-[var(--b-card)] p-12 text-center">
+									<Calendar className="h-10 w-10 text-[var(--b-text-4)]" />
+									<p className="font-bold font-display text-[var(--b-text)] text-lg uppercase tracking-tight">
+										Sem rodada disponível ainda
+									</p>
+								</div>
+							) : roundRanking === undefined ? (
+								<Skeleton className="h-64 rounded-[28px]" />
+							) : !roundHasScores ? (
+								<div className="flex flex-col items-center gap-3 rounded-[28px] border border-[var(--b-border-md)] border-dashed bg-[var(--b-card)] p-12 text-center">
+									<Calendar className="h-10 w-10 text-[var(--b-text-4)]" />
+									<p className="font-bold font-display text-[var(--b-text)] text-lg uppercase tracking-tight">
+										Sem pontos nessa rodada ainda
+									</p>
+									<p className="max-w-md text-[var(--b-text-3)] text-sm leading-relaxed">
+										Quando os jogos dessa rodada terminarem e os palpites
+										virarem pontos, o ranking aparece aqui.
+									</p>
+								</div>
+							) : (
+								<>
+									<section>
+										<header className="mb-4 flex items-end justify-between gap-3">
+											<div className="flex flex-col gap-1.5">
+												<span className="text-[var(--b-text-3)] text-eyebrow">
+													Tabela da rodada
 												</span>
+												<h2 className="font-black font-display text-2xl text-[var(--b-text)] uppercase tracking-tight">
+													Ranking — Rodada {activeRound}
+												</h2>
 											</div>
-										</div>
-										<div className="flex flex-wrap items-center justify-end gap-2">
 											<ShareRankingSheet
 												leagueName={league.name}
-												phaseLabel={PHASE_META[phase].label}
-												accent={PHASE_META[phase].accent}
-												entries={shareEntries}
+												phaseLabel={`Rodada ${activeRound}`}
+												accent={ROUND_ACCENT}
+												entries={roundShareEntries}
 											/>
-											{rankingMode === "POINTS" && (
-												<Tag variant="brand">Mais pontos</Tag>
-											)}
-											<span className="font-mono text-[var(--b-text-3)] text-xs tabular-nums">
-												{sortedRanking.length}{" "}
-												{sortedRanking.length === 1 ? "membro" : "membros"}
-											</span>
-										</div>
-									</header>
-									{rankingMode === "EXACTS" && (
-										<PillTabs
-											aria-label="Critério do ranking"
-											size="sm"
-											value={rankingTab}
-											onChange={setRankingTab}
-											items={[
-												{
-													value: "POINTS",
-													label: "Ranking de pontos",
-													icon: Trophy,
-												},
-												{
-													value: "EXACTS",
-													label: "Ranking de cravadas",
-													icon: Star,
-												},
-											]}
-											className="mb-4"
-										/>
-									)}
-									<div
-										key={`${phase}-${activeTab}`}
-										className="stagger-children flex flex-col gap-2"
-										style={{ ["--d" as string]: "40ms" }}
-									>
-										{sortedRanking.map((member, idx) => {
-											const isYou = currentUser?._id === member.userId;
-											return (
-												<div
-													key={member._id}
-													style={{ ["--i" as string]: idx }}
-												>
+										</header>
+										<div className="flex flex-col gap-2">
+											{(roundRanking ?? []).map((member) => {
+												const isYou = currentUser?._id === member.userId;
+												return (
 													<Link
+														key={member.userId}
 														href={
 															`/leagues/${id}/members/${member.userId}` as Route
 														}
 														className="block focus-visible:outline-none"
 													>
 														<RankingRow
-															position={idx + 1}
+															position={member.rank}
 															name={member.name}
 															points={member.totalPoints}
 															exacts={member.exactScores}
-															metric={
-																activeTab === "EXACTS" ? "exacts" : "points"
-															}
+															metric="points"
 															isYou={isYou}
-															accent={PHASE_META[phase].accent}
-															selo={
-																isYou ? <PhaseChip phase={phase} /> : undefined
-															}
+															accent={ROUND_ACCENT}
 														/>
 													</Link>
-												</div>
-											);
-										})}
-									</div>
-								</section>
-
-								{/* Pódio */}
-								<section
-									className="rounded-[32px] border bg-[var(--b-card)] p-6 shadow-[var(--b-shadow-card-soft)] transition-colors duration-[var(--motion-base)]"
-									style={{
-										borderColor: `color-mix(in oklch, ${PHASE_META[phase].accent} 28%, var(--b-border-sm))`,
-									}}
-								>
-									<div className="mb-6 flex items-center justify-between gap-3">
-										<div className="flex flex-col gap-1.5">
-											<span className="text-[var(--b-text-3)] text-eyebrow">
-												Top 3 da liga
-											</span>
-											<h2 className="font-black font-display text-2xl text-[var(--b-text)] uppercase tracking-tight">
-												Pódio
-											</h2>
+												);
+											})}
 										</div>
-										<div className="flex items-center gap-2">
-											<span key={phase} className="animate-scale-in">
-												<PhaseChip phase={phase} />
-											</span>
+									</section>
+
+									<section
+										className="rounded-[32px] border bg-[var(--b-card)] p-6 shadow-[var(--b-shadow-card-soft)]"
+										style={{
+											borderColor: `color-mix(in oklch, ${ROUND_ACCENT} 28%, var(--b-border-sm))`,
+										}}
+									>
+										<div className="mb-6 flex items-center justify-between gap-3">
+											<div className="flex flex-col gap-1.5">
+												<span className="text-[var(--b-text-3)] text-eyebrow">
+													Melhor da rodada
+												</span>
+												<h2 className="font-black font-display text-2xl text-[var(--b-text)] uppercase tracking-tight">
+													Pódio da Rodada {activeRound}
+												</h2>
+											</div>
 											<Crown
 												className="h-6 w-6 animate-float"
 												style={{ color: "var(--b-gold)" }}
 											/>
 										</div>
+										<Podium entries={roundPodiumEntries} unit="pts" />
+									</section>
+								</>
+							)}
+						</div>
+					) : (
+						<div key="geral" className="animate-fade-in space-y-7">
+							{!hasScores ? (
+								<div className="flex flex-col items-center gap-3 rounded-[28px] border border-[var(--b-border-md)] border-dashed bg-[var(--b-card)] p-12 text-center">
+									<div className="flex h-14 w-14 items-center justify-center rounded-full bg-[var(--b-tint-md)]">
+										<Globe className="h-7 w-7 text-[var(--b-text-4)]" />
 									</div>
-									<Podium
-										entries={podiumEntries}
-										unit={activeTab === "EXACTS" ? "cravadas" : "pts"}
-									/>
-								</section>
-							</>
-						)}
-					</div>
+									<p className="font-bold font-display text-[var(--b-text)] text-lg uppercase tracking-tight">
+										Sem pontos nessa fase ainda
+									</p>
+									<p className="max-w-md text-[var(--b-text-3)] text-sm leading-relaxed">
+										Quando os palpites dessa fase virarem pontos, o ranking
+										aparece aqui.
+									</p>
+								</div>
+							) : (
+								<>
+									{/* Ranking completo */}
+									<section>
+										<header className="mb-4 flex items-end justify-between gap-3">
+											<div className="flex flex-col gap-1.5">
+												<span className="text-[var(--b-text-3)] text-eyebrow">
+													Tabela completa
+												</span>
+												<h2 className="font-black font-display text-2xl text-[var(--b-text)] uppercase tracking-tight">
+													Ranking
+												</h2>
+											</div>
+											<div className="flex flex-wrap items-center justify-end gap-2">
+												<ShareRankingSheet
+													leagueName={league.name}
+													phaseLabel="Geral"
+													accent={OVERALL_ACCENT}
+													entries={shareEntries}
+												/>
+												{rankingMode === "POINTS" && (
+													<Tag variant="brand">Mais pontos</Tag>
+												)}
+												<span className="font-mono text-[var(--b-text-3)] text-xs tabular-nums">
+													{sortedRanking.length}{" "}
+													{sortedRanking.length === 1 ? "membro" : "membros"}
+												</span>
+											</div>
+										</header>
+										{rankingMode === "EXACTS" && (
+											<PillTabs
+												aria-label="Critério do ranking"
+												size="sm"
+												value={rankingTab}
+												onChange={setRankingTab}
+												items={[
+													{
+														value: "POINTS",
+														label: "Ranking de pontos",
+														icon: Trophy,
+													},
+													{
+														value: "EXACTS",
+														label: "Ranking de cravadas",
+														icon: Star,
+													},
+												]}
+												className="mb-4"
+											/>
+										)}
+										<div
+											key={activeTab}
+											className="stagger-children flex flex-col gap-2"
+											style={{ ["--d" as string]: "40ms" }}
+										>
+											{sortedRanking.map((member, idx) => {
+												const isYou = currentUser?._id === member.userId;
+												return (
+													<div
+														key={member._id}
+														style={{ ["--i" as string]: idx }}
+													>
+														<Link
+															href={
+																`/leagues/${id}/members/${member.userId}` as Route
+															}
+															className="block focus-visible:outline-none"
+														>
+															<RankingRow
+																position={idx + 1}
+																name={member.name}
+																points={member.totalPoints}
+																exacts={member.exactScores}
+																metric={
+																	activeTab === "EXACTS" ? "exacts" : "points"
+																}
+																isYou={isYou}
+																accent={OVERALL_ACCENT}
+															/>
+														</Link>
+													</div>
+												);
+											})}
+										</div>
+									</section>
+
+									{/* Pódio */}
+									<section
+										className="rounded-[32px] border bg-[var(--b-card)] p-6 shadow-[var(--b-shadow-card-soft)] transition-colors duration-[var(--motion-base)]"
+										style={{
+											borderColor: `color-mix(in oklch, ${OVERALL_ACCENT} 28%, var(--b-border-sm))`,
+										}}
+									>
+										<div className="mb-6 flex items-center justify-between gap-3">
+											<div className="flex flex-col gap-1.5">
+												<span className="text-[var(--b-text-3)] text-eyebrow">
+													Top 3 da liga
+												</span>
+												<h2 className="font-black font-display text-2xl text-[var(--b-text)] uppercase tracking-tight">
+													Pódio
+												</h2>
+											</div>
+											<Crown
+												className="h-6 w-6 animate-float"
+												style={{ color: "var(--b-gold)" }}
+											/>
+										</div>
+										<Podium
+											entries={podiumEntries}
+											unit={activeTab === "EXACTS" ? "cravadas" : "pts"}
+										/>
+									</section>
+								</>
+							)}
+						</div>
+					)}
 				</>
 			)}
 		</div>
