@@ -32,7 +32,11 @@ export function computeCurrentRound(
 
 	for (const round of sorted) {
 		const hasUnfinished = matches.some(
-			(m) => m.matchday === round && m.status !== "FINISHED",
+			(m) =>
+				m.matchday === round &&
+				m.status !== "FINISHED" &&
+				m.status !== "POSTPONED" &&
+				m.status !== "CANCELLED",
 		);
 		if (hasUnfinished) return { current: round, min, max };
 	}
