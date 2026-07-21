@@ -238,13 +238,6 @@ export default function RegrasPage() {
 									</div>
 								))}
 							</div>
-							<Link
-								href="/mata-mata"
-								className="mt-5 inline-flex items-center gap-1 font-bold text-[var(--b-brand)] text-xs uppercase tracking-wide hover:underline"
-							>
-								Ver o chaveamento
-								<ChevronRight className="h-3.5 w-3.5" />
-							</Link>
 						</div>
 
 						{/* Regra dos 90 minutos no mata-mata */}

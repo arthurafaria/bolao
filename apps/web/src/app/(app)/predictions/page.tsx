@@ -6,38 +6,24 @@ import { Skeleton } from "@bolao/ui/components/skeleton";
 import { useQuery } from "convex/react";
 import type { FunctionReturnType } from "convex/server";
 import {
-	CalendarDays,
 	CalendarOff,
-	GitBranch,
-	LayoutGrid,
+	ChevronLeft,
+	ChevronRight,
 	ListChecks,
 	Trophy,
 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
-import { KnockoutPreviewCard } from "@/components/bracket/knockout-preview-card";
 import { DayHeader } from "@/components/match/day-header";
 import { Scorecard } from "@/components/match/scorecard";
 import { useTournament } from "@/contexts/tournament-context";
-import { resolveBracket } from "@/lib/knockout";
-import { groupByGroup, STAGE_LABELS } from "@/lib/match-grouping";
-import type { BracketStage } from "@/lib/wc2026-bracket";
+import { currentRound } from "@/lib/match-grouping";
 
 type Match = NonNullable<
 	FunctionReturnType<typeof api.matches.getAllByDate>[number]
 >;
 
-type FilterTab = "upcoming" | "mine" | "knockout";
-type UpcomingMode = "consecutivos" | "grupo";
-
-const KNOCKOUT_STAGES: BracketStage[] = [
-	"ROUND_OF_32",
-	"ROUND_OF_16",
-	"QUARTER_FINALS",
-	"SEMI_FINALS",
-	"THIRD_PLACE",
-	"FINAL",
-];
+type FilterTab = "rodada" | "mine";
 
 const LOCK_MS = 60 * 60 * 1000;
 
@@ -65,13 +51,24 @@ function groupByDay(matches: Match[]): [string, Date, Match[]][] {
 	});
 }
 
+function formatCloseTime(ms: number): string {
+	return new Date(ms)
+		.toLocaleString("pt-BR", {
+			weekday: "short",
+			day: "2-digit",
+			month: "short",
+			hour: "2-digit",
+			minute: "2-digit",
+		})
+		.replace(/\./g, "");
+}
+
 export default function PredictionsPage() {
 	const { tournament } = useTournament();
 	const matches = useQuery(api.matches.getAllByDate, { tournament });
 	const allPredictions = useQuery(api.predictions.getUserPredictions);
-	const [tab, setTab] = useState<FilterTab>("upcoming");
-	const [upcomingMode, setUpcomingMode] =
-		useState<UpcomingMode>("consecutivos");
+	const [tab, setTab] = useState<FilterTab>("rodada");
+	const [selectedRound, setSelectedRound] = useState<number | null>(null);
 
 	const predMap = useMemo(() => {
 		if (!allPredictions) return undefined;
@@ -83,42 +80,69 @@ export default function PredictionsPage() {
 		[matches],
 	);
 
-	// Chave do mata-mata (só a Copa). Resolve os slots a partir dos grupos e
-	// casa com os jogos reais; matchById recupera o documento completo para o
-	// Scorecard quando o confronto já está definido.
-	const showKnockoutTab = tournament === "WC2026";
-	const matchById = useMemo(
-		() => new Map(cleanedMatches.map((m) => [m._id as string, m])),
-		[cleanedMatches],
-	);
-	const bracket = useMemo(
-		() => (showKnockoutTab ? resolveBracket(cleanedMatches) : []),
-		[showKnockoutTab, cleanedMatches],
-	);
-	const knockoutDefinedCount = useMemo(
-		() => bracket.filter((g) => g.match != null).length,
-		[bracket],
-	);
-
 	const now = Date.now();
 
-	const allUpcomingMatches = useMemo(
-		() =>
-			cleanedMatches.filter(
-				(m) =>
-					m.status !== "FINISHED" &&
-					(m.status === "TIMED" || m.status === "SCHEDULED"),
-			),
+	// Rodadas disponíveis (jogos com matchday definido), em ordem.
+	const roundNumbers = useMemo(() => {
+		const set = new Set<number>();
+		for (const m of cleanedMatches) {
+			if (m.matchday != null) set.add(m.matchday);
+		}
+		return Array.from(set).sort((a, b) => a - b);
+	}, [cleanedMatches]);
+
+	const minRound = roundNumbers[0] ?? null;
+	const maxRound = roundNumbers[roundNumbers.length - 1] ?? null;
+
+	const derivedCurrentRound = useMemo(
+		() => currentRound(cleanedMatches),
 		[cleanedMatches],
 	);
 
-	const sortedUpcoming = useMemo(
+	// Rodada selecionada por padrão é a atual; o usuário pode navegar a partir
+	// dela com os botões ◀ ▶ (clampado aos limites disponíveis).
+	useEffect(() => {
+		if (selectedRound === null && derivedCurrentRound !== null) {
+			setSelectedRound(derivedCurrentRound);
+		}
+	}, [derivedCurrentRound, selectedRound]);
+
+	const activeRound = selectedRound ?? derivedCurrentRound;
+
+	const roundMatches = useMemo(
 		() =>
-			[...allUpcomingMatches].sort(
+			activeRound == null
+				? []
+				: cleanedMatches.filter((m) => m.matchday === activeRound),
+		[cleanedMatches, activeRound],
+	);
+
+	const sortedRoundMatches = useMemo(
+		() =>
+			[...roundMatches].sort(
 				(a, b) => new Date(a.utcDate).getTime() - new Date(b.utcDate).getTime(),
 			),
-		[allUpcomingMatches],
+		[roundMatches],
 	);
+
+	const roundByDay = useMemo(
+		() => groupByDay(sortedRoundMatches),
+		[sortedRoundMatches],
+	);
+
+	const predictedInRound = useMemo(
+		() => sortedRoundMatches.filter((m) => predMap?.has(m._id)).length,
+		[sortedRoundMatches, predMap],
+	);
+
+	// Fechamento da rodada: 1h antes do próximo jogo ainda não bloqueado.
+	const roundCloseTime = useMemo(() => {
+		const upcoming = sortedRoundMatches
+			.map((m) => new Date(m.utcDate).getTime() - LOCK_MS)
+			.filter((lockTime) => lockTime > now)
+			.sort((a, b) => a - b);
+		return upcoming[0] ?? null;
+	}, [sortedRoundMatches, now]);
 
 	// Meus palpites: todo jogo já bloqueado (faltando começar, ao vivo ou
 	// encerrado) em que o usuário palpitou. Permite acompanhar o que jogou
@@ -148,28 +172,12 @@ export default function PredictionsPage() {
 		[sortedActive],
 	);
 
-	// Próximos: dois modos — jogos consecutivos (por dia) ou por grupo.
-	const upcomingByDay = useMemo(
-		() => groupByDay(sortedUpcoming),
-		[sortedUpcoming],
-	);
-
-	const groupStageUpcoming = useMemo(
-		() => sortedUpcoming.filter((m) => Boolean(m.group)),
-		[sortedUpcoming],
-	);
-
-	const canGroupView = tournament === "WC2026" && groupStageUpcoming.length > 0;
-
-	const effectiveMode: UpcomingMode =
-		upcomingMode === "grupo" && canGroupView ? "grupo" : "consecutivos";
-
-	const upcomingByGroup = useMemo(
-		() => (canGroupView ? groupByGroup(groupStageUpcoming) : []),
-		[canGroupView, groupStageUpcoming],
-	);
-
 	const isLoading = matches === undefined || predMap === undefined;
+
+	const canGoPrev =
+		activeRound != null && minRound != null && activeRound > minRound;
+	const canGoNext =
+		activeRound != null && maxRound != null && activeRound < maxRound;
 
 	return (
 		<div className="animate-fade-in space-y-6">
@@ -192,21 +200,11 @@ export default function PredictionsPage() {
 			<PillTabs
 				items={[
 					{
-						value: "upcoming",
-						label: "Próximos",
+						value: "rodada",
+						label: "Rodada",
 						icon: Trophy,
-						count: sortedUpcoming.length,
+						count: sortedRoundMatches.length,
 					},
-					...(showKnockoutTab
-						? [
-								{
-									value: "knockout" as const,
-									label: "Mata-mata",
-									icon: GitBranch,
-									count: knockoutDefinedCount,
-								},
-							]
-						: []),
 					{
 						value: "mine",
 						label: "Meus palpites",
@@ -219,24 +217,6 @@ export default function PredictionsPage() {
 				aria-label="Filtrar palpites"
 			/>
 
-			{/* Sub-toggle de visualização (apenas em "Próximos", com fase de grupos) */}
-			{tab === "upcoming" && canGroupView && !isLoading ? (
-				<PillTabs
-					size="sm"
-					items={[
-						{
-							value: "consecutivos",
-							label: "Jogos consecutivos",
-							icon: CalendarDays,
-						},
-						{ value: "grupo", label: "Por grupo", icon: LayoutGrid },
-					]}
-					value={effectiveMode}
-					onChange={(v) => setUpcomingMode(v)}
-					aria-label="Modo de visualização dos próximos jogos"
-				/>
-			) : null}
-
 			{/* Lista */}
 			{isLoading ? (
 				<div className="space-y-6">
@@ -248,164 +228,90 @@ export default function PredictionsPage() {
 						</div>
 					))}
 				</div>
-			) : tab === "upcoming" ? (
-				sortedUpcoming.length === 0 ? (
-					<EmptyByTab tab="upcoming" />
-				) : effectiveMode === "grupo" ? (
-					<div className="space-y-8">
-						<div className="flex flex-wrap items-end justify-between gap-3">
-							<div className="flex flex-col">
-								<span className="text-[var(--b-brand)] text-eyebrow">
-									Fase de grupos
+			) : tab === "rodada" ? (
+				activeRound == null ? (
+					<EmptyByTab tab="rodada" />
+				) : (
+					<div className="space-y-6">
+						{/* Navegador de rodada */}
+						<div className="flex items-center justify-between gap-3 rounded-[20px] border border-[var(--b-border-sm)] bg-[var(--b-card)] px-3 py-3 sm:px-4">
+							<button
+								type="button"
+								onClick={() =>
+									canGoPrev && setSelectedRound((activeRound ?? 0) - 1)
+								}
+								disabled={!canGoPrev}
+								aria-label="Rodada anterior"
+								className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[var(--b-border-md)] bg-[var(--b-tint-md)] text-[var(--b-brand)] transition-[transform,opacity] duration-[var(--motion-fast)] active:scale-[0.94] disabled:opacity-30"
+							>
+								<ChevronLeft className="h-5 w-5" />
+							</button>
+
+							<div className="flex flex-col items-center gap-0.5">
+								<span className="font-black font-display text-[var(--b-text)] text-xl uppercase leading-none tracking-tight sm:text-2xl">
+									Rodada {activeRound}
 								</span>
-								<h2 className="text-balance font-black font-display text-2xl text-[var(--b-text)] uppercase leading-none tracking-tight sm:text-3xl">
-									Palpite por grupo
-								</h2>
+								<span className="font-mono text-[10px] text-[var(--b-text-3)] tabular-nums sm:text-xs">
+									{predictedInRound}/{sortedRoundMatches.length} palpitados
+									{roundCloseTime != null &&
+										` · fecha ${formatCloseTime(roundCloseTime)}`}
+								</span>
 							</div>
-							<span className="font-mono font-semibold text-[var(--b-text-4)] text-xs tabular-nums">
-								{groupStageUpcoming.length} jogos
-							</span>
+
+							<button
+								type="button"
+								onClick={() =>
+									canGoNext && setSelectedRound((activeRound ?? 0) + 1)
+								}
+								disabled={!canGoNext}
+								aria-label="Próxima rodada"
+								className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[var(--b-border-md)] bg-[var(--b-tint-md)] text-[var(--b-brand)] transition-[transform,opacity] duration-[var(--motion-fast)] active:scale-[0.94] disabled:opacity-30"
+							>
+								<ChevronRight className="h-5 w-5" />
+							</button>
 						</div>
 
-						<div className="space-y-6">
-							{upcomingByGroup.map(([group, groupMatches]) => {
-								const predictedCount = groupMatches.filter((m) =>
-									predMap?.has(m._id),
-								).length;
-								return (
-									<section key={group} className="space-y-3">
-										<GroupHeader
-											group={group}
-											totalMatches={groupMatches.length}
-											predictedMatches={predictedCount}
-										/>
-										<div
-											className="stagger-children space-y-3"
-											style={{ ["--d" as string]: "60ms" }}
-										>
-											{groupMatches.map((m, i) => (
-												<div key={m._id} style={{ ["--i" as string]: i }}>
-													<Scorecard
-														match={m}
-														prediction={
-															predMap ? (predMap.get(m._id) ?? null) : undefined
-														}
-													/>
-												</div>
-											))}
-										</div>
-									</section>
-								);
-							})}
-						</div>
-					</div>
-				) : (
-					<div className="space-y-8">
-						{upcomingByDay.map(([key, date, dayMatches]) => {
-							const predictedCount = dayMatches.filter((m) =>
-								predMap?.has(m._id),
-							).length;
-							return (
-								<section key={key} className="space-y-3">
-									<DayHeader
-										date={date}
-										totalMatches={dayMatches.length}
-										predictedMatches={predictedCount}
-									/>
-									<div
-										className="stagger-children space-y-3"
-										style={{ ["--d" as string]: "60ms" }}
-									>
-										{dayMatches.map((m, i) => (
-											<div key={m._id} style={{ ["--i" as string]: i }}>
-												<Scorecard
-													match={m}
-													prediction={
-														predMap ? (predMap.get(m._id) ?? null) : undefined
-													}
-												/>
+						{sortedRoundMatches.length === 0 ? (
+							<EmptyByTab tab="rodada" />
+						) : (
+							<div className="space-y-8">
+								{roundByDay.map(([key, date, dayMatches]) => {
+									const predictedCount = dayMatches.filter((m) =>
+										predMap?.has(m._id),
+									).length;
+									return (
+										<section key={key} className="space-y-3">
+											<DayHeader
+												date={date}
+												totalMatches={dayMatches.length}
+												predictedMatches={predictedCount}
+											/>
+											<div
+												className="stagger-children space-y-3"
+												style={{ ["--d" as string]: "60ms" }}
+											>
+												{dayMatches.map((m, i) => (
+													<div key={m._id} style={{ ["--i" as string]: i }}>
+														<Scorecard
+															match={m}
+															prediction={
+																predMap
+																	? (predMap.get(m._id) ?? null)
+																	: undefined
+															}
+														/>
+													</div>
+												))}
 											</div>
-										))}
-									</div>
-								</section>
-							);
-						})}
+										</section>
+									);
+								})}
+							</div>
+						)}
 					</div>
 				)
-			) : tab === "knockout" ? (
-				<div className="space-y-8">
-					<div className="flex flex-wrap items-end justify-between gap-3">
-						<div className="flex flex-col">
-							<span className="text-[var(--b-brand)] text-eyebrow">
-								Caminho até a taça
-							</span>
-							<h2 className="text-balance font-black font-display text-2xl text-[var(--b-text)] uppercase leading-none tracking-tight sm:text-3xl">
-								Mata-mata
-							</h2>
-						</div>
-						<span className="font-mono font-semibold text-[var(--b-text-4)] text-xs tabular-nums">
-							{knockoutDefinedCount}/{bracket.length} definidos
-						</span>
-					</div>
-					<p className="-mt-4 max-w-2xl text-[var(--b-text-3)] text-sm">
-						Cada confronto abre para palpite assim que os dois times estão
-						definidos. Até lá ele aparece como confronto potencial (ex.: “3º
-						A/E/F”).
-					</p>
-
-					{KNOCKOUT_STAGES.map((stage) => {
-						const stageGames = bracket.filter((g) => g.stage === stage);
-						if (stageGames.length === 0) return null;
-						const definedInStage = stageGames.filter(
-							(g) => g.match != null,
-						).length;
-						return (
-							<section key={stage} className="space-y-3">
-								<div className="flex items-end justify-between gap-3">
-									<div className="flex items-baseline gap-2">
-										<span className="text-[var(--b-brand)] text-eyebrow">
-											Fase
-										</span>
-										<span className="font-black font-display text-[var(--b-text)] text-xl uppercase leading-none tracking-tight sm:text-2xl">
-											{STAGE_LABELS[stage]}
-										</span>
-									</div>
-									<span className="font-mono font-semibold text-[var(--b-text-4)] text-xs tabular-nums">
-										{definedInStage}/{stageGames.length}
-									</span>
-								</div>
-								<div
-									className="stagger-children space-y-3"
-									style={{ ["--d" as string]: "60ms" }}
-								>
-									{stageGames.map((game, i) => {
-										const full = game.match
-											? matchById.get(game.match._id)
-											: undefined;
-										return (
-											<div key={game.no} style={{ ["--i" as string]: i }}>
-												{full ? (
-													<Scorecard
-														match={full}
-														prediction={
-															predMap
-																? (predMap.get(full._id) ?? null)
-																: undefined
-														}
-													/>
-												) : (
-													<KnockoutPreviewCard game={game} />
-												)}
-											</div>
-										);
-									})}
-								</div>
-							</section>
-						);
-					})}
-				</div>
 			) : sortedActive.length === 0 ? (
-				<EmptyByTab tab={tab} />
+				<EmptyByTab tab="mine" />
 			) : (
 				<div className="space-y-8">
 					{grouped.map(([key, date, dayMatches]) => {
@@ -444,83 +350,15 @@ export default function PredictionsPage() {
 	);
 }
 
-function GroupHeader({
-	group,
-	totalMatches,
-	predictedMatches,
-}: {
-	group: string;
-	totalMatches: number;
-	predictedMatches: number;
-}) {
-	const allDone = predictedMatches >= totalMatches;
-	const anyDone = predictedMatches > 0;
-	const pct = totalMatches > 0 ? (predictedMatches / totalMatches) * 100 : 0;
-
-	return (
-		<div className="relative flex flex-col gap-2 overflow-hidden rounded-[20px] bg-[var(--b-card)] px-4 py-3 shadow-[0_14px_34px_-28px_rgba(0,0,0,0.35)]">
-			{/* Marca d'água do grupo */}
-			<span
-				aria-hidden
-				className="pointer-events-none absolute -top-2 -right-3 select-none font-black font-display uppercase leading-none"
-				style={{
-					fontSize: "clamp(3rem, 10vw, 4.5rem)",
-					color: "var(--b-text)",
-					opacity: 0.04,
-					letterSpacing: "-0.04em",
-				}}
-			>
-				{group}
-			</span>
-			<div className="flex items-end justify-between gap-3">
-				<div className="flex items-baseline gap-2">
-					<span className="text-[var(--b-brand)] text-eyebrow">Grupo</span>
-					<span className="font-black font-display text-3xl text-[var(--b-text)] uppercase leading-none tracking-tight">
-						{group}
-					</span>
-				</div>
-				<span
-					className={[
-						"font-mono font-semibold text-xs tabular-nums",
-						allDone
-							? "text-[var(--b-success)]"
-							: anyDone
-								? "text-[var(--b-warning-fg)]"
-								: "text-[var(--b-text-3)]",
-					].join(" ")}
-				>
-					{predictedMatches}/{totalMatches} palpitados
-				</span>
-			</div>
-			<div
-				aria-hidden
-				className="h-0.5 w-full overflow-hidden rounded-full bg-[var(--b-tint-md)]"
-			>
-				<div
-					className="h-full rounded-full transition-[width] duration-[var(--motion-medium)] ease-[var(--ease-out-expo)]"
-					style={{
-						width: `${pct}%`,
-						background: allDone
-							? "var(--b-success)"
-							: anyDone
-								? "var(--b-warning)"
-								: "var(--b-brand)",
-					}}
-				/>
-			</div>
-		</div>
-	);
-}
-
-function EmptyByTab({ tab }: { tab: "upcoming" | "mine" }) {
+function EmptyByTab({ tab }: { tab: "rodada" | "mine" }) {
 	const config: Record<
-		"upcoming" | "mine",
+		"rodada" | "mine",
 		{ icon: React.ElementType; title: string; desc: string }
 	> = {
-		upcoming: {
+		rodada: {
 			icon: CalendarOff,
-			title: "Sem jogos por enquanto",
-			desc: "Quando a próxima janela do torneio entrar no ar, os jogos aparecem aqui.",
+			title: "Sem jogos nesta rodada",
+			desc: "Quando a tabela do Brasileirão trouxer os próximos jogos, eles aparecem aqui.",
 		},
 		mine: {
 			icon: ListChecks,

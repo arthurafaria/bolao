@@ -31,18 +31,35 @@ export function roundLabel(match: RoundableMatch): string {
 	return STAGE_LABELS[match.stage] ?? match.stage.replace(/_/g, " ");
 }
 
-/** Agrupa jogos da fase de grupos por grupo (A→L), preservando ordem de data dentro do grupo. */
-export function groupByGroup<T extends RoundableMatch>(
+type RoundStatusMatch = { matchday?: number | null; status: string };
+
+/**
+ * Rodada atual: a menor rodada (matchday) que ainda tem jogo não encerrado.
+ * Se todas as rodadas com jogos estiverem encerradas, retorna a maior rodada.
+ * Retorna null se nenhum jogo tiver matchday definido.
+ *
+ * Função pura para poder ser reutilizada por dashboard + predictions sem
+ * depender de uma query específica (client-side derivation; ver plano 005
+ * para a versão server-side `matches.getCurrentRound`).
+ */
+export function currentRound<T extends RoundStatusMatch>(
 	matches: T[],
-): [string, T[]][] {
-	const map = new Map<string, T[]>();
+): number | null {
+	const byRound = new Map<number, T[]>();
 	for (const m of matches) {
-		const letter = m.group?.replace(/^(?:GRUPO|GROUP)[_\s]+/, "") ?? "?";
-		const list = map.get(letter) ?? [];
+		if (m.matchday == null) continue;
+		const list = byRound.get(m.matchday) ?? [];
 		list.push(m);
-		map.set(letter, list);
+		byRound.set(m.matchday, list);
 	}
-	return Array.from(map.entries()).sort(([a], [b]) => a.localeCompare(b));
+	if (byRound.size === 0) return null;
+
+	const rounds = Array.from(byRound.keys()).sort((a, b) => a - b);
+	for (const round of rounds) {
+		const roundMatches = byRound.get(round) ?? [];
+		if (roundMatches.some((m) => m.status !== "FINISHED")) return round;
+	}
+	return rounds[rounds.length - 1] ?? null;
 }
 
 export function groupByRound<T extends RoundableMatch>(
