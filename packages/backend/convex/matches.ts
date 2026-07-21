@@ -3,6 +3,7 @@ import { v } from "convex/values";
 import type { Doc } from "./_generated/dataModel";
 import type { QueryCtx } from "./_generated/server";
 import { internalMutation, internalQuery, query } from "./_generated/server";
+import { ACTIVE_TOURNAMENT } from "./lib/tournaments";
 
 async function enrichMatch(ctx: QueryCtx, match: Doc<"matches">) {
 	const [homeTeam, awayTeam] = await Promise.all([
@@ -276,10 +277,12 @@ export const getFinishedWithScore = internalQuery({
 			.query("matches")
 			.withIndex("by_status", (q) => q.eq("status", "FINISHED"))
 			.collect();
-		// Apenas a Copa pontua — mantém o recálculo alinhado com computeForMatch.
+		// Apenas o torneio ativo pontua — mantém o recálculo alinhado com computeForMatch.
 		return matches.filter(
 			(m) =>
-				m.tournament === "WC2026" && m.homeScore != null && m.awayScore != null,
+				m.tournament === ACTIVE_TOURNAMENT &&
+				m.homeScore != null &&
+				m.awayScore != null,
 		);
 	},
 });
@@ -324,11 +327,6 @@ export const patchMatchScore = internalMutation({
 		matchId: v.id("matches"),
 		homeScore: v.number(),
 		awayScore: v.number(),
-		// Opcionais — usados para corrigir quem avançou quando a API não
-		// publica o vencedor de uma prorrogação/pênaltis (ex.: winner "DRAW"
-		// num jogo de mata-mata, que é sempre decidido).
-		duration: v.optional(v.string()),
-		winner: v.optional(v.string()),
 	},
 	handler: async (ctx, args) => {
 		await ctx.db.patch(args.matchId, {
@@ -336,8 +334,6 @@ export const patchMatchScore = internalMutation({
 			awayScore: args.awayScore,
 			status: "FINISHED",
 			manualOverride: true,
-			...(args.duration != null ? { duration: args.duration } : {}),
-			...(args.winner != null ? { winner: args.winner } : {}),
 		});
 	},
 });
