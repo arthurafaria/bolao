@@ -1,5 +1,10 @@
 import { describe, expect, test } from "bun:test";
-import { compareByExacts, compareByPoints } from "../convex/lib/ranking";
+import {
+	compareByExacts,
+	compareByPoints,
+	DEFAULT_SCORING,
+	pointsFrom,
+} from "../convex/lib/ranking";
 
 describe("compareByPoints", () => {
 	test("mais pontos vence", () => {
@@ -43,6 +48,31 @@ describe("compareByExacts", () => {
 		const b = { totalPoints: 40, exactScores: 3, correctResults: 9 };
 		expect(compareByExacts(a, b)).toBeLessThan(0);
 		expect(compareByExacts(b, a)).toBeGreaterThan(0);
+	});
+});
+
+describe("pointsFrom (sem bônus de desempate de mata-mata)", () => {
+	test("placar exato cravado vale só resultado + gols + bônus de cravada, sem +2 extra", () => {
+		// Palpite 1x1 acertando um "empate" não soma mais nenhum bônus de
+		// prever quem avançaria na prorrogação/pênaltis — esse protocolo foi
+		// removido (liga de pontos corridos não tem mata-mata).
+		const components = { result: true, homeGoals: true, awayGoals: true };
+		expect(pointsFrom(components, DEFAULT_SCORING)).toBe(
+			DEFAULT_SCORING.result +
+				DEFAULT_SCORING.goal * 2 +
+				DEFAULT_SCORING.exactBonus,
+		);
+	});
+
+	test("resultado certo sem cravar não ganha bônus de desempate", () => {
+		const components = { result: true, homeGoals: false, awayGoals: false };
+		expect(pointsFrom(components, DEFAULT_SCORING)).toBe(
+			DEFAULT_SCORING.result,
+		);
+	});
+
+	test("sem componentes (palpite ainda não calculado) vale 0", () => {
+		expect(pointsFrom(undefined, DEFAULT_SCORING)).toBe(0);
 	});
 });
 

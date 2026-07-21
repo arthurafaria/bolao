@@ -327,11 +327,6 @@ export const patchMatchScore = internalMutation({
 		matchId: v.id("matches"),
 		homeScore: v.number(),
 		awayScore: v.number(),
-		// Opcionais — usados para corrigir quem avançou quando a API não
-		// publica o vencedor de uma prorrogação/pênaltis (ex.: winner "DRAW"
-		// num jogo de mata-mata, que é sempre decidido).
-		duration: v.optional(v.string()),
-		winner: v.optional(v.string()),
 	},
 	handler: async (ctx, args) => {
 		await ctx.db.patch(args.matchId, {
@@ -339,8 +334,6 @@ export const patchMatchScore = internalMutation({
 			awayScore: args.awayScore,
 			status: "FINISHED",
 			manualOverride: true,
-			...(args.duration != null ? { duration: args.duration } : {}),
-			...(args.winner != null ? { winner: args.winner } : {}),
 		});
 	},
 });

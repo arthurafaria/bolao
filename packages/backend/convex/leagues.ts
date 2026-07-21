@@ -7,10 +7,8 @@ import {
 	compareByExacts,
 	compareByPoints,
 	DEFAULT_SCORING,
-	isKnockoutStage,
 	pointsFrom,
 } from "./lib/ranking";
-import { ACTIVE_TOURNAMENT } from "./lib/tournaments";
 
 // Apenas o Brasileirão (torneio ativo, ver lib/tournaments) pontua para o
 // ranking das ligas.
@@ -523,11 +521,11 @@ export const getRanking = query({
 });
 
 /**
- * Ranking dividido em três fases: Geral, Fase de Grupos e Mata-mata.
- * Cada palpite calculado é classificado pela `stage` da partida e seus
- * pontos são recalculados com a pontuação da liga (mesma fórmula do
- * cálculo incremental), de modo que a separação respeita pontuações
- * personalizadas. O front ordena cada fase independentemente.
+ * Ranking do torneio ativo (liga de pontos corridos, sem mata-mata). Mantém
+ * o formato de resposta (`overall`/`group`/`knockout`) por compatibilidade
+ * com o front, mas `group` e `knockout` ficam sempre vazios — todos os
+ * pontos entram em `overall`, recalculados com a pontuação da liga (mesma
+ * fórmula do cálculo incremental) para respeitar pontuações personalizadas.
  */
 export const getRankingByPhase = query({
 	args: { leagueId: v.id("leagues") },
@@ -540,24 +538,11 @@ export const getRankingByPhase = query({
 		const league = await ctx.db.get(args.leagueId);
 		const scoring = league?.scoring ?? DEFAULT_SCORING;
 
-		const [members, scorableMatches] = await Promise.all([
-			ctx.db
-				.query("leagueMembers")
-				.withIndex("by_league", (q) => q.eq("leagueId", args.leagueId))
-				.filter((q) => q.eq(q.field("status"), "ACTIVE"))
-				.collect(),
-			ctx.db
-				.query("matches")
-				.withIndex("by_tournament_date", (q) =>
-					q.eq("tournament", ACTIVE_TOURNAMENT),
-				)
-				.collect(),
-		]);
-
-		// matchId -> é mata-mata? (só partidas pontuáveis da Copa entram aqui)
-		const knockoutByMatch = new Map<string, boolean>(
-			scorableMatches.map((m) => [m._id, isKnockoutStage(m.stage)]),
-		);
+		const members = await ctx.db
+			.query("leagueMembers")
+			.withIndex("by_league", (q) => q.eq("leagueId", args.leagueId))
+			.filter((q) => q.eq(q.field("status"), "ACTIVE"))
+			.collect();
 
 		function emptyBucket() {
 			return { totalPoints: 0, exactScores: 0, correctResults: 0 };
@@ -573,36 +558,24 @@ export const getRankingByPhase = query({
 						.collect(),
 				]);
 
-				const group = emptyBucket();
-				const knockout = emptyBucket();
+				const overall = emptyBucket();
 
 				for (const pred of predictions) {
 					if (!pred.components || pred.calculatedAt === undefined) continue;
-					const isKnockout = knockoutByMatch.get(pred.matchId as string);
-					if (isKnockout === undefined) continue; // partida não pontuável
-					const bucket = isKnockout ? knockout : group;
 					const c = pred.components;
 					const isExact = c.result && c.homeGoals && c.awayGoals;
-					// Bônus de desempate (+2) entra só no total, sem virar cravada/
-					// resultado. Só existe em jogos de mata-mata.
-					bucket.totalPoints += pointsFrom(c, scoring) + (pred.tieBonus ?? 0);
-					if (isExact) bucket.exactScores += 1;
-					if (c.result) bucket.correctResults += 1;
+					overall.totalPoints += pointsFrom(c, scoring);
+					if (isExact) overall.exactScores += 1;
+					if (c.result) overall.correctResults += 1;
 				}
-
-				const overall = {
-					totalPoints: group.totalPoints + knockout.totalPoints,
-					exactScores: group.exactScores + knockout.exactScores,
-					correctResults: group.correctResults + knockout.correctResults,
-				};
 
 				return {
 					_id: member._id,
 					userId: member.userId,
 					name: user?.name ?? user?.email?.split("@")[0] ?? "Jogador",
 					overall,
-					group,
-					knockout,
+					group: emptyBucket(),
+					knockout: emptyBucket(),
 				};
 			}),
 		);
