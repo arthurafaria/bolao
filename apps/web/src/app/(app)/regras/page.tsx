@@ -5,7 +5,6 @@ import {
 	CheckCircle2,
 	ChevronRight,
 	Clock,
-	Target,
 	Trophy,
 	XCircle,
 } from "lucide-react";
@@ -17,7 +16,7 @@ const TOC = [
 	{ id: "pontuacao", label: "Sistema de pontuação" },
 	{ id: "seu-jeito", label: "Jogue do seu jeito" },
 	{ id: "rankings", label: "Rankings e desempate" },
-	{ id: "copa", label: "Formato da Copa" },
+	{ id: "formato", label: "Formato do campeonato" },
 	{ id: "exemplos-certo", label: "Acertou o resultado" },
 	{ id: "exemplos-errado", label: "Errou o resultado" },
 	{ id: "prazo", label: "Prazo pra palpitar" },
@@ -203,100 +202,21 @@ export default function RegrasPage() {
 						</div>
 					</section>
 
-					{/* Copa */}
-					<section id="copa" className="scroll-mt-24 space-y-5">
+					{/* Formato do campeonato */}
+					<section id="formato" className="scroll-mt-24 space-y-5">
 						<header>
 							<span className="text-[var(--b-text-3)] text-eyebrow">
-								Copa do Mundo 2026
+								Campeonato Brasileiro
 							</span>
 							<h2 className="font-black font-display text-3xl text-[var(--b-text)] uppercase tracking-tight">
-								Como funciona a Copa
+								Formato do campeonato
 							</h2>
 							<p className="mt-2 text-[var(--b-text-3)] text-sm leading-relaxed">
-								São 12 grupos, de A a L. Passam os dois primeiros de cada grupo
-								e os 8 melhores terceiros.
+								Todos os jogos do Brasileirão valem pontos — sem fase de grupos,
+								sem mata-mata. É pontos corridos: cada rodada soma pra sua
+								pontuação total, do primeiro ao último jogo do campeonato.
 							</p>
 						</header>
-
-						<div className="rounded-2xl border border-[var(--b-border-sm)] bg-[var(--b-card)] p-5">
-							<div className="flex flex-wrap items-center gap-2">
-								{[
-									"Grupos · 11–27/06",
-									"Pré-oitavas",
-									"Oitavas",
-									"Quartas",
-									"Semis",
-									"Final · 19/07",
-								].map((phase, index, list) => (
-									<div key={phase} className="flex items-center gap-2">
-										<span className="rounded-full border border-[var(--b-brand-25)] bg-[var(--b-brand-5)] px-3 py-1.5 font-bold text-[var(--b-brand)] text-xs uppercase tracking-wide">
-											{phase}
-										</span>
-										{index < list.length - 1 ? (
-											<ChevronRight className="h-4 w-4 text-[var(--b-text-4)]" />
-										) : null}
-									</div>
-								))}
-							</div>
-						</div>
-
-						{/* Regra dos 90 minutos no mata-mata */}
-						<div className="flex items-start gap-3 rounded-2xl border border-[var(--b-warning-border,var(--b-border-md))] bg-[var(--b-warning-bg)] p-5">
-							<span className="mt-px flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-[var(--b-card)] text-[var(--b-warning-fg)]">
-								<Clock className="h-4 w-4" />
-							</span>
-							<div className="space-y-1.5">
-								<p className="font-bold font-display text-[var(--b-text)] text-sm uppercase tracking-wide">
-									Mata-mata vale só os 90 minutos
-								</p>
-								<p className="text-[var(--b-text-2)] text-sm leading-relaxed">
-									Nos jogos eliminatórios, seu palpite é pontuado{" "}
-									<strong className="text-[var(--b-text)]">
-										exclusivamente pelo placar dos 90 minutos
-									</strong>{" "}
-									(tempo normal). Prorrogação e disputa de pênaltis{" "}
-									<strong className="text-[var(--b-text)]">não contam</strong>{" "}
-									para a pontuação. Se um jogo terminar empatado nos 90 e for
-									decidido depois, o card mostra uma etiqueta (
-									<em>"Após prorrogação"</em> ou <em>"Pênaltis"</em>), mas os
-									pontos seguem o resultado dos 90 minutos.
-								</p>
-							</div>
-						</div>
-
-						{/* Bônus de desempate (palpite de quem avança) */}
-						<div className="flex items-start gap-3 rounded-2xl border border-[var(--b-brand-25)] bg-[var(--b-brand-10)] p-5">
-							<span className="mt-px flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-[var(--b-card)] text-[var(--b-brand)]">
-								<Target className="h-4 w-4" />
-							</span>
-							<div className="space-y-1.5">
-								<p className="font-bold font-display text-[var(--b-text)] text-sm uppercase tracking-wide">
-									+2 pts por cravar quem avança
-								</p>
-								<p className="text-[var(--b-text-2)] text-sm leading-relaxed">
-									Quando seu palpite para um jogo eliminatório é{" "}
-									<strong className="text-[var(--b-text)]">empate</strong>, você
-									escolhe também quem avança na prorrogação ou nos pênaltis. Se o
-									jogo real empatar nos 90 minutos e{" "}
-									<strong className="text-[var(--b-text)]">
-										você acertar quem passou de fase
-									</strong>
-									, ganha{" "}
-									<strong className="text-[var(--b-text)]">+2 pts extras</strong>{" "}
-									— somados aos pontos do placar dos 90 minutos. Só o time
-									importa: acertar o método (prorrogação ou pênaltis) é só
-									estética, não vale pontos.
-								</p>
-								<p className="text-[var(--b-text-2)] text-sm leading-relaxed">
-									Exemplo: Argentina 1×1 Cabo Verde nos 90 minutos, com Argentina
-									avançando na prorrogação. Quem palpitou 1×1 + Argentina ganha os
-									10 pts do placar exato{" "}
-									<strong className="text-[var(--b-text)]">+ 2 pts</strong> do
-									desempate = 12 pts. Quem palpitou 1×1 + Cabo Verde fica só com
-									os 10 pts do placar exato.
-								</p>
-							</div>
-						</div>
 					</section>
 
 					{/* Exemplos resultado certo */}
