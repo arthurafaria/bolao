@@ -54,3 +54,6 @@ coverage
 tmp
 temp
 .vercel
+
+# Worktrees temporárias de execução de planos (/improve execute)
+.claude/worktrees/
