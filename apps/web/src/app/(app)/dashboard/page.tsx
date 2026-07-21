@@ -15,6 +15,7 @@ import { ArrowRight, CalendarClock, Shield, Trophy, Users } from "lucide-react";
 import type { Route } from "next";
 import Link from "next/link";
 import { useMemo } from "react";
+import { RoundRecap } from "@/components/leagues/round-recap";
 import { HeroMatch } from "@/components/match/hero-match";
 import { Scorecard } from "@/components/match/scorecard";
 import { COMPETITIONS, useTournament } from "@/contexts/tournament-context";
@@ -65,22 +66,27 @@ export default function DashboardPage() {
 	const stats = useQuery(api.predictions.getStats);
 	const leagues = useQuery(api.leagues.getUserLeagues);
 	const allPredictions = useQuery(api.predictions.getUserPredictions);
+	const currentRoundQuery = useQuery(api.matches.getCurrentRound, {
+		tournament,
+	});
+	const currentUser = useQuery(api.auth.getCurrentUser);
 
 	const predMap = useMemo(() => {
 		if (!allPredictions) return undefined;
 		return new Map(allPredictions.map((p) => [p.matchId as string, p]));
 	}, [allPredictions]);
 
-	// Faixa da rodada atual — deriva client-side a partir de getAllByDate
-	// (ver plans2/005: substituir por matches.getCurrentRound quando existir).
 	const cleanedAllMatches = useMemo(
 		() => allMatches?.filter((m): m is AllByDateMatch => m !== null) ?? [],
 		[allMatches],
 	);
-	const activeRound = useMemo(
-		() => currentRound(cleanedAllMatches),
-		[cleanedAllMatches],
-	);
+	// Rodada atual vem de matches.getCurrentRound (fonte única de verdade,
+	// ver plano 005); cai para a derivação client-side enquanto a query
+	// ainda está carregando.
+	const activeRound = useMemo(() => {
+		if (currentRoundQuery !== undefined) return currentRoundQuery.current;
+		return currentRound(cleanedAllMatches);
+	}, [currentRoundQuery, cleanedAllMatches]);
 	const activeRoundMatches = useMemo(
 		() =>
 			activeRound == null
@@ -92,6 +98,19 @@ export default function DashboardPage() {
 		() => activeRoundMatches.filter((m) => predMap?.has(m._id)).length,
 		[activeRoundMatches, predMap],
 	);
+
+	// Rodada encerrada mais recente (matchday < rodada atual, com todos os
+	// jogos FINISHED) — base do card "Recap da última rodada".
+	const completedRound = useMemo(() => {
+		if (activeRound == null) return null;
+		const candidate = activeRound - 1;
+		const candidateMatches = cleanedAllMatches.filter(
+			(m) => m.matchday === candidate,
+		);
+		if (candidateMatches.length === 0) return null;
+		const allFinished = candidateMatches.every((m) => m.status === "FINISHED");
+		return allFinished ? candidate : null;
+	}, [activeRound, cleanedAllMatches]);
 
 	const heroMatch = upcoming?.find(Boolean) ?? null;
 	const heroHasPrediction = heroMatch ? predMap?.has(heroMatch._id) : false;
@@ -269,6 +288,16 @@ export default function DashboardPage() {
 
 				{/* Sidebar */}
 				<aside className="flex flex-col gap-6">
+					{/* Recap da última rodada */}
+					{topLeague && completedRound != null && (
+						<RoundRecap
+							leagueId={topLeague._id}
+							leagueName={topLeague.name}
+							matchday={completedRound}
+							currentUserId={currentUser?._id}
+						/>
+					)}
+
 					{/* Top liga */}
 					{topLeague && (
 						<section>

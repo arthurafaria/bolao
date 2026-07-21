@@ -65,3 +65,38 @@ export function compareByExacts(a: RankableMember, b: RankableMember): number {
 		b.correctResults - a.correctResults
 	);
 }
+
+export type RoundPrediction = {
+	matchId: string;
+	components?: ScoreComponents;
+	calculatedAt?: number;
+};
+
+/**
+ * Agrega pontos/cravadas/resultados certos de um jogador **numa única
+ * rodada** (`matchIdsInRound`), a partir das predições calculadas. Fonte
+ * única usada por `leagues.getRoundRanking` (ver plano 005) — mesmo formato
+ * de agregação que `getRankingByPhase` já usa para fases, mas escopado a um
+ * conjunto de jogos (rodada) em vez de uma fase inteira.
+ */
+export function computeRoundStats(
+	predictions: RoundPrediction[],
+	matchIdsInRound: Set<string>,
+	scoring: Scoring,
+): RankableMember {
+	let totalPoints = 0;
+	let exactScores = 0;
+	let correctResults = 0;
+
+	for (const pred of predictions) {
+		if (!matchIdsInRound.has(pred.matchId)) continue;
+		if (!pred.components || pred.calculatedAt === undefined) continue;
+		const c = pred.components;
+		const isExact = c.result && c.homeGoals && c.awayGoals;
+		totalPoints += pointsFrom(c, scoring);
+		if (isExact) exactScores += 1;
+		if (c.result) correctResults += 1;
+	}
+
+	return { totalPoints, exactScores, correctResults };
+}
