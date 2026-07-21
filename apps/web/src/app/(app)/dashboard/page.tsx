@@ -10,6 +10,7 @@ import {
 } from "@bolao/ui/components/bento-tile";
 import { Skeleton } from "@bolao/ui/components/skeleton";
 import { useQuery } from "convex/react";
+import type { FunctionReturnType } from "convex/server";
 import { ArrowRight, CalendarClock, Shield, Trophy, Users } from "lucide-react";
 import type { Route } from "next";
 import Link from "next/link";
@@ -17,6 +18,11 @@ import { useMemo } from "react";
 import { HeroMatch } from "@/components/match/hero-match";
 import { Scorecard } from "@/components/match/scorecard";
 import { COMPETITIONS, useTournament } from "@/contexts/tournament-context";
+import { currentRound } from "@/lib/match-grouping";
+
+type AllByDateMatch = NonNullable<
+	FunctionReturnType<typeof api.matches.getAllByDate>[number]
+>;
 
 function SectionTitle({
 	title,
@@ -55,6 +61,7 @@ function SectionTitle({
 export default function DashboardPage() {
 	const { tournament } = useTournament();
 	const upcoming = useQuery(api.matches.getUpcoming, { limit: 5, tournament });
+	const allMatches = useQuery(api.matches.getAllByDate, { tournament });
 	const stats = useQuery(api.predictions.getStats);
 	const leagues = useQuery(api.leagues.getUserLeagues);
 	const allPredictions = useQuery(api.predictions.getUserPredictions);
@@ -63,6 +70,28 @@ export default function DashboardPage() {
 		if (!allPredictions) return undefined;
 		return new Map(allPredictions.map((p) => [p.matchId as string, p]));
 	}, [allPredictions]);
+
+	// Faixa da rodada atual — deriva client-side a partir de getAllByDate
+	// (ver plans2/005: substituir por matches.getCurrentRound quando existir).
+	const cleanedAllMatches = useMemo(
+		() => allMatches?.filter((m): m is AllByDateMatch => m !== null) ?? [],
+		[allMatches],
+	);
+	const activeRound = useMemo(
+		() => currentRound(cleanedAllMatches),
+		[cleanedAllMatches],
+	);
+	const activeRoundMatches = useMemo(
+		() =>
+			activeRound == null
+				? []
+				: cleanedAllMatches.filter((m) => m.matchday === activeRound),
+		[cleanedAllMatches, activeRound],
+	);
+	const activeRoundPredicted = useMemo(
+		() => activeRoundMatches.filter((m) => predMap?.has(m._id)).length,
+		[activeRoundMatches, predMap],
+	);
 
 	const heroMatch = upcoming?.find(Boolean) ?? null;
 	const heroHasPrediction = heroMatch ? predMap?.has(heroMatch._id) : false;
@@ -89,7 +118,7 @@ export default function DashboardPage() {
 			{/* Header editorial */}
 			<header className="flex flex-col gap-2">
 				<span className="text-[var(--b-brand)] text-eyebrow">
-					{COMPETITIONS[tournament].label} · {COMPETITIONS[tournament].sublabel}
+					{COMPETITIONS.BSA2026.label} · {COMPETITIONS.BSA2026.sublabel}
 				</span>
 				<h1 className="font-black font-display text-5xl text-[var(--b-text)] uppercase leading-[0.9] tracking-tight sm:text-6xl">
 					Bem-vindo
@@ -97,6 +126,36 @@ export default function DashboardPage() {
 					<span className="text-[var(--b-brand)]">ao seu painel</span>
 				</h1>
 			</header>
+
+			{/* Faixa da rodada atual */}
+			<section className="flex flex-wrap items-center justify-between gap-4 rounded-[24px] border border-[var(--b-border-sm)] bg-[var(--b-card)] p-5 shadow-[var(--b-shadow-card-soft)]">
+				<div className="flex flex-col gap-1">
+					<span className="text-[var(--b-brand)] text-eyebrow">
+						Rodada atual
+					</span>
+					{activeRound != null ? (
+						<>
+							<span className="font-black font-display text-3xl text-[var(--b-text)] uppercase leading-none tracking-tight">
+								Rodada {activeRound}
+							</span>
+							<span className="font-mono text-[var(--b-text-3)] text-xs tabular-nums">
+								{activeRoundPredicted}/{activeRoundMatches.length} palpitados
+							</span>
+						</>
+					) : (
+						<span className="text-[var(--b-text-3)] text-sm">
+							Sem rodada disponível ainda
+						</span>
+					)}
+				</div>
+				<Link
+					href="/predictions"
+					className="inline-flex h-10 shrink-0 items-center gap-1.5 rounded-full bg-[var(--b-action)] px-4 font-bold text-[var(--b-action-fg)] text-xs uppercase tracking-wider transition-transform hover:scale-[1.03] active:scale-[0.96]"
+				>
+					Palpitar
+					<ArrowRight className="h-3.5 w-3.5" />
+				</Link>
+			</section>
 
 			{/* Hero match */}
 			{heroMatch ? (
@@ -110,8 +169,8 @@ export default function DashboardPage() {
 						Sem jogos agendados
 					</p>
 					<p className="max-w-md text-[var(--b-text-3)] text-sm">
-						Quando a próxima janela do {COMPETITIONS[tournament].label} entrar
-						no ar, ela aparece aqui.
+						Quando a próxima rodada do Brasileirão entrar no ar, ela aparece
+						aqui.
 					</p>
 				</div>
 			)}

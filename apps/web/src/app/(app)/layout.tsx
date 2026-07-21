@@ -20,9 +20,6 @@ import {
 } from "convex/react";
 import {
 	BookOpen,
-	Check,
-	ChevronDown,
-	GitBranch,
 	LayoutDashboard,
 	LogOut,
 	Settings2,
@@ -35,20 +32,10 @@ import type { Route } from "next";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import type React from "react";
-import { useEffect, useRef, useState } from "react";
-import {
-	COMPETITIONS,
-	type TournamentCode,
-	TournamentProvider,
-	useTournament,
-} from "@/contexts/tournament-context";
+import { useEffect, useState } from "react";
+import { TournamentProvider } from "@/contexts/tournament-context";
 
-type NavHref =
-	| "/dashboard"
-	| "/predictions"
-	| "/leagues"
-	| "/mata-mata"
-	| "/regras";
+type NavHref = "/dashboard" | "/predictions" | "/leagues" | "/regras";
 const navItems: {
 	href: NavHref;
 	label: string;
@@ -57,20 +44,19 @@ const navItems: {
 	{ href: "/dashboard", label: "Início", icon: LayoutDashboard },
 	{ href: "/predictions", label: "Palpites", icon: Shield },
 	{ href: "/leagues", label: "Ligas", icon: Trophy },
-	{ href: "/mata-mata", label: "Mata-mata", icon: GitBranch },
 	{ href: "/regras", label: "Regras", icon: BookOpen },
 ];
 
 // Mobile bottom-nav: 4 itens flanqueando o FAB central (Regras fica só no sidebar)
 const mobileNavItems: {
-	href: NavHref;
+	href: NavHref | "/profile";
 	label: string;
 	icon: React.ComponentType<{ className?: string }>;
 }[] = [
 	{ href: "/dashboard", label: "Início", icon: LayoutDashboard },
 	{ href: "/predictions", label: "Palpites", icon: Shield },
 	{ href: "/leagues", label: "Ligas", icon: Trophy },
-	{ href: "/mata-mata", label: "Mata-mata", icon: GitBranch },
+	{ href: "/profile", label: "Perfil", icon: User },
 ];
 
 const ADMIN_EMAIL = "arthurdearaujofaria@gmail.com";
@@ -432,196 +418,6 @@ function RedirectToSignIn() {
 	return null;
 }
 
-function WcFlag({ size }: { size: number }) {
-	return (
-		<svg
-			viewBox="0 0 20 20"
-			width={size}
-			height={size}
-			aria-hidden
-			role="img"
-			aria-label="Copa do Mundo"
-			style={{ flexShrink: 0, display: "block" }}
-		>
-			<title>Copa do Mundo</title>
-			{/* Globo */}
-			<circle cx="10" cy="10" r="8" fill="currentColor" opacity="0.15" />
-			<circle
-				cx="10"
-				cy="10"
-				r="8"
-				fill="none"
-				stroke="currentColor"
-				strokeWidth="1.5"
-			/>
-			{/* Meridianos */}
-			<ellipse
-				cx="10"
-				cy="10"
-				rx="3.5"
-				ry="8"
-				fill="none"
-				stroke="currentColor"
-				strokeWidth="1"
-				opacity="0.6"
-			/>
-			<line
-				x1="2"
-				y1="10"
-				x2="18"
-				y2="10"
-				stroke="currentColor"
-				strokeWidth="1"
-				opacity="0.6"
-			/>
-			{/* Taça estilizada */}
-			<path
-				d="M7.5 4.5 L12.5 4.5 L11.5 7.5 Q10 9 8.5 7.5 Z"
-				fill="var(--b-action)"
-			/>
-			<rect x="9.2" y="7.5" width="1.6" height="2" fill="var(--b-action)" />
-			<rect
-				x="8"
-				y="9.5"
-				width="4"
-				height="1"
-				rx="0.4"
-				fill="var(--b-action)"
-			/>
-		</svg>
-	);
-}
-
-function BrazilFlag({ size }: { size: number }) {
-	return (
-		<svg
-			viewBox="0 0 20 14"
-			width={size}
-			height={size * 0.7}
-			aria-hidden
-			role="img"
-			aria-label="Bandeira do Brasil"
-			style={{ flexShrink: 0, borderRadius: 2, display: "block" }}
-		>
-			<title>Bandeira do Brasil</title>
-			<rect width="20" height="14" fill="#009C3B" />
-			<polygon points="10,1.2 19,7 10,12.8 1,7" fill="#FFDF00" />
-			<circle cx="10" cy="7" r="3.4" fill="#002776" />
-			<path
-				d="M7 7.4 Q10 6.2 13 7.4"
-				stroke="#fff"
-				strokeWidth="0.7"
-				fill="none"
-				opacity="0.7"
-			/>
-		</svg>
-	);
-}
-
-function CompetitionFlag({
-	code,
-	size,
-}: {
-	code: string;
-	flag?: string;
-	size: number;
-}) {
-	if (code === "BSA2026") return <BrazilFlag size={size} />;
-	return <WcFlag size={size} />;
-}
-
-function CompetitionSwitcher() {
-	const { tournament, setTournament } = useTournament();
-	const [open, setOpen] = useState(false);
-	const ref = useRef<HTMLDivElement>(null);
-
-	useEffect(() => {
-		if (!open) return;
-		function onMouseDown(e: MouseEvent) {
-			if (ref.current && !ref.current.contains(e.target as Node))
-				setOpen(false);
-		}
-		document.addEventListener("mousedown", onMouseDown);
-		return () => document.removeEventListener("mousedown", onMouseDown);
-	}, [open]);
-
-	const handleSelect = (code: TournamentCode) => {
-		setTournament(code);
-		setOpen(false);
-	};
-
-	const current = COMPETITIONS[tournament];
-
-	return (
-		<div ref={ref} className="relative">
-			<button
-				type="button"
-				onClick={() => setOpen((v) => !v)}
-				className="flex cursor-pointer items-center gap-2 rounded-xl px-3.5 py-2 font-semibold text-sm transition-[opacity,scale] duration-[var(--motion-fast)] hover:opacity-85 active:scale-[0.96]"
-				style={{ background: "var(--b-brand-10)", color: "var(--b-brand)" }}
-			>
-				<CompetitionFlag code={current.code} size={20} />
-				<span className="hidden sm:inline">{current.label}</span>
-				<span className="sm:hidden">{current.sublabel}</span>
-				<ChevronDown
-					className="h-3.5 w-3.5 shrink-0 opacity-70 transition-transform duration-[var(--motion-base)]"
-					style={{ transform: open ? "rotate(180deg)" : "rotate(0deg)" }}
-				/>
-			</button>
-
-			{open && (
-				<div
-					className="absolute top-full right-0 z-50 mt-2 w-56 animate-scale-in overflow-hidden rounded-2xl"
-					style={{
-						background: "var(--b-card)",
-						border: "1px solid var(--b-border-md)",
-						boxShadow: "var(--b-shadow-float)",
-					}}
-				>
-					{(
-						Object.values(
-							COMPETITIONS,
-						) as (typeof COMPETITIONS)[TournamentCode][]
-					).map((comp) => {
-						const active = tournament === comp.code;
-						return (
-							<button
-								key={comp.code}
-								type="button"
-								onClick={() => handleSelect(comp.code as TournamentCode)}
-								className={`flex w-full items-center gap-3 px-4 py-3 text-sm transition-[background,transform] duration-[var(--motion-fast)] active:scale-[0.98] ${
-									active
-										? "bg-[var(--b-brand-10)] text-[var(--b-brand)]"
-										: "text-[var(--b-text)] hover:bg-[var(--b-brand-10)]/50"
-								}`}
-							>
-								<CompetitionFlag code={comp.code} size={22} />
-								<div className="flex-1 text-left">
-									<p className="font-medium leading-tight">{comp.label}</p>
-									<p
-										className="text-xs leading-tight"
-										style={{ color: "var(--b-text-3)" }}
-									>
-										{comp.sublabel}
-									</p>
-								</div>
-								<Check
-									className="h-3.5 w-3.5 shrink-0 transition-[opacity,transform] duration-[var(--motion-fast)]"
-									style={{
-										opacity: active ? 1 : 0,
-										scale: active ? "1" : "0.5",
-										color: "var(--b-brand)",
-									}}
-								/>
-							</button>
-						);
-					})}
-				</div>
-			)}
-		</div>
-	);
-}
-
 export default function AppLayout({ children }: { children: React.ReactNode }) {
 	return (
 		<TournamentProvider>
@@ -669,7 +465,6 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 							<div className="hidden md:block" />
 							<div className="flex items-center gap-2">
 								<ThemeSwitch className="text-[var(--b-text-3)]" />
-								<CompetitionSwitcher />
 								<HeaderAvatar />
 							</div>
 						</header>
