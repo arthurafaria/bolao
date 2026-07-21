@@ -6,6 +6,7 @@ import { Input } from "@bolao/ui/components/input";
 import { cn } from "@bolao/ui/lib/utils";
 import { useAction, useQuery } from "convex/react";
 import {
+	Archive,
 	Lock,
 	Pencil,
 	RefreshCw,
@@ -219,6 +220,7 @@ export default function AdminPage() {
 	const syncBSA = useAction(api.footballData.adminSyncBSA);
 	const syncWC = useAction(api.footballData.adminSyncWC);
 	const recompute = useAction(api.predictions.adminRecomputeAll);
+	const archiveWC = useAction(api.archives.adminArchiveStandings);
 
 	if (currentUser === undefined) return null;
 
@@ -292,14 +294,23 @@ export default function AdminPage() {
 						Recomputação
 					</h2>
 				</header>
-				<ActionCard
-					label="Recomputar todos os pontos"
-					description="Reaplica a fórmula de pontuação em todos os jogos finalizados. Útil após mudar a regra ou corrigir placares em massa."
-					icon={Zap}
-					onRun={recompute}
-					tone="danger"
-					confirmLabel="Recomputar pontos de TODOS os jogos finalizados? Isso pode levar alguns segundos."
-				/>
+				<div className="space-y-3">
+					<ActionCard
+						label="Arquivar ranking da Copa"
+						description="Salva a foto final do ranking de cada liga na Copa 2026. Rode ANTES de zerar os pontos."
+						icon={Archive}
+						onRun={() => archiveWC({ tournament: "WC2026" })}
+						confirmLabel="Arquivar o ranking atual como Copa 2026?"
+					/>
+					<ActionCard
+						label="Recomputar todos os pontos"
+						description="Reaplica a fórmula de pontuação em todos os jogos finalizados. Útil após mudar a regra ou corrigir placares em massa."
+						icon={Zap}
+						onRun={recompute}
+						tone="danger"
+						confirmLabel="Recomputar pontos de TODOS os jogos finalizados? Isso pode levar alguns segundos."
+					/>
+				</div>
 			</section>
 
 			{/* Correção manual */}

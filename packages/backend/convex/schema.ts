@@ -133,4 +133,27 @@ export default defineSchema({
 	})
 		.index("by_league_status", ["leagueId", "status"])
 		.index("by_user", ["userId"]),
+
+	// Foto (snapshot) do ranking final de uma liga ao fim de um torneio —
+	// ex.: guarda o ranking final da Copa antes de zerar os pontos pro
+	// próximo torneio (Brasileirão). Genérica por `tournament`, não
+	// específica da Copa, para servir de base a futuras temporadas.
+	seasonArchives: defineTable({
+		tournament: v.string(), // e.g. "WC2026"
+		leagueId: v.id("leagues"),
+		leagueName: v.string(),
+		capturedAt: v.number(),
+		standings: v.array(
+			v.object({
+				userId: v.string(),
+				name: v.string(),
+				rank: v.number(),
+				totalPoints: v.number(),
+				exactScores: v.number(),
+				correctResults: v.number(),
+			}),
+		),
+	})
+		.index("by_tournament", ["tournament"])
+		.index("by_tournament_league", ["tournament", "leagueId"]),
 });
