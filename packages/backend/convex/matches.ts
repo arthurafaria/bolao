@@ -3,6 +3,7 @@ import { v } from "convex/values";
 import type { Doc } from "./_generated/dataModel";
 import type { QueryCtx } from "./_generated/server";
 import { internalMutation, internalQuery, query } from "./_generated/server";
+import { ACTIVE_TOURNAMENT } from "./lib/tournaments";
 
 async function enrichMatch(ctx: QueryCtx, match: Doc<"matches">) {
 	const [homeTeam, awayTeam] = await Promise.all([
@@ -276,10 +277,12 @@ export const getFinishedWithScore = internalQuery({
 			.query("matches")
 			.withIndex("by_status", (q) => q.eq("status", "FINISHED"))
 			.collect();
-		// Apenas a Copa pontua — mantém o recálculo alinhado com computeForMatch.
+		// Apenas o torneio ativo pontua — mantém o recálculo alinhado com computeForMatch.
 		return matches.filter(
 			(m) =>
-				m.tournament === "WC2026" && m.homeScore != null && m.awayScore != null,
+				m.tournament === ACTIVE_TOURNAMENT &&
+				m.homeScore != null &&
+				m.awayScore != null,
 		);
 	},
 });

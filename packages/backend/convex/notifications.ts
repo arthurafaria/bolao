@@ -2,6 +2,7 @@ import { v } from "convex/values";
 import { Resend } from "resend";
 import { api, internal } from "./_generated/api";
 import { internalAction } from "./_generated/server";
+import { ACTIVE_TOURNAMENT } from "./lib/tournaments";
 
 const BRT_OFFSET_MS = 3 * 60 * 60 * 1000; // UTC-3 fixo (sem DST no Brasil em jun/jul)
 
@@ -26,13 +27,13 @@ export const scheduleDailyReminder = internalAction({
 		const todayEnd = new Date(todayStart.getTime() + 24 * 60 * 60 * 1000);
 
 		const match = await ctx.runQuery(internal.matches.getFirstMatchOfDay, {
-			tournament: "WC",
+			tournament: ACTIVE_TOURNAMENT,
 			dayStartUtc: todayStart.toISOString(),
 			dayEndUtc: todayEnd.toISOString(),
 		});
 
 		if (!match) {
-			console.log("[scheduleDailyReminder] Nenhum jogo da Copa hoje");
+			console.log("[scheduleDailyReminder] Nenhum jogo hoje");
 			return;
 		}
 

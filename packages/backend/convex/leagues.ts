@@ -10,9 +10,10 @@ import {
 	isKnockoutStage,
 	pointsFrom,
 } from "./lib/ranking";
+import { ACTIVE_TOURNAMENT } from "./lib/tournaments";
 
-// Apenas a Copa do Mundo pontua para o ranking das ligas.
-const SCORABLE_TOURNAMENT = "WC2026";
+// Apenas o Brasileirão (torneio ativo, ver lib/tournaments) pontua para o
+// ranking das ligas.
 
 async function getActiveMembership(
 	ctx: QueryCtx,
@@ -548,7 +549,7 @@ export const getRankingByPhase = query({
 			ctx.db
 				.query("matches")
 				.withIndex("by_tournament_date", (q) =>
-					q.eq("tournament", SCORABLE_TOURNAMENT),
+					q.eq("tournament", ACTIVE_TOURNAMENT),
 				)
 				.collect(),
 		]);

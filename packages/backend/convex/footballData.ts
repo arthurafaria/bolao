@@ -5,6 +5,7 @@ import type { Id } from "./_generated/dataModel";
 import type { ActionCtx } from "./_generated/server";
 import { action, internalAction } from "./_generated/server";
 import { auth } from "./auth";
+import { TOURNAMENTS } from "./lib/tournaments";
 
 const API_BASE = "https://api.football-data.org/v4";
 const API_FOOTBALL_BASE = "https://v3.football.api-sports.io";
@@ -431,10 +432,15 @@ async function doSync(
 
 		// Candidato a fallback de placar: jogo que (provavelmente) acabou mas a
 		// football-data ainda não publicou o placar.
-		// Só fase de grupos: no mata-mata a ESPN devolve o placar COM prorrogação/
-		// pênaltis, e os palpites pontuam só os 90 min — então esperamos a
-		// football-data publicar o regularTime em vez de arriscar um placar errado.
-		if (!result.hasScore && match.stage === "GROUP_STAGE") {
+		// Torneios sem mata-mata (ligas, ex.: Brasileirão) sempre usam o
+		// fallback: como não há prorrogação/pênaltis, fullTime == regularTime,
+		// então o placar da ESPN é seguro. Torneios com mata-mata (ex.: Copa do
+		// Mundo) só usam o fallback na fase de grupos — no mata-mata a ESPN
+		// devolve o placar COM prorrogação/pênaltis, e os palpites pontuam só
+		// os 90 min, então esperamos a football-data publicar o regularTime em
+		// vez de arriscar um placar errado.
+		const noKnockout = TOURNAMENTS[tournament]?.hasKnockout === false;
+		if (!result.hasScore && (noKnockout || match.stage === "GROUP_STAGE")) {
 			const kickoff = new Date(match.utcDate).getTime();
 			const likelyEnded = Date.now() - kickoff > 105 * 60 * 1000; // 1h45 após o início
 			const liveStatuses = ["LIVE", "IN_PLAY", "PAUSED"];

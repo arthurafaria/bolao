@@ -15,13 +15,14 @@ import {
 	pointsFrom,
 	type ScoreComponents,
 } from "./lib/ranking";
+import { ACTIVE_TOURNAMENT } from "./lib/tournaments";
 
 const LOCK_WINDOW_MS = 60 * 60 * 1000; // 1 hour before match
 
-// Apenas a Copa do Mundo pontua para o ranking das ligas. Jogos de outros
-// torneios (ex.: Brasileirão/BSA2026, DEMO) podem existir no banco para
-// preencher o calendário, mas NÃO geram pontos.
-const SCORABLE_TOURNAMENT = "WC2026";
+// Apenas o Brasileirão (torneio ativo, ver lib/tournaments) pontua para o
+// ranking das ligas. Jogos de outros torneios (ex.: Copa do Mundo/WC2026,
+// DEMO) podem existir no banco para preencher o calendário, mas NÃO geram
+// pontos.
 
 function calcComponents(
 	predHome: number,
@@ -198,7 +199,7 @@ export const computeForMatch = internalMutation({
 	handler: async (ctx, args) => {
 		const match = await ctx.db.get(args.matchId);
 		if (!match || match.status !== "FINISHED") return;
-		if (match.tournament !== SCORABLE_TOURNAMENT) return;
+		if (match.tournament !== ACTIVE_TOURNAMENT) return;
 		if (match.homeScore == null || match.awayScore == null) return;
 
 		const allPredictions = await ctx.db
