@@ -57,7 +57,15 @@ export function currentRound<T extends RoundStatusMatch>(
 	const rounds = Array.from(byRound.keys()).sort((a, b) => a - b);
 	for (const round of rounds) {
 		const roundMatches = byRound.get(round) ?? [];
-		if (roundMatches.some((m) => m.status !== "FINISHED")) return round;
+		if (
+			roundMatches.some(
+				(m) =>
+					m.status !== "FINISHED" &&
+					m.status !== "POSTPONED" &&
+					m.status !== "CANCELLED",
+			)
+		)
+			return round;
 	}
 	return rounds[rounds.length - 1] ?? null;
 }

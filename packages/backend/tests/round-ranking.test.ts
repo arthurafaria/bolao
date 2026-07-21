@@ -58,6 +58,37 @@ describe("computeCurrentRound", () => {
 			max: 7,
 		});
 	});
+
+	test("rodada com único jogo POSTPONED não bloqueia progressão: pula para a próxima rodada com jogo pendente", () => {
+		const matches = [
+			{ matchday: 1, status: "FINISHED" },
+			{ matchday: 2, status: "FINISHED" },
+			{ matchday: 3, status: "FINISHED" },
+			{ matchday: 4, status: "POSTPONED" },
+			{ matchday: 5, status: "FINISHED" },
+			{ matchday: 18, status: "FINISHED" },
+			{ matchday: 19, status: "SCHEDULED" },
+		];
+		expect(computeCurrentRound(matches)).toEqual({
+			current: 19,
+			min: 1,
+			max: 19,
+		});
+	});
+
+	test("rodada com único jogo CANCELLED não bloqueia progressão: pula para a próxima rodada com jogo pendente", () => {
+		const matches = [
+			{ matchday: 1, status: "FINISHED" },
+			{ matchday: 4, status: "CANCELLED" },
+			{ matchday: 5, status: "FINISHED" },
+			{ matchday: 19, status: "SCHEDULED" },
+		];
+		expect(computeCurrentRound(matches)).toEqual({
+			current: 19,
+			min: 1,
+			max: 19,
+		});
+	});
 });
 
 describe("computeRoundStats", () => {
