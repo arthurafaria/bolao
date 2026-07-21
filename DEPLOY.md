@@ -1,6 +1,6 @@
 # Plano de Deploy — Vercel + Convex Cloud
 
-Plano de implementação para hospedar o Bolão no Vercel, subir o backend no Convex Cloud e garantir que o app funcione bem em celulares reais.
+Plano de implementação para hospedar o Chuta de Bico no Vercel, subir o backend no Convex Cloud e garantir que o app funcione bem em celulares reais.
 
 ## Decisões já tomadas
 

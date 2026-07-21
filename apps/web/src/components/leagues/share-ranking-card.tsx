@@ -121,7 +121,7 @@ export const ShareRankingCard = forwardRef<
 							fontWeight: 600,
 						}}
 					>
-						Bolão da Copa 2026
+						Chuta de Bico
 					</span>
 					<div
 						style={{
@@ -438,7 +438,7 @@ export const ShareRankingCard = forwardRef<
 								letterSpacing: "-0.01em",
 							}}
 						>
-							Bolão 2026
+							Chuta de Bico
 						</span>
 					</div>
 					<span

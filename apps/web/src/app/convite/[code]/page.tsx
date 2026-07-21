@@ -19,12 +19,12 @@ export async function generateMetadata({
 
 	if (!preview) {
 		return {
-			title: "Convite — Bolão da Copa 2026",
+			title: "Convite — Chuta de Bico",
 			robots: { index: false },
 		};
 	}
 
-	const title = `Você foi convidado para a liga ${preview.name} — Bolão da Copa 2026`;
+	const title = `Você foi convidado para a liga ${preview.name} — Chuta de Bico`;
 	const description = `${preview.ownerName ?? "Um amigo"} te convidou para palpitar na liga "${preview.name}" (${preview.memberCount} participante${preview.memberCount === 1 ? "" : "s"}). Toque para entrar!`;
 
 	return {
@@ -33,7 +33,7 @@ export async function generateMetadata({
 		openGraph: {
 			title,
 			description,
-			siteName: "Bolão da Copa 2026",
+			siteName: "Chuta de Bico",
 		},
 		robots: { index: false },
 	};

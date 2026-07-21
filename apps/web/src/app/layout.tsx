@@ -27,8 +27,9 @@ const dmMono = DM_Mono({
 });
 
 export const metadata: Metadata = {
-	title: "Bolão da Copa 2026",
-	description: "Faça seus palpites para a Copa do Mundo 2026",
+	title: "Chuta de Bico — Bolão do Brasileirão",
+	description:
+		"Faça seus palpites do Brasileirão Série A e dispute com seus amigos.",
 };
 
 export default async function RootLayout({

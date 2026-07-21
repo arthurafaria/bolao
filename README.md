@@ -1,6 +1,6 @@
-# Bolão da Copa 2026
+# Chuta de Bico
 
-Site de previsão de placares para a Copa do Mundo 2026 e Brasileirão Série A. Usuários fazem palpites de placar exato, participam de ligas com amigos e acompanham o ranking em tempo real.
+Site de previsão de placares do Brasileirão Série A. Usuários fazem palpites de placar exato, participam de ligas com amigos e acompanham o ranking em tempo real.
 
 ## Stack
 

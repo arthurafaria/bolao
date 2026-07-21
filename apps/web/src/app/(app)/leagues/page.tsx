@@ -113,7 +113,7 @@ function CreateLeagueDialog() {
 								<Label htmlFor="league-name">Nome</Label>
 								<Input
 									id="league-name"
-									placeholder="Ex: Família da Copa"
+									placeholder="Ex: Galera do Bar"
 									value={name}
 									onChange={(e) => setName(e.target.value)}
 								/>

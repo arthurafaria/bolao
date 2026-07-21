@@ -114,7 +114,7 @@ export function InviteClient({ code }: { code: string }) {
 						className="text-display-sm text-xl"
 						style={{ color: "var(--b-text)" }}
 					>
-						Bolão 2026
+						Chuta de Bico
 					</span>
 				</div>
 
@@ -159,7 +159,7 @@ export function InviteClient({ code }: { code: string }) {
 						>
 							para participar da liga{" "}
 							<strong style={{ color: "var(--b-text)" }}>{preview.name}</strong>{" "}
-							no Bolão da Copa 2026.
+							no Chuta de Bico.
 						</p>
 
 						<div
@@ -259,7 +259,7 @@ function NotFound() {
 			</p>
 			<Link href="/" className="mt-6 block">
 				<Button variant="action" size="lg" className="w-full">
-					Ir para o Bolão
+					Ir para o Chuta de Bico
 				</Button>
 			</Link>
 		</div>
@@ -285,11 +285,11 @@ function RequestSent({ leagueName }: { leagueName: string }) {
 			</h1>
 			<p className="mt-3 text-[var(--b-text-3)] text-sm leading-relaxed">
 				O dono da liga <strong>{leagueName}</strong> vai analisar seu pedido.
-				Enquanto isso, você já pode explorar o Bolão.
+				Enquanto isso, você já pode explorar o Chuta de Bico.
 			</p>
 			<Link href="/dashboard" className="mt-6 block">
 				<Button variant="action" size="lg" className="w-full">
-					Ir para o Bolão
+					Ir para o Chuta de Bico
 				</Button>
 			</Link>
 		</div>
@@ -331,7 +331,7 @@ function FullNotice({ isAuthenticated }: { isAuthenticated: boolean }) {
 			</div>
 			<Link href={isAuthenticated ? "/leagues" : "/"} className="block">
 				<Button variant="outline" size="lg" className="w-full">
-					{isAuthenticated ? "Ver minhas ligas" : "Ir para o Bolão"}
+					{isAuthenticated ? "Ver minhas ligas" : "Ir para o Chuta de Bico"}
 				</Button>
 			</Link>
 		</>

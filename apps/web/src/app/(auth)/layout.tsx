@@ -76,7 +76,7 @@ export default function AuthLayout({
 							className="text-display-sm text-xl"
 							style={{ color: "var(--b-text)" }}
 						>
-							Bolão 2026
+							Chuta de Bico
 						</span>
 					</div>
 
@@ -182,7 +182,7 @@ export default function AuthLayout({
 							className="text-display-sm text-xl"
 							style={{ color: "var(--b-text)" }}
 						>
-							Bolão 2026
+							Chuta de Bico
 						</span>
 					</div>
 
