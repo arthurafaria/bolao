@@ -56,8 +56,11 @@ O projeto precisa de dois arquivos `.env.local` (não versionados). Crie-os com 
 CONVEX_DEPLOYMENT=prod:brazen-lemming-799
 CONVEX_URL=https://brazen-lemming-799.convex.cloud
 CONVEX_SITE_URL=https://brazen-lemming-799.convex.site
-FOOTBALL_DATA_API_KEY=b536090580204ad6a4da508a9bd7bf23
+FOOTBALL_DATA_API_KEY=<sua-chave-football-data-org>
 ```
+
+> Os valores reais das chaves ficam no seu `.env.local` (não versionado) e no dashboard do
+> Convex (prod) — nunca commite chaves reais.
 
 ### `apps/web/.env.local`
 
